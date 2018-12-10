@@ -1,0 +1,69 @@
+{% extends "./layout.html" %}
+
+{% block contenido %}
+<div class="ticket">
+	<h3 class="titulo">{{ titulo }}</h3>
+
+	<div>Fecha: {{ sesion.fecha|dateFormat('DD/MM/YYYY HH:mm') }}</div>
+	<div>Cajero: {{ sesion.cajero.username }}</div>
+	<div>{{ inventario.palabra_almacen }}: {{ sesion.almacen.nombre }}</div>
+	<br>
+	<table>
+		<thead>
+			<tr>
+				<th class="righttext">Denominación</th>
+				<th class="righttext">Cant</th>
+				<th class="righttext">Importe</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for d in sesion.denominaciones %}
+				{% if d.cantidad %}
+					<tr>
+						<td class="righttext">{{ d.denominacion|cur }}</td>
+						<td class="righttext">{{ d.cantidad|cur }}</td>
+						<td class="righttext">{{ (d.denominacion * d.cantidad)|cur }}</td>
+					</tr>
+				{% endif %}
+			{% endfor %}
+		</tbody>
+	</table>
+	<hr>
+	<br>
+	{% if tipo == 'fin' %}
+	
+	<div>
+		Total Cierre: <b style="float:right">${{ sesion.fondo|cur }}</b>
+	</div>	
+
+	<div>
+		Fondo incial: <b style="float:right">${{ sesion.fondoInicial|cur }}</b>
+	</div>	
+	<div>
+		Total enviado en corte: <b style="float:right">${{ sesion.totalEnviado|cur }}</b>
+	</div>	
+	<div>
+		Total venta efectivo: <b style="float:right">${{ sesion.totalEfectivo|cur }}</b>
+	</div>	
+	<div>
+		Diferencia efectivo: <b style="float:right">${{ sesion.diferenciaEfectivo|cur }}</b>
+	</div>	
+	<div>
+		Total venta cheque: <b style="float:right">${{ sesion.totalCheque|cur }}</b>
+	</div>	
+	<div>
+		Total venta tarjeta: <b style="float:right">${{ sesion.totalTarjeta|cur }}</b>
+	</div>	
+	<div>
+		Total venta transferencia: <b style="float:right">${{ sesion.totalTransferencia|cur }}</b>
+	</div>	
+	<div>
+		Total venta fondo: <b style="float:right">${{ sesion.totalFondo|cur }}</b>
+	</div>	
+	{% else %}
+	<div>
+		Total: <b style="float:right">${{ sesion.fondo|cur }}</b>
+	</div>
+	{% endif %}
+</div>
+{% endblock contenido %}

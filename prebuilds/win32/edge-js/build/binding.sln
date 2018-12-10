@@ -1,0 +1,35 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2015
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "build_managed", "build_managed.vcxproj", "{4A54F76F-64AB-48C1-9839-853865F939C4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{393684EC-6676-7541-7F8E-712D6D06BADA} = {393684EC-6676-7541-7F8E-712D6D06BADA}
+		{893CE44F-6A2B-FBF2-AE38-9A76CE6917AB} = {893CE44F-6A2B-FBF2-AE38-9A76CE6917AB}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "edge_coreclr", "edge_coreclr.vcxproj", "{893CE44F-6A2B-FBF2-AE38-9A76CE6917AB}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "edge_nativeclr", "edge_nativeclr.vcxproj", "{393684EC-6676-7541-7F8E-712D6D06BADA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Release|x64 = Release|x64
+		Debug|x64 = Debug|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{393684EC-6676-7541-7F8E-712D6D06BADA}.Release|x64.ActiveCfg = Release|x64
+		{393684EC-6676-7541-7F8E-712D6D06BADA}.Release|x64.Build.0 = Release|x64
+		{393684EC-6676-7541-7F8E-712D6D06BADA}.Debug|x64.ActiveCfg = Debug|x64
+		{393684EC-6676-7541-7F8E-712D6D06BADA}.Debug|x64.Build.0 = Debug|x64
+		{4A54F76F-64AB-48C1-9839-853865F939C4}.Release|x64.ActiveCfg = Release|x64
+		{4A54F76F-64AB-48C1-9839-853865F939C4}.Release|x64.Build.0 = Release|x64
+		{4A54F76F-64AB-48C1-9839-853865F939C4}.Debug|x64.ActiveCfg = Debug|x64
+		{4A54F76F-64AB-48C1-9839-853865F939C4}.Debug|x64.Build.0 = Debug|x64
+		{893CE44F-6A2B-FBF2-AE38-9A76CE6917AB}.Release|x64.ActiveCfg = Release|x64
+		{893CE44F-6A2B-FBF2-AE38-9A76CE6917AB}.Release|x64.Build.0 = Release|x64
+		{893CE44F-6A2B-FBF2-AE38-9A76CE6917AB}.Debug|x64.ActiveCfg = Debug|x64
+		{893CE44F-6A2B-FBF2-AE38-9A76CE6917AB}.Debug|x64.Build.0 = Debug|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

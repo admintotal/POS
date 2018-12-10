@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<title>{{ tituloPagina|default(titulo) }}</title>
+	<style>
+		*{
+			margin: 0;
+			padding: 0;
+			font-family: arial, helvetica, sans-serif;
+			font-size: .95em;
+		}
+		body{
+			font-family: Verdana, sans-serif;
+		    font-size: 13px;
+		    max-width: {{impresora.paperWidth|default('250')}}px;
+		    padding-left: {{impresora.marginLeft|default('0')}}px;
+		}
+		.upper{
+			text-transform: uppercase;
+		}
+		.text-center{
+			text-align: center;
+		}
+		.text-left{
+			text-align: left;
+		}
+		.text-right{
+			text-align: right;
+		}
+		.righttext{
+			text-align: right
+		}
+		.ticket{
+			max-width: {{impresora.paperWidth|default('250')}}px;
+		}
+		.ticket table{
+			font-size:.92em;
+			border-collapse:collapse;
+			width: 100%;
+		}
+		.ticket table tbody td{
+			padding: 2px;
+		}
+		.ticket table thead tr{
+			background:#BDBDBD;
+		}
+		.ticket .titulo{
+			text-align: center;
+			padding: 5px;
+			font-size: 1.3em;
+		}
+		.version{
+			padding: 5px;
+			text-align: center;
+			font-size: .9em;
+		}
+	</style>
+	{% block extra_head %}
+	{% endblock extra_head %}
+</head>
+<body>
+	{% block contenido %}
+	{% endblock contenido %}
+
+	<div class="version">Versión: {{ process.env.APP_VERSION }}</div>
+</body>
+</html>

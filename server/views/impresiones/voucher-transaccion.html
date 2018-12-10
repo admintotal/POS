@@ -1,0 +1,172 @@
+{% extends "./layout.html" %}
+
+{% block extra_head %}
+<style>
+.inlines td{
+	padding: 0;
+  font-size: .9em;
+  line-height: 1;
+  border: none;
+}
+</style>
+{% endblock extra_head %}
+
+{% block contenido %}
+<div class="ticket">
+  <h2 align="center" style="margin:5px;">{{ banco }}</h2>
+  <h4 align="center" style="margin:5px;">{{ tipoVoucher }}</h4>
+  <h3 align="center" style="margin:5px;">{{ conf.general.razon_social }}</h3>
+
+    <div style="font-size: .9em; text-align:center">
+      <div>{{ almacen.direccion }}</div>
+      {% if almacen.telefono %}
+      <div>Tel: {{ almacen.telefono }}</div>
+      {% endif %}
+
+      {% if mostrarDirFiscal %}
+        <div><b>Dirección fiscal:</b></div>
+        <div>{{ conf.general.direccion.direccion_completa }}</div>
+      {% endif %}
+    </div>
+     <br>	
+
+
+      <h3 align="center" class="upper">{{ tipo }}</h3>
+      <br>
+
+    <table style="font-size: 1.1em">
+        {% if transaccion.resultado.datos %}
+            <tr>
+                <td>Afilicación: </td>
+                <td>{{transaccion.resultado.datos.afiliacion}}</td>
+            </tr>
+            <tr>
+                <td>Terminal ID: </td>
+                <td>{{transaccion.resultado.datos.terminal}}</td>
+            </tr>
+
+            {% if transaccion.resultado.datos.numeroControl %}
+            <tr>
+                <td>Número de Control: </td>
+                <td>{{transaccion.resultado.datos.numeroControl}}</td>
+            </tr>
+            {% endif %}
+            
+            {% if !transaccion.resultado.declinada %}
+            <tr>
+                <td>Autorización: </td>
+                <td>{{transaccion.resultado.datos.autorizacion}}</td>
+            </tr>
+
+            <tr>
+                <td>Captura NIP: </td>
+                {% if transaccion.resultado.datos.capturaNip %}
+                <td>Si</td>
+                {% else %}
+                <td>No</td>
+                {% endif %}
+            </tr>
+            {% endif %}
+
+            <tr>
+              <td colspan="2" align="center" style="padding: 10px;text-transform: uppercase"><h3>{{transaccion.resultado.datos.resultadoTransaccion}}</h3></td>
+            </tr>
+
+            {% if !transaccion.resultado.declinada %}
+            <tr>
+                <td>No. Tarjeta: </td>
+                <td>{{transaccion.resultado.datos.noTarjeta|numeroTarjeta}}</td>
+            </tr>
+            <tr>
+                <td>Tipo de tarjeta: </td>
+                <td>{{transaccion.resultado.tipo_tarjeta}}</td>
+            </tr>
+            <tr>
+                <td>Banco Emisor: </td>
+                <td>{{transaccion.resultado.datos.bancoEmisor}}</td>
+            </tr>
+            <tr>
+                <td>Tarjetahabiente: </td>
+                <td>{{transaccion.resultado.datos.tarjetahabiente}}</td>
+            </tr>
+            {% endif %}
+            <tr>
+                <td>Referencia: </td>
+                <td>{{transaccion.resultado.datos.referencia}}</td>
+            </tr>
+            {% if transaccion.referencia !== transaccion.resultado.datos.referencia %}
+            <tr>
+                <td>Referencia Original: </td>
+                <td>{{transaccion.referencia}}</td>
+            </tr>
+            {% endif %}
+            {% if transaccion.resultado.datos.importe %}
+            <tr>
+                <td>Importe: </td>
+                <td>${{transaccion.resultado.datos.importe|cur}}</td>
+            </tr> 
+            {% endif %}
+          {% endif %}
+    </table>
+
+    {% if !transaccion.resultado.declinada %}
+      <br>
+      <br>
+      <br>
+      <div class="text-center">________________________________</div>
+      {% if transaccion.resultado.datos.tarjetahabiente  != "" %}
+      <div class="text-center">{{ transaccion.resultado.datos.tarjetahabiente }}</div>
+      {% else %}
+      <div class="text-center">Firma</div>
+      {% endif %}
+
+    {% endif %}
+    <br>
+
+    <table>
+      <tr>
+        <td>Fecha y Hora:</td>
+        <td>{{ transaccion.resultado.datos.finTransaccion|dateFormat('DD/MM/YYYY HH:mm') }}</td>
+      </tr>
+      <tr>
+        <td>AID:</td>
+        <td>{{ transaccion.resultado.datos.aid }}</td>
+      </tr>
+      {% if !transaccion.resultado.declinada %}
+      <tr>
+        <td>TVR:</td>
+        <td>{{ transaccion.resultado.datos.tvr }}</td>
+      </tr>
+      <tr>
+        <td>TSI:</td>
+        <td>{{ transaccion.resultado.datos.tsi }}</td>
+      </tr>
+      {% endif %}
+      <tr>
+        <td>APN:</td>
+        <td>{{ transaccion.resultado.datos.apn }}</td>
+      </tr>
+      {% if transaccion.resultado.datos.apn === "" %}
+      <tr>
+        <td>AL:</td>
+        <td>{{ transaccion.resultado.datos.al }}</td>
+      </tr>
+      {% endif %}
+    </table>
+    
+    {% if tagsEmv && tagsEmv.length %}
+      <br>
+      {% for t in tagsEmv %}
+          {% if t.tag === '9F12' || t.tag === '50' %}
+            <div><b>{{ t.tag }} {{ parseInt(t.length, 16) }} {{ t.value|hex2ascii }}</b></div>
+          {% else %}
+            <div><b>{{ t.tag }} {{ parseInt(t.length, 16) }} {{ t.value }}</b></div>
+          {% endif %}
+      {% endfor %}
+
+    {% endif %}
+
+</div>
+
+<br>
+{% endblock contenido %}

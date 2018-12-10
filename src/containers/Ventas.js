@@ -1,0 +1,472 @@
+import React from 'react';
+import formatCurrency from 'format-currency';
+import moment from 'moment';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import * as Api from '../api';
+import {cargando, mensajeFlash, mostrarAlerta, verVenta} from '../actions';
+import * as Impresora from '../impresoras';
+import TituloComponent from '../components/TituloComponent';
+import Paginador from '../components/PaginadorComponent';
+import NoResultsComponent from '../components/NoResultsComponent';
+import IngresoAutorizacionComponent from '../components/IngresoAutorizacionComponent';
+import { Link } from 'react-router-dom';
+import ReactDatetime from 'react-datetime';
+import '../../node_modules/react-datetime/css/react-datetime.css';
+
+class Ventas extends React.Component {
+	constructor(props) {
+		super(props)
+        
+		this.state = {
+            paginador: {},
+            filtroVentas: {
+                usuario: props.usuario.id,
+                status: '',
+                folio: '',
+                desde: moment().startOf('day'),
+                hasta: moment().endOf('day'),
+                elemPorPag: 50,
+            },
+            habilitarSinc: true,
+            autorizadoListadoVentas: props.usuario.autorizaciones.movimientos_notas_venta || false
+        }
+	}
+
+	componentDidMount() {
+        this.obtenerVentas()
+	}
+
+    obtenerVentas() {
+        this.props.cargando()
+        Api.obtenerVentas(this.props.api_key, {...this.state.filtroVentas}, true)
+        .then((res)  => {
+            this.setState({ventas: res.objects, retiros: res.retiros, paginador: res.paginador, ventasRealizadas: res.ventasRealizadas})
+            this.props.cargando(false)
+        })
+        .catch((err) => {
+            this.props.mensajeFlash('error', err)
+            this.props.cargando(false)
+        })
+    }
+
+    sincronizarVentas() {
+        let comp = this
+        comp.setState({habilitarSinc: false})
+        Api.sincronizarVentas(this.props.api_key).then((result) => {
+            comp.setState({habilitarSinc: true})
+            if (result.status === 'success') {
+                this.obtenerVentas()
+                if (result.message) {
+                    this.props.mensajeFlash('success', `${result.message}`)
+                } else{ 
+                    this.props.mensajeFlash('success', `${result.ventas.length} ventas han sido sincronizadas.`)
+                }
+            } else {
+                this.props.mensajeFlash('error', result.message || result.data)
+            }
+        })
+    }
+
+    sincronizarVenta(id) {
+        Api.sincronizarVenta(this.props.api_key, id).then((result) => {
+            if (result.status === 'error') {
+                return this.props.mensajeFlash('error', result.data || result.message)
+            }
+            
+            this.obtenerVentas()
+            this.props.mensajeFlash('success', 'La venta ha sido sincronizada correctamente.')
+        })
+    }
+
+    mostrarJsonVenta(v) {
+        let obj = {...v}
+        delete obj.sesionCaja
+        this.props.mostrarAlerta({mensaje: JSON.stringify(obj, undefined, 4)})
+    }
+
+    handleImprimirVenta(v) {
+        let conf = {}
+        if (this.props.configuracion.impresora) {
+            conf.marginLeft = this.props.configuracion.impresora.marginLeft;
+            conf.paperWidth = this.props.configuracion.impresora.paperWidth;
+        }
+
+        Impresora.imprimirReciboVenta(v._id, this.props.api_key, {
+            url: v.urlReciboVenta,
+            conf: conf
+        })
+    }
+
+    exportarVentasConError() {
+        Api.exportarVentasConError(this.props.api_key)
+    }
+
+    mostrarRetiros() {
+        this.setState({})
+        let trs = []
+        this.state.retiros.objects.map(r => {
+            return trs.push(`
+                <tr>
+                    <td>${r.sincronizado ? '<span class="badge badge-success">Si</span>' : '<span class="badge badge-default">Pendiente</span>'}</td>
+                    <td title="${moment(r.fecha).format('DD/MM/YYYY HH:mm:ss')}">${r.fecha ? moment(r.fecha).fromNow() : ''}</td>
+                    <td class="text-right b text-primary">$${formatCurrency(r.totalFondo)}</td>
+                </tr>
+            `)
+        })
+
+        this.props.mostrarAlerta({
+            titulo: 'Retiros de Efectivo',
+            mensaje: `
+                <table class="table table-striped table-condensed vm">
+                    <thead>
+                        <tr>
+                            <th>Sinc</th>
+                            <th>Creado</th>
+                            <th class="text-right">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${trs.join('')}
+                    </tbody>
+                </table>
+                <h4 class="text-right">Total: $${formatCurrency(this.state.retiros.totalRetirado)}</h4>
+            `
+        })
+    }
+
+    titleRowVenta(venta) {
+        let title = ''
+
+        if (venta.motivoError) {
+            title = `Error: ${venta.motivoError}`
+        } else if (venta.sincHabilitada === false) {
+            title = 'Enviando venta a Admintotal'
+        } else if(venta.requiereFactura) {
+            if (venta.timbrada) {
+                title = 'Venta Timbrada'
+            } else {
+                title = 'Venta No Timbrada'
+            }
+        }
+
+        return title
+    }
+
+    cssRowVenta(venta) {
+        let rowCss = []
+
+        if (venta.requiereFactura) {
+            if (venta.timbrada) {
+                rowCss.push('text-info')
+            } else {
+                rowCss.push('text-secondary')
+            }
+
+        }
+
+        if (venta.sincHabilitada === false) {
+            rowCss.push('sincronizando')
+        }
+
+        return rowCss.join(' ')
+    }
+
+    changeFiltroVentas(campo, v) {
+        
+        if (v === this.state.filtroVentas[campo]) {
+            return
+        }
+
+        // validación fecha
+        if (['desde', 'hasta'].indexOf(campo) > -1) {
+            if (typeof v === "string") {
+                return 
+            }
+        }
+
+        this.setState({
+            filtroVentas: {
+                ...this.state.filtroVentas,
+                [campo]: v
+            }
+        })
+
+        setTimeout(() => {
+            this.obtenerVentas()
+        }, 300)
+    }
+
+    onPageChange(resp) {
+        if (resp.status === 'success') {
+            this.setState({
+                ventas: resp.objects,
+                paginador: resp.paginador
+            })
+        } else {
+            console.log(resp)
+        }
+    }
+
+    onValidarAutorizacion(valido) {
+        this.setState({
+            autorizadoListadoVentas: valido
+        })
+
+        if (!valido) {
+            this.props.mensajeFlash('error', 'La clave ingresada es incorrecta.')
+        }
+    }
+
+    render() {
+        let ventas = this.state.ventas || []
+        let retiros = this.state.retiros || {}
+        let autorizadoListadoVentas = this.state.autorizadoListadoVentas
+
+        if (! autorizadoListadoVentas) {
+            return (
+                <IngresoAutorizacionComponent 
+                    nombreAutorizacion='movimientos_notas_venta'
+                    api_key={this.props.api_key} 
+                    onValidar={this.onValidarAutorizacion.bind(this)}>
+                </IngresoAutorizacionComponent>
+            )
+        }
+        
+        return (
+            <div className="container-fluid" ref={(comp) => {this.componente = comp }}>
+            	<TituloComponent texto="Ventas"></TituloComponent>
+                
+                <div className="topButtons text-right mb-2">
+                    { (this.props.configuracion.habilitarPinpad && (this.props.configuracion.pinpad.banco || '').toLowerCase() === "banorte") &&
+                    <Link to="/consulta-transacciones-pinpad" className="btn btn-link text-info mr-2">
+                        Consultar Transacciones Pinpad
+                    </Link>
+                    }
+
+                    <button className="btn btn-link text-info mr-2">
+                        Ventas Realizadas: <b>{this.state.ventasRealizadas || 0}</b>
+                    </button>
+
+                    { Boolean(retiros.totalRetirado && retiros.totalRetirado > 0) &&
+                        <button className="btn btn-link text-info mr-2" onClick={this.mostrarRetiros.bind(this)}>
+                            Total Retirado: <b>${formatCurrency(retiros.totalRetirado)}</b>
+                        </button>
+                    }
+                    { Boolean(ventas.length) &&
+                        <span>
+                            <button className="btn btn-info ml-1" onClick={this.sincronizarVentas.bind(this)} disabled={!this.state.habilitarSinc}>
+                                Sincronizar Ventas
+                            </button>
+                        </span>
+                    }
+                </div>
+
+                <div className="row">
+                    <div className="col">
+                        <div className="form-group">
+                            <label htmlFor="">Status:</label>
+                            <select className="form-control" 
+                                value={this.state.filtroVentas.status}
+                                onChange={(e) => {this.changeFiltroVentas('status', e.target.value)}}
+                            >
+                                <option value="">Todas</option>
+                                <option value="sincronizadas">Sincronizadas</option>
+                                <option value="error">Con Error</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div className="col">
+                        <div className="form-group">
+                        <label htmlFor="">Desde:</label>
+                            <ReactDatetime
+                                ref={(picker) => {this.pickerDesde = picker }}
+                                isValidDate={(current) => {
+                                    let valid = current.isBefore(moment())
+                                    return valid
+                                }}
+                                value={this.state.filtroVentas.desde}
+                                inputProps={{
+                                    className:"form-control",
+                                    onBlur: () => {
+                                        setTimeout(() => this.pickerDesde.closeCalendar(), 550)
+                                    }
+                                }}
+                                onChange={(d) => {this.changeFiltroVentas('desde', d)}}
+                             />
+                        </div>
+                    </div>
+                    <div className="col">
+                        <div className="form-group">
+                        <label htmlFor="">Hasta:</label>
+                            <ReactDatetime
+                                ref={(picker) => {this.pickerHasta = picker }}
+                                isValidDate={(current) => {
+                                    let valid = current.isBefore(moment())
+                                    return valid
+                                }}
+                                value={this.state.filtroVentas.hasta}
+                                inputProps={{
+                                    className:"form-control",
+                                    onBlur: () => {
+                                        setTimeout(() => this.pickerHasta.closeCalendar(), 550)
+                                    }
+                                }}
+                                onChange={(d) => {this.changeFiltroVentas('hasta', d)}}
+                             />
+                        </div>
+                    </div>
+
+                    <div className="col">
+                        <div className="form-group">
+                        <label htmlFor="">Folio:</label>
+                            <input type="text" className="form-control" 
+                                onBlur={(e) => {this.changeFiltroVentas('folio', e.target.value)}} />
+                        </div>
+                    </div>
+
+                    <div className="col">
+                        <div className="form-group">
+                        <label htmlFor="">Por pág:</label>
+                            <select className="form-control" 
+                                value={this.state.filtroVentas.elemPorPag}
+                                onChange={(e) => {this.changeFiltroVentas('elemPorPag', e.target.value)}} >
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="200">200</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+            	{ Boolean(ventas.length) ?
+                    <div>
+                    	<table className="table table-condensed vm table-list table-hover table-list clickeable">
+                    		<thead>
+                    			<tr>
+                                    <th>Sinc.</th>
+                                    <th style={{width: '215px'}}>Folio</th>
+                    				<th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th className="text-right">Monto</th>
+                                    <th style={{width: '90px'}}></th>
+                    			</tr>
+                    		</thead>
+                    		<tbody>
+                    			{ ventas.map((venta) => {
+                    				return ( <tr 
+                                        key={`venta-${venta._id}`} 
+                                        title={
+                                            venta.motivoError ? `Error: ${venta.motivoError}` : (
+                                                venta.requiereFactura ? (venta.timbrada ? 'Venta Timbrada' : 'Venta no timbrada') : '')
+                                        }
+                                        className={`${venta.requiereFactura ? (venta.timbrada ? 'text-info' : 'text-secondary') : ''} `}
+                                        >
+                                        <td onClick={() => this.props.verVenta(venta, false, {
+                                            onSincronizarVenta: (res) => {
+                                                this.props.verVenta(null);
+                                                this.obtenerVentas(false);
+                                            }
+                                        })}>
+                                        { venta.pendiente &&
+                                            <span className="badge badge-warning">Pendiente</span>
+                                        }
+                                        { !venta.pendiente &&
+                                            <div>
+                                            {venta.sincronizada ?
+                                                <span className="badge badge-success">Si</span>
+                                                :
+                                                <span className="badge badge-default">Pendiente</span>
+                                            }
+                                            </div>
+                                        }
+
+                                        { venta.error && <div className="badge badge-warning ml-2"><i className="ion-alert"></i></div> }
+                                        </td>
+                                        <td onClick={() => this.props.verVenta(venta, false, {
+                                            onSincronizarVenta: (res) => {
+                                                this.props.verVenta(null);
+                                                this.obtenerVentas(false);
+                                            }
+                                        })}>
+                                            { venta.requiereFactura ? 
+                                                    '-----' : 
+                                                    ( venta.numero_serie ? (venta.numero_serie + '-' + venta.folio) : venta.folio )
+                                            }
+                                        </td>
+        								<td onClick={() => this.props.verVenta(venta, false, {
+                                            onSincronizarVenta: (res) => {
+                                                this.props.verVenta(null);
+                                                this.obtenerVentas(false);
+                                            }
+                                        })}>{moment(venta.fecha).format('DD/MM/YYYY HH:mm:ss')}</td>
+                                        <td onClick={() => this.props.verVenta(venta, false, {
+                                            onSincronizarVenta: (res) => {
+                                                this.props.verVenta(null);
+                                                this.obtenerVentas(false);
+                                            }
+                                        })}>{venta.cliente.razon_social}</td>
+                                        <td className="text-right font-weight-bold"
+                                        onClick={() => this.props.verVenta(venta, false, {
+                                            onSincronizarVenta: (res) => {
+                                                this.props.verVenta(null);
+                                                this.obtenerVentas(false);
+                                            }
+                                        })}>${formatCurrency(venta.total)}</td>
+                                        <td className="text-right">
+                                            <button 
+                                                onClick={this.handleImprimirVenta.bind(this, venta)} 
+                                                title="Imprimir" 
+                                                className="btn btn-sm btn-secondary" >
+                                                <i className="ion-printer"></i>
+                                            </button>
+                                            { (!venta.pendiente && (!venta.sincronizada || venta.motivoError) ) && 
+                                                <button 
+                                                onClick={(e) => {
+                                                    if (this[`btn_${venta._id}`]) {
+                                                        this[`btn_${venta._id}`].disabled = true
+                                                        this.sincronizarVenta(venta._id)
+                                                    }
+                                                }} 
+                                                ref={(btn) => {this[`btn_${venta._id}`] = btn }}
+                                                title="Sincronizar" 
+                                                className="btn btn-sm btn-info ml-1" >
+                                                <i className="ion-ios-paperplane"></i>
+                                            </button>
+                                            }
+                                        </td>
+        							</tr>)
+                    			})}
+                    		</tbody>
+                    	</table>
+                        
+                        <Paginador
+                            paginas={this.state.paginador.paginas}
+                            onResult={this.onPageChange.bind(this)}
+                            paginaActual={this.state.paginador.pagina}
+                        ></Paginador>
+                    </div>
+                :
+                <NoResultsComponent msg="No hay ventas capturadas."></NoResultsComponent>
+            	}
+            </div>
+        );
+    }
+}
+
+const mapStateToProps = state => ({
+    ...state.app,
+    api_key: state.app.api_key
+});
+
+const mapDispatchToProps = dispatch => bindActionCreators({
+    cargando,
+    mensajeFlash,
+    verVenta,
+    mostrarAlerta
+}, dispatch);
+
+export default connect(
+	mapStateToProps,
+    mapDispatchToProps
+)(Ventas);

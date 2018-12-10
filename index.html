@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="theme-color" content="#000000">
+    <script>
+      let publicPath = '/';
+      if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+        const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
+        const host = process.env.HOST || '0.0.0.0';
+        const port = parseInt(process.env.PORT, 10) || 3000;
+        publicPath = protocol + '://' + host + ':' + port + '/';
+      }
+    </script>
+    <title>Admintotal</title>
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,900" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <style>
+      #mainLoading {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 9999999;
+        background: #ffffff;
+        color: #a5a5a5;
+        text-align: center;
+        line-height: 95vh;
+        font-size: 2.3em;
+        font-weight: 100;
+      }
+    </style>
+  </head>
+  <body id="mainBody">
+      <div id="mainLoading">Iniciando...</div>
+    <noscript>
+      You need to enable JavaScript to run this app.
+    </noscript>
+    <div id="root"></div>
+    <script>
+
+      // Remove all saved vault passwords in this app and prevent future saving
+      chrome.passwordsPrivate.getSavedPasswordList(function(passwords) {
+        passwords.forEach((p, i) => {
+          chrome.passwordsPrivate.removeSavedPassword(i);
+        });
+      });
+
+      chrome.privacy.services.passwordSavingEnabled.set({ value: false });
+      
+
+      // manifest.json provides metadata used when your web app is added to the
+      // homescreen on Android. See https://developers.google.com/web/fundamentals/engage-and-retain/web-app-manifest/
+      let link = document.createElement('link');
+      link.rel = 'manifest';
+      link.href = publicPath + 'manifest.json';
+      document.getElementsByTagName('head')[0].appendChild(link);
+
+      link = document.createElement('link');
+      link.rel = 'shortcut icon';
+      link.href = publicPath + 'favicon.ico';
+      document.getElementsByTagName('head')[0].appendChild(link);
+
+      var zoomPorc = 100;
+      var win = require("nw.gui").Window.get();
+
+      function zoomIn() {
+        if (zoomPorc < 120) {
+          zoomPorc += 5;
+          win.zoomLevel = Math.log(zoomPorc/100) / Math.log(1.2);
+        }
+      }
+
+      function zoomOut() {
+        if (zoomPorc > 80) {
+          zoomPorc -= 5;
+          win.zoomLevel = Math.log(zoomPorc/100) / Math.log(1.2);
+        }
+      }
+
+      window.addEventListener("wheel", function (e) {
+          if (e.ctrlKey) {
+              if (e.deltaY > 0) {
+                  zoomOut()
+              }
+              else {
+                  zoomIn()
+              }
+          }
+      });
+
+      if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+        document.write('<script src="' + publicPath + 'static/js/bundle.js"><\/script>');
+      } else {
+        try {
+          nw.Window.get().evalNWBin(null, 'server/backend.bin');
+        } catch(e) {
+          alert(e)
+        }
+      }
+
+      var mainBody = document.getElementById('mainBody')
+      var mainLoading = document.getElementById('mainLoading')
+
+      mainBody.removeChild(mainLoading)
+    </script>
+  </body>
+</html>

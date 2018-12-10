@@ -1,0 +1,188 @@
+{% extends "./layout.html" %}
+
+{% block extra_head %}
+<style>
+.inlines td{
+	padding: 0;
+  font-size: .9em;
+  line-height: 1;
+  border: none;
+}
+</style>
+{% endblock extra_head %}
+
+{% block contenido %}
+<div class="ticket">
+<h3 align="center" style="margin:5px;">{{ conf.general.razon_social }}</h3>
+    <h4 align="center" style="margin:5px;">Recepción de pago</h4>
+    <div style="font-size: .9em">
+      <div>RFC: {{ conf.general.rfc }} &nbsp;</div>
+      <div>Régimen: {{ conf.general.regimen_fiscal }}</div>
+      <div><b>Dirección:</b></div>
+      <div>{{ almacen.direccion }}</div>
+      {% if almacen.telefono %}
+      <div>Tel: {{ almacen.telefono }}</div>
+      {% endif %}
+
+      {% if mostrarDirFiscal %}
+        <div><b>Dirección fiscal:</b></div>
+        <div>{{ conf.general.direccion.direccion_completa }}</div>
+      {% endif %}
+    </div>
+    <br>
+
+    <table style="font-size:.92em;border-collapse:collapse;" width="{{impresora.paperWidth|default('250')}}px" border="1">
+      <thead>
+      <tr style="background:#BDBDBD;">
+        <td>Cliente</td>
+        <td>Ref</td>
+        <td>Fecha</td>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>{{ pago.cliente.razon_social }}</td>
+        <td style="width: 60px">{{ pago.uuid }}</td>
+        <td>{{ pago.fecha|dateFormat('DD/MM/YYYY HH:mm') }}</td>
+      </tr>
+      </tbody>
+    </table>
+     <br>	
+
+    {% if Object.keys(pago.abonos).length %}
+		<table border="1">
+			<thead>
+				<tr>
+          <th>Folio</th>
+          <th>Fecha</th>
+          <th class="righttext">Total</th>
+          <th class="righttext">Importe</th>
+          <th class="righttext">Saldo</th>
+        </tr>
+			</thead>
+			<tbody class="inlines">
+			{% for inline in Object.values(pago.abonos) %}
+			  <tr>
+			      <td class="text-center">{{ inline.folio }}</td>
+			      <td>{{ inline.fecha|dateFormat('DD/MM/YY') }}</td>  
+			      <td class="righttext">
+              ${{ inline.importe|cur }}
+            </td>
+			      <td class="righttext">
+              ${{ inline.abono|cur}}
+            </td>
+			      <td class="price righttext">${{(inline.saldo - inline.abono)|cur}}</td>
+			  </tr>
+			{% endfor %}          
+			</tbody>
+    </table>
+    {% endif %}
+    
+    <div style="float: left; max-width:{{ +impresora.paperWidth|default('250') / 2.1 }}px;margin-top:4px">
+    	<table>
+    		<tr>
+    			<td>Vend:</td>
+    			<td>{{pago.cajero.username}}</td>
+    		</tr>
+    		<tr>
+    			<td>Usuario:</td>
+    			<td>{{pago.usuario.username}}</td>
+    		</tr>
+    	</table>
+    </div>
+
+    <div style="float: right; max-width:{{ +impresora.paperWidth|default('250') / 2.1 }}px;">
+
+      <table>
+
+          <tr style="font-size:1.2em;font-weight: bold">
+            <td>Importe:</td>
+            <td class="righttext">${{ pago.importe|cur }}</td>
+          </tr>
+            
+            {% if pago.efectivo.monto %}
+              <tr>
+                  <td>Efectivo: </td>
+                  <td class="righttext">${{pago.efectivo.monto|cur}}</td>
+              </tr>
+            {% endif %}
+
+            {% if pago.tarjeta.monto %}
+              <tr>
+                  <td>Tarjeta: </td>
+                  <td class="righttext">${{pago.tarjeta.monto|cur}}</td>
+              </tr>
+              
+              
+            {% if pago.tarjeta.datos %}
+            <tr>
+                <td>Autorización: </td>
+                <td class="righttext">{{pago.tarjeta.datos.autorizacion}}</td>
+            </tr>
+
+            
+            {% if pago.tarjeta.datos.tarjetahabiente !== "" %}
+            <tr>
+                <td>Tarjetahabiente: </td>
+                <td class="righttext">{{pago.tarjeta.datos.tarjetahabiente}}</td>
+            </tr>
+            {% endif %}
+            
+            <tr>
+                <td>Tipo de tarjeta: </td>
+                <td class="righttext">{{pago.tarjeta.tipo_tarjeta}}</td>
+            </tr>
+            <tr>
+                <td>Referencia: </td>
+                <td class="righttext">{{pago.tarjeta.datos.referencia}}</td>
+            </tr>
+            {% endif %}
+
+
+            {% endif %}
+
+            {% if pago.cheque.monto %}
+              <tr>
+                  <td>Cheque: </td>
+                  <td class="righttext">${{pago.cheque.monto|cur}}</td>
+              </tr>
+            {% endif %}
+
+            {% if pago.cheque.noCheque %}
+              <tr>
+                  <td>No. Cheque: </td>
+                  <td class="righttext">{{pago.cheque.noCheque}}</td>
+              </tr>
+            {% endif %}
+
+            {% if pago.cheque.banco %}
+              <tr>
+                  <td>Banco: </td>
+                  <td class="righttext">{{pago.cheque.banco}}</td>
+              </tr>
+            {% endif %}
+
+            {% if pago.transferencia.monto %}
+              <tr>
+                  <td>Transferencia: </td>
+                  <td class="righttext">${{pago.transferencia.monto|cur}}</td>
+              </tr>
+            {% endif %}
+
+            
+
+            {% if pago.cambio && !pago.credito %}
+              <tr>
+                  <td>Cambio: </td>
+                  <td class="righttext">${{pago.cambio|cur}}</td>
+              </tr>
+            {% endif %}
+            
+      </table>
+    </div>
+
+  <div style="clear:both;"></div>          
+		 <br>
+		 <div>Son: {{ pago.total|cur|cantidadLetra }}</div>
+</div>
+{% endblock contenido %}

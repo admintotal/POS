@@ -1,0 +1,131 @@
+
+.infoCliente{
+	background: rgba(238, 238, 238, 0.5);
+    padding: 15px;
+    border-radius: 2px;
+    margin-bottom: 5px;
+}
+.infoCliente .titulo{
+	font-weight: bold;
+}
+table.productos{
+	background: #f6f6f6;
+	border-radius: 3px;
+    overflow: hidden;
+}
+table.productos thead th{
+	vertical-align: bottom;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    border-top: none;
+    padding: 9px;
+    line-height: 1;
+    font-size: .95em;
+    background: #011a40;
+    color: #fff;
+}
+table.productos td.um{
+  width: 50px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+table.productos th,
+table.productos td{
+	padding: 2px 7px;
+	font-size: .9em;
+	vertical-align: middle;
+}
+table.productos .eliminar{
+	color: red;
+	border: none;
+}
+table.productos .eliminar:focus{
+	outline: none;
+	box-shadow: none;
+}
+table.productos .btn,
+table.productos .form-control{
+	line-height: 1;
+}
+table.productos .codigo{
+	font-weight: 600;
+}
+table.productos .codigo,
+table.productos .descripcion{
+	font-size: .8em;
+	line-height: 1.1;
+}
+table.productos .numTelefonico{
+    font-size: .85em;
+	font-weight: 600;
+    color: #011a40;
+}
+table.productos .actions{
+	padding: 0;
+	position: relative;
+	min-width: 30px;
+}
+table.productos .actions .btn{
+	position: absolute;
+	padding: 5px;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	border-radius: 0;
+}
+table.productos .form-control.cantidad{
+	min-width: 80px;
+	max-width: 100px;
+	text-align: right;
+}
+table.productos .form-control.descuento{
+	max-width: 80px
+}
+
+table.totales{
+	font-size: .95em;
+    color: #434343;
+}
+table.totales tr:first-child th,
+table.totales tr:first-child td{
+	border-top: 0;
+}
+table.totales td,
+table.totales th{
+	padding: .5rem;
+}
+table.totales .total{
+	font-weight: 600;
+	font-size: 1.4em;
+	color: #001a40;
+	background-color: rgba(236, 235, 235, 0.47);
+}
+table.totales .cambio{
+	color: #dc3545;
+	font-weight: 600;
+}
+
+.metodosPago{
+}
+.metodosPago .col{
+	padding: 5px 15px;
+}
+.dialog-box{
+	position: fixed;
+	width: 50%;
+	top: 20%;
+	background-color: #fff;
+	padding: 20px;
+	z-index: 90;
+	left: 50%;
+	margin-left: -25%;
+	box-shadow: 0 0 1px 2px rgba(0,0,0, .05);
+    border: 1px solid #ccc;
+}
+.dialog-box .scrollable{
+	max-height: 60vh;
+	overflow: auto;
+	padding: 0px 5px;
+}

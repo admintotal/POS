@@ -1,0 +1,221 @@
+{% extends "./layout.html" %}
+
+{% block extra_head %}
+<style>
+.inlines td{
+	padding: 0;
+  font-size: .9em;
+  line-height: 1;
+  border: none;
+}
+</style>
+{% endblock extra_head %}
+
+{% block contenido %}
+<div class="ticket">
+<h3 align="center" style="margin:5px;">{{ conf.general.razon_social }}</h3>
+    <h4 align="center" style="margin:5px;">Nota de Venta</h4>
+    <div style="font-size: .9em">
+      <div>RFC: {{ conf.general.rfc }} &nbsp;</div>
+      <div>Régimen: {{ conf.general.regimen_fiscal }}</div>
+      <div><b>Dirección:</b></div>
+      <div>{{ almacen.direccion }}</div>
+      {% if almacen.telefono %}
+      <div>Tel: {{ almacen.telefono }}</div>
+      {% endif %}
+
+      {% if mostrarDirFiscal %}
+        <div><b>Dirección fiscal:</b></div>
+        <div>{{ conf.general.direccion.direccion_completa }}</div>
+      {% endif %}
+    </div>
+    <br>
+
+    <table style="font-size:.92em;border-collapse:collapse;" width="{{impresora.paperWidth|default('250')}}px" border="1">
+      <thead>
+      <tr style="background:#BDBDBD;">
+        <td>Cliente</td>
+        <td>Venta</td>
+        <td>Fecha</td>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>{{ venta.cliente.razon_social }}</td>
+        <td style="width: 60px">{{ numero_serie|default('') }}-{{ venta.folio }}</td>
+        <td>{{ venta.fecha|dateFormat('DD/MM/YYYY HH:mm') }}</td>
+      </tr>
+      </tbody>
+    </table>
+     <br>	
+		<table border="1">
+			<thead>
+				<tr>
+          <th>C</th>
+          <th>Código</th>
+          <th>UM</th>
+          <th class="leftttext">PU</th>
+          <th class="leftttext">Impte</th>
+        </tr>
+			</thead>
+			<tbody class="inlines">
+			{% for inline in venta.productos %}
+			  <tr>
+			      <td class="text-center">{{ inline.cantidad }}</td>
+			      <td>{{ inline.producto.codigo }}</td>  
+			      <td>
+              {{ inline.producto.um.nombre }}
+              {% if +inline.producto.um.factor > 1 %}
+                <div>c/{{ inline.producto.um.factor|cur }} pz</div>
+              {% endif %}
+            </td>
+			      <td class="righttext">
+              ${{ inline.precio_neto|cur}}
+            </td>
+			      <td class="price righttext">${{inline.importe|cur}}</td>
+			  </tr>
+			  <tr class="descripcion">
+          <td></td>
+			    <td colspan="4" class="descripcion">
+              <div>{{ inline.producto.descripcion }}</div>
+              {% if inline.statusRecarga %}
+              {% if inline.es_servicio_ldi %}
+              <div>Ref: {{ inline.statusRecarga.numero_recarga }}</div>
+              {% else %}
+              <div>Tel: {{ inline.statusRecarga.numero_recarga }}</div>
+              {% endif %}
+              <div>Aprobación: {{ inline.statusRecarga.no_aprobacion }} {{ inline.statusRecarga.error }}</div>
+              {% endif %}   
+          </td>
+			  </tr>
+			{% endfor %}          
+			</tbody>
+    </table>
+
+
+    <div style="float: left; max-width:{{ +impresora.paperWidth|default('250') / 2.1 }}px;margin-top:4px">
+    	<table>
+    		<tr>
+    			<td>Vend:</td>
+    			<td>{{venta.sesionCaja.cajero.username}}</td>
+    		</tr>
+    		<tr>
+    			<td>Usuario:</td>
+    			<td>{{venta.sesionCaja.cajero.username}}</td>
+    		</tr>
+    	</table>
+    </div>
+
+    <div style="float: right; max-width:{{ +impresora.paperWidth|default('250') / 2.1 }}px;">
+
+      <table>
+      {% if venta.totalDescuento %}
+      <tr>
+        <td>Descuento:</td>
+        <td class="righttext">${{ venta.totalDescuento|cur }}</td>
+      </tr>
+      {% endif %}
+
+      <tr style="font-size:1.2em;font-weight: bold">
+        <td>Importe:</td>
+        <td class="righttext">${{ venta.total|cur }}</td>
+      </tr>
+
+            
+            {% if venta.efectivo.monto %}
+              <tr>
+                  <td>Efectivo: </td>
+                  <td class="righttext">${{venta.efectivo.monto|cur}}</td>
+              </tr>
+            {% endif %}
+
+            {% if venta.tarjeta.monto %}
+              <tr>
+                  <td>Tarjeta: </td>
+                  <td class="righttext">${{venta.tarjeta.monto|cur}}</td>
+              </tr>
+
+              {% if venta.tarjeta.tipo_tarjeta %}
+              <tr>
+                  <td>Tipo de tarjeta: </td>
+                  <td class="righttext">{{venta.tarjeta.tipo_tarjeta}}</td>
+              </tr>
+              {% endif %}
+
+              {% if venta.tarjeta.no_tarjeta %}
+              <tr>
+                  <td>No. Tarjeta: </td>
+                  <td class="righttext">{{venta.tarjeta.no_tarjeta|numeroTarjeta}}</td>
+              </tr>
+              {% endif %}             
+              
+              {% if venta.tarjeta.datos %}
+                <tr>
+                    <td>Autorización: </td>
+                    <td class="righttext">{{venta.tarjeta.datos.autorizacion}}</td>
+                </tr>
+
+              
+                {% if venta.tarjeta.datos.tarjetahabiente !== "" %}
+                <tr>
+                    <td>Tarjetahabiente: </td>
+                    <td class="righttext">{{venta.tarjeta.datos.tarjetahabiente}}</td>
+                </tr>
+                {% endif %}
+              
+                <tr>
+                    <td>Referencia: </td>
+                    <td class="righttext">{{venta.tarjeta.datos.referencia}}</td>
+                </tr>
+              {% endif %}
+            {% endif %}
+
+            {% if venta.cheque.monto %}
+              <tr>
+                  <td>Cheque: </td>
+                  <td class="righttext">${{venta.cheque.monto|cur}}</td>
+              </tr>
+            {% endif %}
+
+            {% if venta.transferencia.monto %}
+              <tr>
+                  <td>Transferencia: </td>
+                  <td class="righttext">${{venta.transferencia.monto|cur}}</td>
+              </tr>
+            {% endif %}
+
+            {% if venta.fondo.monto %}
+              <tr>
+                  <td>Fondo: </td>
+                  <td class="righttext">${{venta.fondo.monto|cur}}</td>
+              </tr>
+            {% endif %}
+
+            {% if venta.monedero.monto %}
+              <tr>
+                  <td>Monedero: </td>
+                  <td class="righttext">${{venta.monedero.monto|cur}}</td>
+              </tr>
+            {% endif %}
+
+            {% if venta.cambio && !venta.credito %}
+              <tr>
+                  <td>Cambio: </td>
+                  <td class="righttext">${{venta.cambio|cur}}</td>
+              </tr>
+            {% endif %}
+            
+      </table>
+    </div>
+
+  <div style="clear:both;"></div>          
+		 <br>
+		 <div>Son: {{ venta.total|cur|cantidadLetra }}</div>
+		{% if conf.facturacion.usar_facturacion_online %}
+    <div>
+        Acceso a facturación: <br> <b>https://{{ conf.general.clave }}.admintotal.com/factura</b><br>
+        No. referencia: <b>{{ venta.no_referencia}}</b>
+    </div>
+    {% endif %} 
+</div>
+{% endblock contenido %}

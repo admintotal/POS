@@ -1,0 +1,167 @@
+{% extends "./layout.html" %}
+
+{% block extra_head %}
+<style>
+.inlines td{
+	padding: 0;
+  font-size: .9em;
+  line-height: 1;
+  border: none;
+}
+</style>
+{% endblock extra_head %}
+
+{% block contenido %}
+<div class="ticket">
+  <h2 align="center" style="margin:5px;">{{ banco }}</h2>
+  <h4 align="center" style="margin:5px;">Venta</h4>
+  <h3 align="center" style="margin:5px;">{{ conf.general.razon_social }}</h3>
+
+    <div style="font-size: .9em; text-align:center">
+      <div>{{ almacen.direccion }}</div>
+      {% if almacen.telefono %}
+      <div>Tel: {{ almacen.telefono }}</div>
+      {% endif %}
+
+      {% if mostrarDirFiscal %}
+        <div><b>Dirección fiscal:</b></div>
+        <div>{{ conf.general.direccion.direccion_completa }}</div>
+      {% endif %}
+    </div>
+     <br>	
+
+
+      <h3 align="center" class="upper">{{ tipo }}</h3>
+      <br>
+
+    <table style="font-size: 1.1em">
+        {% if venta.tarjeta.datos %}
+            <tr>
+                <td>Afilicación: </td>
+                <td>{{venta.tarjeta.datos.afiliacion}}</td>
+            </tr>
+            <tr>
+                <td>Terminal ID: </td>
+                <td>{{venta.tarjeta.datos.terminal}}</td>
+            </tr>
+            <tr>
+                <td>Número de Control: </td>
+                <td>{{venta.tarjeta.datos.numeroControl}}</td>
+            </tr>
+
+            <tr>
+                <td>Autorización: </td>
+                <td>{{venta.tarjeta.datos.autorizacion}}</td>
+            </tr>
+
+            <tr>
+                <td>Captura NIP: </td>
+                {% if venta.tarjeta.datos.capturaNip %}
+                <td>Si</td>
+                {% else %}
+                <td>No</td>
+                {% endif %}
+            </tr>
+
+            <tr>
+              <td colspan="2" align="center" style="padding: 10px;text-transform: uppercase"><h3>{{venta.tarjeta.datos.resultadoTransaccion}}</h3></td>
+            </tr>
+
+            <tr>
+                <td>No. Tarjeta: </td>
+                <td>{{venta.tarjeta.no_tarjeta|numeroTarjeta}}</td>
+            </tr>
+            <tr>
+                <td>Fecha Expiración: </td>
+                <td>{{venta.tarjeta.datos.mesExp}}/{{venta.tarjeta.datos.anioExp}}</td>
+            </tr>
+            <tr>
+                <td>Tipo de tarjeta: </td>
+                <td>
+                  {% if venta.tarjeta.tipo_tarjeta.toUpperCase().indexOf('DEBITO') > -1 %}
+                    Débito
+                  {% endif %}
+
+                  {% if venta.tarjeta.tipo_tarjeta.toUpperCase().indexOf('CREDITO') > -1 %}
+                    Crédito
+                  {% endif %}
+
+                  {% if venta.tarjeta.datos.al.toUpperCase().indexOf('VISA') > -1 %}
+                  (Visa)
+                  {% endif %}
+
+                  {% if venta.tarjeta.datos.al.toUpperCase().indexOf('MASTER') > -1 %}
+                  (MasterCard)
+                  {% endif %}
+                  
+                </td>
+            </tr>
+            <tr>
+                <td>Banco Emisor: </td>
+                <td>{{venta.tarjeta.datos.bancoEmisor}}</td>
+            </tr>
+            <tr>
+                <td>Tarjetahabiente: </td>
+                <td>{{venta.tarjeta.datos.tarjetahabiente}}</td>
+            </tr>
+            <tr>
+                <td>Referencia: </td>
+                <td>{{venta.tarjeta.datos.referencia}}</td>
+            </tr>
+
+            <tr>
+                <td>Importe: </td>
+                <td>${{venta.tarjeta.datos.importe|cur}}</td>
+            </tr> 
+          {% endif %}
+    </table>
+
+    <br>
+    <br>
+    <br>
+    {% if venta.tarjeta.datos.capturaNip %}
+    <div class="text-center">Autorizado mediante firma electrónica</div>
+    {% else %}
+      <div class="text-center">________________________________</div>
+      {% if venta.tarjeta.datos.tarjetahabiente  != "" %}
+      <div class="text-center">{{ venta.tarjeta.datos.tarjetahabiente }}</div>
+      {% else %}
+      <div class="text-center">Firma</div>
+      {% endif %}
+    {% endif %}
+    <br>
+
+    <table>
+      <tr>
+        <td>Fecha y Hora:</td>
+        <td>{{ venta.tarjeta.datos.finTransaccion|dateFormat('DD/MM/YYYY HH:mm') }}</td>
+      </tr>
+      <tr>
+        <td>AID:</td>
+        <td>{{ venta.tarjeta.datos.aid }}</td>
+      </tr>
+      <tr>
+        <td>TVR:</td>
+        <td>{{ venta.tarjeta.datos.tvr }}</td>
+      </tr>
+      <tr>
+        <td>TSI:</td>
+        <td>{{ venta.tarjeta.datos.tsi }}</td>
+      </tr>
+      <tr>
+        <td>APN:</td>
+        <td>{{ venta.tarjeta.datos.apn }}</td>
+      </tr>
+      {% if venta.tarjeta.datos.apn === "" %}
+      <tr>
+        <td>AL:</td>
+        <td>{{ venta.tarjeta.datos.al }}</td>
+      </tr>
+      {% endif %}
+    </table>
+
+
+</div>
+
+<br>
+{% endblock contenido %}

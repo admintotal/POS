@@ -35,6 +35,10 @@ let nsLookup = function(domain, timeout, callback) {
 
 exports.checkConnection = (opts = {}) => {
     return new Promise((resolve, reject) => {
+        if (!helpers.isEnv('production')) {
+            return resolve(true)
+        }
+
         return nsLookup('google.com', opts.timeout || 5000, (err, addresses) => {
             if (err) {
                 if (opts.returnBool) {

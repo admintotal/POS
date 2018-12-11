@@ -53,7 +53,12 @@
 	</div>	
 	<div>
 		Total venta tarjeta: <b style="float:right">${{ sesion.totalTarjeta|cur }}</b>
-	</div>	
+	</div>
+	{% if +sesion.totalPinpad %}
+	<div>
+		Total PinPad: <b style="float:right">${{ sesion.totalPinpad|cur }}</b>
+	</div>		
+	{% endif %}
 	<div>
 		Total venta transferencia: <b style="float:right">${{ sesion.totalTransferencia|cur }}</b>
 	</div>	

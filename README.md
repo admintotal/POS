@@ -7,20 +7,16 @@
 ## Instalar dependencias del proyecto
 
 ```bash
-npm i -g nodemon # usar sudo en caso de tener problemas con permisos
 npm install
 ```
 
 ## Correr proyecto en dev mode
 
-Será necesario quitar el atributo "node-main" de package.json
 
 ```bash
 npm start
-```
-En otra terminar corremos el servidor de nuestra aplicación
-```bash
-nodemon server/app.js -e html,js
+# en otro tab de la terminal corremos nuestro servidor de express
+npm run server
 ```
 
 ## Build

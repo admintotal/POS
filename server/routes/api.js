@@ -2298,6 +2298,7 @@ exports.shell = async (req, res) => {
         helpers: helpers,
         request: request,
         moment: moment,
+        env: process.env,
         edge: process.__edge,
         api: api,
         sincronizacion: require('./sincronizar'),

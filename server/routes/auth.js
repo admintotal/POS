@@ -97,6 +97,9 @@ exports.login = (req, res) => {
 				let conf = await DB.conf.findOne({})
 				let siguienteFolio = await helpers.getFolio(DB, conf)
 				let descargarClientes = await DB.clientes.findOne({})
+
+				process.env.NUMERO_SERIE = conf.numero_serie
+
 				return res.json({
 					status: 'success', 
 					usuario: usuario,
@@ -116,7 +119,6 @@ exports.login = (req, res) => {
 			}
 			
 			if(bcrypt.compareSync(req.body.password, usuario.password)) {
-				process.env._AK = usuario.api_token
 
 				let upd = {api_key: usuario.api_token, expira: moment().endOf('day').toISOString(), claveCliente: clave}
 				await db._api.update({claveCliente: clave}, {$set: upd}, {upsert: true})
@@ -124,6 +126,9 @@ exports.login = (req, res) => {
 				conf['sesion_caja'] = usuario.sesion_caja
 				let siguienteFolio = await helpers.getFolio(DB, conf)
 				let descargarClientes = await DB.clientes.findOne({})
+				
+				process.env._AK = usuario.api_token
+				process.env.NUMERO_SERIE = conf.numero_serie
 				return res.json({
 					status: 'success', 
 					usuario: usuario, 
@@ -180,6 +185,7 @@ exports.session = async (req, res) => {
             }
 			
 			process.env._AK = usuario.api_token
+			process.env.NUMERO_SERIE = configuracion.numero_serie
 			let siguienteFolio = await helpers.getFolio(dbCliente, configuracion)
             return res.json({
 				status: 'success', 

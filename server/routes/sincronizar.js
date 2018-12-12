@@ -146,6 +146,9 @@ async function descargar(api_key, coleccion, options) {
 			    	}
 
 					api.checkConnection().then(() => {
+						// timeout 20 segundos
+						opts.timeout = 25000
+
 				    	api._get(opts).then(async (result) => {
 				    		if (! result.objects ) {
 				    			let u = resetSinc()

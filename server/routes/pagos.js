@@ -65,13 +65,14 @@ exports.sincronizarPago = async (req, res) => {
         let p = await dbCliente.recepciones_pago.findOne({_id: req.params.id})
         let statusSync = await enviarRecepcionesPago(req.query.api_key, dbCliente, [p])
 
-        if (!statusSync.guardados || !statusSync.guardados.length) {
-            let err = 'Hubo un problema al sincronizar.'
+        if (!statusSync.guardados || !Object.keys(statusSync.guardados).length) {
+            let err = 'Hubo un problema al sincronizar el pago.'
 
             if (statusSync.errores && (p._id in statusSync.errores)) {
                 err = statusSync.errores[p._id]
                 logger.log('error', statusSync.errores)
             }
+            
             return res.json({
                 status: 'error',
                 message: err

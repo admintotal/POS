@@ -58,7 +58,8 @@ logger.on('data', (data) => {
 			}
 		}))
 		
-		Raven.captureException(data.message || data)
+		let msgDesc = data.message
+		Raven.captureException(msgDesc, {extra: data})
 	}
 })
 

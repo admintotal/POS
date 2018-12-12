@@ -1,10 +1,5 @@
-syntax: regexp
-
-^node_modules
-
-^coverage
-
 cache/
+build/
 node_modules/
 
 server/dist
@@ -13,7 +8,6 @@ server/lib/pinpad/banorte/*.jar
 server/lib/pinpad/santander/*.dll
 server/lib/pinpad/santander/*.jar
 
-^build
 
 .idea
 .DS_Store
@@ -32,5 +26,5 @@ yarn-debug.log*
 yarn-error.log*
 
 package-lock.json
-.*/*.orig
-.*/*.log
+**/*.orig
+**/*.log

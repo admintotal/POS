@@ -49,8 +49,7 @@ exports.checkConnection = (opts = {}) => {
             }
             
             return resolve(true)
-        });
-
+        })
     }) 
 }
 
@@ -210,14 +209,14 @@ exports._post = (options) => {
         try {
             exports.post(options, (err, result) => {
                 if (err) {
-                    logger.log('error', err)
+                    logger.log('error', {error: err, body: options, result: result})
                     return reject(exports.errorResponse(err))
                 }
 
                 return resolve(result)
             })
         } catch(e) {
-            logger.log('error', exports.errorResponse(e))
+            logger.log('error', {error: e, body: options})
             return reject(exports.errorResponse(e))
             
         }
@@ -229,13 +228,14 @@ exports._get = (options) => {
         try {
             exports.get(options, (err, result) => {
                 if (err) {
-                    logger.log('error', err)
+                    logger.log('error', {error: err, params: options, result: result})
                     return reject(exports.errorResponse(err))
                 }
                 
                 return resolve(result)
             })
         } catch(e) {
+            logger.log('error', {error: e, params: options})
             return reject(exports.errorResponse(err.code))
         }
     })

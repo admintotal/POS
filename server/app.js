@@ -17,13 +17,14 @@ const formatCurrency = require('format-currency')
 const helpers = require('./helpers')
 const Raven = require('raven')
 const os = require('os')
+const logger = require('./logger').logger
 
 /* Carga de edge-js */
 if (os.platform() == "win32") {
     try {
-      process.__edge = require('edge-js')
+        process.__edge = require('edge-js')
     } catch(e) {
-      console.error(e)
+        logger.log('error', e)
     }
 }
 
@@ -31,10 +32,9 @@ let dsn = 'https://7ece58a2345545fb82e6489d1d271516:3570d327b723444e89864fbc0bb7
 Raven.config(helpers.isEnv('production') ? dsn : '').install()
 
 
-const logger = require('./logger').logger
-logger.log("info", "Iniciando servidor")
+logger.log('info', 'Iniciando servidor')
 
-process.on("uncaughtException", function(e) { 
+process.on("uncaughtException", (e) => { 
     helpers.mostrarNotificacion(e)
     logger.log('error', e)
 })
@@ -47,11 +47,11 @@ let swig = require('swig')
 
 swig.setDefaults({ cache: false })
 
-swig.setFilter('cur', function (input) {
+swig.setFilter('cur', (input) => {
     return formatCurrency(input);
 })
 
-swig.setFilter('hex2ascii', function (hexx) {
+swig.setFilter('hex2ascii', (hexx) => {
     var hex = hexx.toString();//force conversion
     var str = '';
     for (var i = 0; (i < hex.length && hex.substr(i, 2) !== '00'); i += 2)
@@ -59,12 +59,12 @@ swig.setFilter('hex2ascii', function (hexx) {
     return str;
 })
 
-swig.setFilter('syntaxHighlight', function (json) {
+swig.setFilter('syntaxHighlight', (json) => {
     if (typeof json != 'string') {
          json = JSON.stringify(json, undefined, 2);
     }
     json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, (match) => {
         var cls = 'number';
         if (/^"/.test(match)) {
             if (/:$/.test(match)) {
@@ -81,15 +81,15 @@ swig.setFilter('syntaxHighlight', function (json) {
     });
 })
 
-swig.setFilter('dateFormat', function (input, fmt) {
+swig.setFilter('dateFormat', (input, fmt) => {
     return moment(input).format(fmt);
 })
 
-swig.setFilter('cantidadLetra', function (input) {
+swig.setFilter('cantidadLetra', (input) => {
     return helpers.cantidadLetra(input);
 })
 
-swig.setFilter('numeroTarjeta', function (input) {
+swig.setFilter('numeroTarjeta', (input) => {
     return helpers.getNumeroTarjeta(input);
 })
 

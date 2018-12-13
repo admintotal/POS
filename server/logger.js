@@ -54,11 +54,13 @@ logger.on('data', (data) => {
 				tenant: process.env.TENANT,
 				usuario: process.env.USER_NAME,
 				appVersion: process.env.APP_VERSION,
+				numeroSerie: process.env.NUMERO_SERIE,
             	platform: process.platform
 			}
 		}))
 		
-		Raven.captureException(data.message || data)
+		let msgDesc = data.message
+		Raven.captureException(msgDesc, {extra: data})
 	}
 })
 

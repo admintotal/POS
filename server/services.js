@@ -62,6 +62,7 @@ exports.post = (options, onResult) => {
             body: JSON.stringify(options.data),
             headers: {
                 'Content-Type': 'application/json',
+                'Connection': 'keep-alive',
                 'App-Version': process.env.APP_VERSION
             }
         }
@@ -80,6 +81,12 @@ exports.post = (options, onResult) => {
                     body = Object.keys(err || {}).length > 0 ? body : JSON.parse(body);
                     return onResult(null, body)
                 } catch(e) {
+                    logger.log('error', {
+                        message: 'Error en petición POST con admintotal', 
+                        body: body,
+                        httpResponse: httpResponse,
+                        params: params
+                    })
                     return onResult({
                         code: 'INVALID_JSON_RESPONSE', 
                         message: e,
@@ -121,6 +128,7 @@ exports.get = (options, onResult) => {
             url: uri, 
             qs: data,
             headers: {
+                'Connection': 'keep-alive',
                 'App-Version': process.env.APP_VERSION
             }
         }
@@ -138,6 +146,12 @@ exports.get = (options, onResult) => {
                 try{
                     return onResult(err, JSON.parse(body || {}), doc.claveCliente)
                 } catch(e) {
+                    logger.log('error', {
+                        message: 'Error en petición GET con admintotal', 
+                        body: body,
+                        httpResponse: httpResponse,
+                        params: params
+                    })
                     return onResult({
                         code: 'INVALID_JSON_RESPONSE', 
                         message: e,
@@ -209,7 +223,7 @@ exports._post = (options) => {
         try {
             exports.post(options, (err, result) => {
                 if (err) {
-                    logger.log('error', {error: err, body: options, result: result})
+                    // logger.log('error', {error: err, body: options, result: result})
                     return reject(exports.errorResponse(err))
                 }
 
@@ -228,7 +242,7 @@ exports._get = (options) => {
         try {
             exports.get(options, (err, result) => {
                 if (err) {
-                    logger.log('error', {error: err, params: options, result: result})
+                    // logger.log('error', {error: err, params: options, result: result})
                     return reject(exports.errorResponse(err))
                 }
                 

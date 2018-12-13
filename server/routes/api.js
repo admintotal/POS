@@ -749,6 +749,7 @@ exports.guardarVenta = (req, res) => {
                                 }
 
                                 if (statusCobro.status !== 'success') {
+                                    logger.log('error', statusCobro)
                                     statusCobro.transaccion = docTrans
                                     return res.json(statusCobro)
                                 }
@@ -1145,6 +1146,13 @@ exports.cobrarVentaTarjeta = (req, res) => {
 
         venta.tarjeta.monto = ventaObj.tarjeta.monto
         
+        if (venta.tarjeta.monto > venta.total) {
+        	return res.json({
+                status: 'error',
+                message: 'El monto a cobrar no puede ser mayor al total de la venta.'
+            })
+        }
+                
         if (!Array.isArray(venta.tarjeta.cobros)) {
             venta.tarjeta.cobros = []
         }
@@ -1175,7 +1183,7 @@ exports.cobrarVentaTarjeta = (req, res) => {
 
             switch(servicioCobro) {
                 case conf.pinpad.banco:
-                    logger.log('info', `Iniciando el cobro con pinpad de la venta ${venta.numero_serie}-${venta.folio}`)
+                    logger.log('info', `Iniciando el cobro con pinpad de la venta ${venta.numero_serie}-${venta.folio} por el monto de $${venta.tarjeta.monto}`)
                     try{
                         let statusCobro = await helpers.cobrarVentaPinpad(venta, conf)
 
@@ -1199,6 +1207,7 @@ exports.cobrarVentaTarjeta = (req, res) => {
 
                         if (statusCobro.status !== 'success') {
                             statusCobro.transaccion = docTrans
+                            logger.log('error', statusCobro)
                             return res.json(statusCobro)
                         }
 
@@ -2018,6 +2027,7 @@ exports.obtenerPuertosSeriales = (req, res) => {
         })
     })
     .catch((err) => {
+        logger.log('error', {message: 'Hubo un error al obtener los puertos seriales', e: err})
         return res.json({status: 'error', e: err})
     })
 }
@@ -2078,7 +2088,7 @@ exports.inicializarPinpad = (req, res) => {
         if (! conf.habilitarPinpad ) {
             return res.json({
                 status: 'error',
-                message: 'La configuración del pinpad es incorrecta'
+                message: 'El pinpad no se encuentra habilitado, asegurese de guardar la configuración antes de validarla.'
             })
         }
 
@@ -2116,6 +2126,7 @@ exports.inicializarPinpad = (req, res) => {
                 if (('configurar' in pinpad)) {
                     let resultadoConf = pinpad.configurar();
                     if (resultadoConf.status !== "success") {
+                        logger.log('error', {resultadoConf: resultadoConf, message: 'Hubo un error al configurar el pinpad'})
                         return res.json({status: 'error', message: resultadoConf.mensaje || String(resultadoConf)})
                     }
                 }
@@ -2126,6 +2137,7 @@ exports.inicializarPinpad = (req, res) => {
                 })
             } catch(e) {
                 pinpad.liberarDispositivo()
+                logger.log('error', e)
                 return res.json({status: 'error', message: e.mensaje || String(e)})
             }
         } catch(err) {
@@ -2371,6 +2383,7 @@ exports.consultarTransaccionPinpad = async (req, res) =>  {
             consulta.transacciones = await dbCliente.transacciones_pp.cfind({referencia: referencia}).sort({fecha: -1}).limit(10).exec()
             return res.json(consulta)
         } catch(e) {
+            logger.log('error', e)
             return res.json({status: 'error', mensaje: e.mensaje ? e.mensaje : e.message})
         }
 
@@ -2430,7 +2443,7 @@ exports.solicitudTransaccionPinpad = async (req, res) =>  {
             return res.json(resultadoSolicitud)
             
         } catch(e){
-            console.log(e)
+            logger.log('error', e)
             return res.json({status: 'error', mensaje: e.message})
         }
 
@@ -2449,11 +2462,19 @@ exports.eliminarDatos = async (req, res) => {
     db._getDB(req.query.api_key).then(async (dbCliente) => {
         let hasta = moment().subtract(6, 'day').endOf('day').toISOString()
         
-        let ventasEliminadas = await dbCliente.ventas.remove({
-            fecha: {$lt: hasta},
-            sincronizada: true, 
-            error: {$exists: false}
-        }, {multi: true})
+        let ultimaVenta = await dbCliente.ventas.cfind({}).sort({fecha: -1}).limit(1).exec()
+        let ventasEliminadas = []
+
+        if (ultimaVenta.length) {
+            ventasEliminadas = await dbCliente.ventas.remove({
+                _id: {$ne: ultimaVenta[0]._id},
+                fecha: {$lt: hasta},
+                sincronizada: true, 
+                error: {$exists: false}
+            }, {multi: true})
+
+            logger.log('info', `${ventasEliminadas} ventas han sido eliminadas.`)
+        }
 
         let retirosEliminados = await dbCliente.retiros.remove({
             fecha: {$lt: hasta},

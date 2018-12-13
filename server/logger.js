@@ -59,7 +59,7 @@ logger.on('data', (data) => {
 			}
 		}))
 		
-		let msgDesc = data.message
+		let msgDesc = data ? data.message : 'Error inesperado'
 		Raven.captureException(msgDesc, {extra: data})
 	}
 })

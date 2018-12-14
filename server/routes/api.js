@@ -1739,7 +1739,7 @@ exports.imprimirRecibo = (req, res) => {
         let docVenta = await dbCliente.ventas.findOne({_id: req.params.id})
         let conf = await dbCliente.conf.findOne({})
         let venta = Object.assign({}, docVenta)
-        let almacen = venta.sesionCaja.almacen
+        let almacen = await dbCliente.almacenes.findOne({id: venta.sesionCaja.almacen.id})
         let mostrarDirFiscal = conf.configuracion.facturacion.mostrar_direccion_fiscal && !almacen.es_sucursal 
         
         return res.render('impresiones/recibo_venta.html', {

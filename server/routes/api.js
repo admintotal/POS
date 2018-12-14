@@ -1266,7 +1266,7 @@ exports.cobrarVentaTarjeta = (req, res) => {
                     status: 'success',
                     datos: venta.tarjeta.datos,
                     integracion: venta.tarjeta.integracion,
-                    importe: venta.tarjeta.monto,
+                    importe: +venta.tarjeta.datos.importe,
                     creado: moment().toISOString()
                 })
 

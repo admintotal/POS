@@ -72,11 +72,13 @@ class CobrosTarjetaComponent extends React.Component {
 
         return (
             <div className="dialog-box">
+            	{ Boolean(!infoTarjeta) &&
             	<div style={{position: 'absolute', right: '5px', top: '5px'}}>
             		<button title="Cerrar" onClick={this.props.onClose} className="btn btn-link text-danger">
 						<i className="ion-close"></i>
 					</button>
             	</div>
+            	}
             	
             	<div className="mb-2">
 					<div className="text-primary text-center h4">Pago con Tarjeta</div>

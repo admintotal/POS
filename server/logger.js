@@ -42,7 +42,7 @@ if (! helpers.isEnv('production') ) {
 }
 
 logger.on('data', (data) => {
-
+	data = data || {}
 	if (data.level == 'error') {	
 		if (! helpers.isEnv('production') ) { 
 			console.log(data)

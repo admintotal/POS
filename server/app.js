@@ -17,6 +17,9 @@ const formatCurrency = require('format-currency')
 const helpers = require('./helpers')
 const Raven = require('raven')
 const os = require('os')
+
+let dsn = 'https://7ece58a2345545fb82e6489d1d271516:3570d327b723444e89864fbc0bb7a6cb@status.admintotal.com/7' 
+Raven.config(helpers.isEnv('production') ? dsn : '').install()
 const logger = require('./logger').logger
 
 /* Carga de edge-js */
@@ -27,10 +30,6 @@ if (os.platform() == "win32") {
         logger.log('error', {message: 'Hubo un error al cargar el módulo edge-js', e: e})
     }
 }
-
-let dsn = 'https://7ece58a2345545fb82e6489d1d271516:3570d327b723444e89864fbc0bb7a6cb@status.admintotal.com/7' 
-Raven.config(helpers.isEnv('production') ? dsn : '').install()
-
 
 logger.log('info', 'Iniciando servidor')
 

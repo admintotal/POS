@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import * as Api from '../api';
 import moment from 'moment';
 import TituloComponent from './TituloComponent';
-import { mensajeFlash } from '../actions';
+import { mensajeFlash, mostrarAlerta } from '../actions';
 
 class FondoCajaComponent extends React.Component {
 	constructor(props) {
@@ -21,6 +21,7 @@ class FondoCajaComponent extends React.Component {
     	}
 		
 		this.state = {
+			alertaAlmacen: false,
 			totalFondo: 0,
 			titulo: titulos[this.props.tipo],
 			almacen: this.props.almacen,
@@ -44,6 +45,26 @@ class FondoCajaComponent extends React.Component {
 		        {denominacion: .20, label: '.20¢', cantidad: 0, importe: 0},
 		        {denominacion: .10, label: '.10¢', cantidad: 0, importe: 0},
 		    ],
+		}
+	}
+
+	componentDidMount() {
+		let almacen = this.props.almacen
+		if (almacen && !this.props.cajero.superuser) {
+			let almacenes = this.props.cajero.almacenes
+			let permisoAlmacen = almacenes.find(a => {
+				return a.id === almacen.id
+			})
+
+			if (!permisoAlmacen) {
+				this.setState({alertaAlmacen: true})
+				let mensaje = `El usuario <b>${this.props.cajero.username}</b> no tiene asignado el ${this.props.configuracion.inventario.palabra_almacen.toLowerCase()} <b>${this.props.almacen.nombre}</b>`
+				this.props.mostrarAlerta({
+					titulo: 'Advertencia',
+					mensaje: mensaje
+				})
+			}
+
 		}
 	}
 
@@ -225,7 +246,7 @@ class FondoCajaComponent extends React.Component {
 	            		<fieldset>
 		            		<table className="table table-condensed vm m-0">
 		            			<tbody>
-			            			<tr>
+			            			<tr className={this.state.alertaAlmacen ? 'text-danger h5' : ''}>
 			            				<th>{this.props.configuracion.inventario.palabra_almacen}:</th>
 			            				<td className="text-right">
 			            					{ (this.props.sesionActiva && this.props.sesionActiva.almacen) ?
@@ -294,6 +315,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 	abrirCaja, 
 	seleccionarAlmacen, 
 	obtenerAlmacenes,
+	mostrarAlerta,
 	mensajeFlash
 }, dispatch);
 

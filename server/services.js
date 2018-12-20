@@ -62,7 +62,7 @@ exports.post = (options, onResult) => {
             body: JSON.stringify(options.data),
             headers: {
                 'Content-Type': 'application/json',
-                'Connection': 'keep-alive',
+                //'Connection': 'keep-alive',
                 'App-Version': process.env.APP_VERSION
             }
         }
@@ -128,7 +128,7 @@ exports.get = (options, onResult) => {
             url: uri, 
             qs: data,
             headers: {
-                'Connection': 'keep-alive',
+                //'Connection': 'keep-alive',
                 'App-Version': process.env.APP_VERSION
             }
         }

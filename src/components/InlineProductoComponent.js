@@ -31,8 +31,15 @@ class InlineProductoComponent extends React.Component {
 				</thead>
 				<tbody>
 					{ productos.map((p, index) => {
+						let productoDescontinuado = false
+						if (p.activo !== undefined) {
+							productoDescontinuado = p.activo
+						}
+
+						console.log(p)
+
 						return (
-						<tr title={`${p.activo ? '': 'Producto descontinuado'}`} key={`inline-${index}-${p.producto.id}`} className={`${p.activo ? '' : 'table-danger'}`}>
+						<tr title={`${ !productoDescontinuado ? '': 'Producto descontinuado'}`} key={`inline-${index}-${p.producto.id}`} className={`${p.activo ? '' : 'table-danger'}`}>
 							<td>
 								{ (!p.es_recarga) && 
 								<InputNumber

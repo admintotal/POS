@@ -1,6 +1,6 @@
 import * as actions from '../constants/ActionTypes';
 import moment from 'moment';
-import {precisionDecimales, redondeo} from '../helpers';
+import {precisionDecimales, getProductoInline, getStateTotales} from '../helpers';
 
 type actionType = {
   type: string
@@ -70,174 +70,10 @@ const defaultState = () => {
 export default function puntoVenta(state={...defaultState()}, action: actionType) {
     let newState = {...state}
     let data, venta, ventasEspera
-
-    const _get_acumulado = (state) => {
-        let acumulado = 0
-        let comision = 0
-
-        if (!state.productos.length) {
-            return {acumulado: 0, comision: 0} 
-        }
-        
-        if (state.efectivo.monto) {
-            acumulado += state.efectivo.monto
-        }
-
-        if (state.tarjeta.monto) {
-            acumulado += state.tarjeta.monto
-            comision += state.tarjeta.monto_comision || 0
-        }
-
-        if (state.fondo.monto) {
-            acumulado += state.fondo.monto
-        }
-
-        if (state.monedero.monto) {
-            acumulado += state.monedero.monto
-        }
-
-        if (state.transferencia.monto) {
-            acumulado += state.transferencia.monto
-        }
-
-        if (state.cheque.monto) {
-            acumulado += state.cheque.monto
-        }
-
-        // return {acumulado: +(acumulado.toFixed(2)), comision: +(comision.toFixed(2))}
-        return {acumulado: precisionDecimales(acumulado), comision: precisionDecimales(comision)}
-    }
-
-    const _get_totales = (state) => {
-        let total = 0
-        let totalDescuento = 0
-        let totalArticulos = 0
-        let {acumulado, comision} = _get_acumulado(state)
-        let solicitiarRecarga = false
-        let pagoServicioLdi = false
-
-        state.productos.map((p) => {
-            totalArticulos += p.cantidad
-            total += p.importe
-            totalDescuento += (p.descuento * p.cantidad)
-            
-            if (p.es_recarga) {
-                solicitiarRecarga = true
-            }
-
-            if (p.es_servicio_ldi) {
-                pagoServicioLdi = true
-            }
-
-            if (p.descuentoAutorizadoImporte) {
-                totalDescuento += p.descuentoAutorizadoImporte
-            }
-
-            return null
-        })
-        
-        return {
-            total: precisionDecimales(total + comision, 2),
-            totalDescuento: precisionDecimales(totalDescuento),
-            totalArticulos: totalArticulos,
-            comision: comision || 0,
-            aCobrar: acumulado,
-            pagoServicioLdi: pagoServicioLdi,
-            solicitiarRecarga: solicitiarRecarga,
-            cambio: precisionDecimales(acumulado - (total + comision), 2),
-        }
-    }
-
+    
     const _validar_pago = (pago) => {
         return pago.monto > 0;
     }
-
-    const _get_producto_inline = (data, um) => {
-        let obj = data.producto
-        let cant = data.cantidad
-        let descuento = 0
-        let es_recarga = data.es_recarga
-
-        if (um) {
-            obj.um = um
-        } 
-
-        if (!obj.um) {
-            obj.um = {}
-        }
-
-        let factorum = +obj.um.factor || 1
-        let cantidadFactor = cant * factorum
-        let precio_neto = redondeo(precisionDecimales(obj.precio_neto * factorum))
-        let precio_regular = precio_neto
-
-        let hoy = moment()
-
-        if (obj.promociones) {
-            obj.promociones.map((promo) => {
-                // validamos la fecha de vencimiento de la promoción
-                if (promo.vencimiento && promo.vencimiento !== "") {
-                    let vencimiento = moment(promo.vencimiento, "DD/MM/YYYY").endOf('day')
-                    if (! hoy.isSameOrBefore(vencimiento) ) {
-                        return null
-                    }
-                }
-
-                if (cantidadFactor >= +(promo.cantidad)) {
-                    if (precisionDecimales(promo.precio_neto * factorum) < precio_neto) {
-                        precio_neto = precisionDecimales(promo.precio_neto * factorum)
-                    }
-                }
-                return null
-            })
-        }
-
-        descuento = (precio_regular - precio_neto)
-
-        if (es_recarga) {
-            precio_neto = precisionDecimales(obj.recarga_saldo_importe, 2)
-            precio_regular = precio_neto
-        }
-
-        let es_servicio_ldi = false
-        if (data.es_servicio_ldi && obj.servicio_ldi_monto) {
-            es_servicio_ldi = true
-            precio_neto = obj.servicio_ldi_monto
-
-            // comision
-            if (obj.complementario) {
-                precio_regular = precio_neto
-                // precio_neto += precisionDecimales(obj.complementario.precio_venta, 2)
-            }
-
-        }
-
-        let importe = precisionDecimales(+precio_neto * cant, 2)
-        let descuentoAutorizadoImporte = 0
-        if (data.descuentoAutorizado) {
-            descuentoAutorizadoImporte = (data.descuentoAutorizado * importe / 100)
-            importe = importe - descuentoAutorizadoImporte
-        }
-
-        return {
-            importe: importe,
-            cantidad: cant,
-            producto: obj,
-            precio_regular: precisionDecimales(precio_regular, 2),
-            precio_neto: precisionDecimales(precio_neto, 2),
-            es_recarga: es_recarga,
-            es_servicio_ldi: es_servicio_ldi,
-            numeroTelefonico: data.numeroTelefonico,
-            descuento: descuento,
-            descuentoAutorizado: data.descuentoAutorizado,
-            descuentoAutorizadoImporte: descuentoAutorizadoImporte,
-            promociones: obj.promociones,
-            activo: obj.activo,
-            deshabilitarCantidad: data.deshabilitarCantidad,
-            deshabilitarBorrado: data.deshabilitarBorrado,
-        }
-    }
-
 
     let _reset_montos_pago = (state) => {
         return {
@@ -265,7 +101,7 @@ export default function puntoVenta(state={...defaultState()}, action: actionType
                         let precio_unitario_real = precisionDecimales(action.productos[p.producto.id].precio_unitario)
                         p.precio_neto = precio_unitario_real
                         p.importe = precisionDecimales(p.precio_neto * p.cantidad)
-                        p = _get_producto_inline(p)
+                        p = getProductoInline(p)
                         
                         // hotfix
                         p.precio_regular = p.precio_neto
@@ -278,7 +114,7 @@ export default function puntoVenta(state={...defaultState()}, action: actionType
             if (prods.length) {
                 newState.productos = prods
             }
-            return {...newState, cliente: action.cliente, ..._get_totales(newState)}
+            return {...newState, cliente: action.cliente, ...getStateTotales(newState)}
             
 
     	case actions.PV_SELECCIONAR_ALMACEN:
@@ -310,9 +146,9 @@ export default function puntoVenta(state={...defaultState()}, action: actionType
             return {...state, ac_clientes: clientes}
 
         case actions.PV_SELECCIONAR_PRODUCTO:
-            let pi = _get_producto_inline(action.producto)
+            let pi = getProductoInline(action.producto)
             newState.productos.unshift(pi)
-            return {...newState, ..._get_totales(newState), ac_productos:[]}
+            return {...newState, ...getStateTotales(newState), ac_productos:[]}
 
         case actions.PV_ELIMINAR_PRODUCTO:
             let index = action.index
@@ -337,7 +173,7 @@ export default function puntoVenta(state={...defaultState()}, action: actionType
 
                 state.productos = productos
                 state = {...state, ..._reset_montos_pago(state)}
-                return {...state, ..._get_totales(state)}
+                return {...state, ...getStateTotales(state)}
             }
 
             return {...state}
@@ -347,19 +183,19 @@ export default function puntoVenta(state={...defaultState()}, action: actionType
             let pago = action.pago
             if (pago.monto === 0) {
                 newState = {...newState, [pago.tipo]: {}}
-                return {...newState, ..._get_totales(newState)}    
+                return {...newState, ...getStateTotales(newState)}    
             }
 
             if (_validar_pago(pago)) {
                 newState = {...newState, [pago.tipo]: pago}
-                return {...newState, ..._get_totales(newState)}
+                return {...newState, ...getStateTotales(newState)}
             }
 
             return {...newState}
 
         case actions.PV_CHANGE_TIPO_PAGO:
             newState = {...newState, [action.tipo]: action.data}
-            return {...newState, ..._get_totales(newState)}
+            return {...newState, ...getStateTotales(newState)}
 
         case actions.PV_NUEVA_VENTA:
             return {
@@ -396,7 +232,7 @@ export default function puntoVenta(state={...defaultState()}, action: actionType
             }
 
             if (index > -1) {
-                let pi = _get_producto_inline(action.producto)
+                let pi = getProductoInline(action.producto)
                 newState.productos[index] = pi
                 newState = {...newState, ..._reset_montos_pago(newState)}
                 return {
@@ -404,7 +240,7 @@ export default function puntoVenta(state={...defaultState()}, action: actionType
                     productos: newState.productos.map((i) => {
                         return i
                     }),
-                    ..._get_totales(newState)
+                    ...getStateTotales(newState)
                 }
             }
 
@@ -420,17 +256,17 @@ export default function puntoVenta(state={...defaultState()}, action: actionType
 
         case actions.PV_SET_UM_PRODUCTO:
             let producto = state.productos[action.index]
-            pi = _get_producto_inline(producto, action.um)
+            pi = getProductoInline(producto, action.um)
             newState.productos[action.index] = pi
             newState = {...newState, ..._reset_montos_pago(newState)}
-            return {...state, ..._get_totales(newState)}
+            return {...state, ...getStateTotales(newState)}
 
 
         case actions.PV_SET_VENTA_ESPERA:
             let enEspera = state.ventasEspera
             enEspera.unshift({
                 ...action.venta,
-                ..._get_totales(action.venta),
+                ...getStateTotales(action.venta),
                 inicioEspera: moment(),
                 ac_cliente: action.venta.cliente.razon_social
             })
@@ -456,7 +292,7 @@ export default function puntoVenta(state={...defaultState()}, action: actionType
 
             return {
                 ...venta,
-                ..._get_totales(venta),
+                ...getStateTotales(venta),
                 siguienteFolio: state.siguienteFolio,
                 ventaIndex: action.ventaIndex,
                 ventasEspera: ventasEspera
@@ -502,7 +338,7 @@ export default function puntoVenta(state={...defaultState()}, action: actionType
                     copyVenta[kk] = action.venta[kk]
                 }
             }
-            return {...state, ...copyVenta, ..._get_totales(copyVenta)}
+            return {...state, ...copyVenta, ...getStateTotales(copyVenta)}
 
         default:
           return state;

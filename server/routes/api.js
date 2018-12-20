@@ -1546,10 +1546,22 @@ exports.pedido = (req, res) => {
     db._getDB(req.query.api_key).then(async (dbCliente) => {
         let usuario = await dbCliente.usuarios.findOne({id: Number(req.query.usuario)})
         let pedido = await dbCliente.pedidos.findOne({'_id': req.params.id})
-        return res.json({
-            status: 'success',
-            pedido: pedido,
+        let productos_ids = []
+
+        let proms = pedido.productos.map(async (p) => {
+            let producto = await dbCliente.productos.findOne({id: p.producto.id})
+            p.producto = producto
+            return p
         })
+
+        return Promise.all(proms).then((productos) => {
+            pedido.productos = productos
+            return res.json({
+                status: 'success',
+                pedido: pedido,
+            })
+        })
+
     })
     .catch((e) => {
         logger.log('error', e)

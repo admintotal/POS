@@ -1,5 +1,5 @@
 import * as actions from '../constants/ActionTypes';
-import {precisionDecimales} from '../helpers';
+import {getProductoInline, getStateTotales} from '../helpers';
 
 type actionType = {
   type: string
@@ -31,69 +31,6 @@ const defaultState = () => {
 export default function pedidos(state={...defaultState()}, action: actionType) {
     let newState = {...state}
 
-    const _get_totales = (state) => {
-        let total = 0
-        let totalDescuento = 0
-        let totalArticulos = 0
-
-        state.productos.map((p) => {
-            totalArticulos += p.cantidad
-            total += p.importe
-            totalDescuento += (p.descuento * p.cantidad)
-            return null
-        })
-        
-        return {
-            total: precisionDecimales(total),
-            totalDescuento: precisionDecimales(totalDescuento),
-            totalArticulos: totalArticulos,
-            comision: 0
-        }
-    }
-
-    const _get_producto_inline = (data, um) => {
-        let obj = data.producto
-        let cant = data.cantidad
-        let descuento = 0
-        let es_recarga = data.es_recarga
-
-        if (um) {
-            obj.um = um
-        }
-
-        let factorum = +obj.um.factor || 1
-        let cantidadFactor = cant * factorum
-        let precio_neto = precisionDecimales(obj.precio_neto) * factorum
-        let precio_regular = precisionDecimales(precio_neto)
-        
-        if (obj.promociones) {
-            obj.promociones.map((promo) => {
-                if (cantidadFactor >= +(promo.cantidad)) {
-                    precio_neto = precisionDecimales(promo.precio_neto) * factorum
-                }
-                return null
-            })
-        }
-
-        descuento = (precio_regular - precio_neto)
-
-        if (es_recarga) {
-            precio_neto = precio_regular = precisionDecimales(obj.recarga_saldo_importe)
-        }
-
-        return {
-            importe: Number(precio_neto) * cant,
-            cantidad: cant,
-            producto: obj,
-            precio_regular: precio_regular,
-            precio_neto: precio_neto,
-            es_recarga: es_recarga,
-            descuento: descuento,
-            activo: obj.activo,
-            promociones: obj.promociones,
-        }
-    }
-
 	switch (action.type) {
 
         case actions.PEDIDOS_SELECCIONAR_CLIENTE:
@@ -118,9 +55,9 @@ export default function pedidos(state={...defaultState()}, action: actionType) {
             return {...state, ac_clientes: action.data.objects}
 
         case actions.PEDIDOS_SELECCIONAR_PRODUCTO:
-            let pi = _get_producto_inline(action.producto)
+            let pi = getProductoInline(action.producto)
             newState.productos.unshift(pi)
-            return {...newState, ..._get_totales(newState), ac_productos:[]}
+            return {...newState, ...getStateTotales(newState), ac_productos:[]}
 
         case actions.PEDIDOS_ELIMINAR_PRODUCTO:
             let index = action.index
@@ -132,7 +69,7 @@ export default function pedidos(state={...defaultState()}, action: actionType) {
                     ...prods.slice(index + 1),
                 ]
                 state.productos = productos
-                return {...state, ..._get_totales(state)}
+                return {...state, ...getStateTotales(state)}
             }
 
             return {...state}
@@ -149,9 +86,9 @@ export default function pedidos(state={...defaultState()}, action: actionType) {
             })
 
             if (index > -1) {
-                let pi = _get_producto_inline(action.producto)
+                let pi = getProductoInline(action.producto)
                 newState.productos[index] = pi
-                return {...newState, ..._get_totales(newState)}
+                return {...newState, ...getStateTotales(newState)}
             }
 
             return {...newState}
@@ -166,16 +103,20 @@ export default function pedidos(state={...defaultState()}, action: actionType) {
             return {...defaultState()}
 
         case actions.PEDIDOS_SET_PEDIDO:
-            return {...action.pedido, ac_cliente: action.pedido.cliente.razon_social}
+            action.pedido.productos.forEach((p, i) => {
+                action.pedido.productos[i] = getProductoInline(action.pedido.productos[i])
+            })
+
+            return {...action.pedido, ...getStateTotales(action.pedido), ac_cliente: action.pedido.cliente.razon_social}
 
         case actions.PEDIDOS_SET_CLIENTE_AC:
             return {...state, ac_cliente: action.cliente}
 
         case actions.PEDIDOS_SET_UM_PRODUCTO:
             let producto = state.productos[action.index]
-            pi = _get_producto_inline(producto, action.um)
+            pi = getProductoInline(producto, action.um)
             newState.productos[action.index] = pi
-            return {...state, ..._get_totales(newState)}
+            return {...state, ...getStateTotales(newState)}
 
         default:
           return state;

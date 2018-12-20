@@ -32,6 +32,7 @@ import {
 	mensajeFlash,
 	autocompleteProducto,
 	autocompleteCliente,
+	mostrarAlerta,
 } from '../actions';
 import {
     getClienteObj, 
@@ -119,11 +120,13 @@ class PedidoFormComponent extends React.Component {
 
 	getProductoInline(cant=this.state.cantidad, obj) {
 		let es_recarga = Number(obj.recarga_saldo_importe) > 0
-		return {
-			cantidad: cant, 
-			es_recarga: es_recarga,
-			producto: obj
-		}
+        let es_servicio_ldi = Number(obj.ldi_servicio_id) > 0
+        return {
+            cantidad: cant, 
+            es_recarga: es_recarga,
+            es_servicio_ldi: es_servicio_ldi,
+            producto: obj
+        }
 	}
 
 	onSelectProducto(value, obj, cant=this.state.cantidad) {
@@ -144,15 +147,16 @@ class PedidoFormComponent extends React.Component {
 			this.setCantidadProducto(cant + this.props.productos[productoIndex].cantidad, this.props.productos[productoIndex])
 		} else {
 			producto = this.getProductoInline(cant, obj)
+			
 			if (producto.es_recarga) {
-				return this.setState({
-					ac_producto: '', 
-					cantidad: 1,
-					modalRecarga: {
-						titulo: producto.producto.descripcion,
-						producto: producto
-					}
+				return this.props.mostrarAlerta({
+					mensaje: 'No se puede agregar recargas en pedidos.'
 				})
+			}  else if (producto.es_servicio_ldi) {
+				return this.props.mostrarAlerta({
+					mensaje: 'No se puede agregar pagos de servicios en pedidos.'
+				})
+
 			} else {
 				this.props.seleccionarProducto(producto)
 			}
@@ -583,6 +587,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 	setClienteAc,
 	nuevoPedido,
 	setUmProducto,
+	mostrarAlerta,
 	seleccionarCliente
 }, dispatch);
 

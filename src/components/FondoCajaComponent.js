@@ -51,7 +51,7 @@ class FondoCajaComponent extends React.Component {
 	componentDidMount() {
 		let almacen = this.props.almacen
 		if (almacen && !this.props.cajero.superuser) {
-			let almacenes = this.props.cajero.almacenes
+			let almacenes = this.props.cajero.almacenes || []
 			let permisoAlmacen = almacenes.find(a => {
 				return a.id === almacen.id
 			})

@@ -528,7 +528,6 @@ class PuntoVentaComponent extends React.Component {
 
     componentDidMount() {
         let ventaId = this.props.ventaId
-
         if (ventaId) {
             let {concluirVenta} = this.props
             this.props.cerrarVenta()
@@ -799,8 +798,8 @@ class PuntoVentaComponent extends React.Component {
                 if (pago.monto > totalFondo) {
                     return this.props.mensajeFlash('error', 'El fondo del cliente no es suficiente.')
                 }
-
-                if (pago.monto > porPagar) {
+                
+                if (pago.monto > (porPagar + (this.props.fondo.monto || 0))) {
                     return this.props.mensajeFlash('error', `El monto del fondo no puede ser mayor a $${formatCurrency(porPagar)}.`)
                 }
             }
@@ -1051,6 +1050,10 @@ class PuntoVentaComponent extends React.Component {
                 
         // this.setState({guardar: {habilitado: false, texto: 'Guardando...'}})
         this.props.guardarVenta(this.props.api_key, venta)
+        this.setState({
+            ...this.state,
+            fondo: {}
+        })
 
         if (this.props.ventaIndex) {
             this.props.eliminarVentaEspera(this.props.ventaIndex)
@@ -1118,7 +1121,6 @@ class PuntoVentaComponent extends React.Component {
             ventaObj.tarjeta.monto = cobro.monto
             
             let statusCobro = await Api.cobrarVentaTarjeta(this.props.api_key, ventaObj)
-            console.log(statusCobro)
             if (statusCobro.venta) {
                 this.props.setProp({folio: statusCobro.venta.folio, numero_serie: statusCobro.venta.numero_serie})
             }
@@ -1151,7 +1153,6 @@ class PuntoVentaComponent extends React.Component {
 
             this.props.cargando(false)
         } catch(e) {
-            console.error(e)
             this.props.cargando(false)
             
             ventaObj.tarjeta.monto = montoTarjetaOrig
@@ -2156,6 +2157,15 @@ class PuntoVentaComponent extends React.Component {
                                         </thead>
                                         <tbody>
                                         { this.props.cliente.fondo.map(f => {
+                                            let getValue = (f) => {
+                                                let aplicaciones = this.state.fondo.aplicaciones || {}
+                                                if ((f.id in aplicaciones)) {
+                                                    return aplicaciones[f.id].monto
+                                                }
+                                                
+                                                return 0
+                                            }
+
                                             return (
                                             <tr key={`fondo-${f.id}`}>
                                                 <td>{moment(f.fecha).format('DD/MM/YYYY')}</td>
@@ -2163,10 +2173,12 @@ class PuntoVentaComponent extends React.Component {
                                                 <td className="text-right">${formatCurrency(f.saldo)}</td>
                                                 <td style={{width: '150px'}}>
                                                     <input
-                                                      type="text" 
+                                                      type="number" 
+                                                      min="0"
                                                       className="form-control text-right"
                                                       onFocus={this.selectOnFocus.bind(this)}
                                                       onKeyPress={this.handleKeyPress.bind(this)}
+                                                      value={ getValue(f) }
                                                       onChange={(e) => {
                                                             let aplicaciones = this.state.fondo.aplicaciones || {}
                                                             let montoTotal = 0
@@ -2189,12 +2201,6 @@ class PuntoVentaComponent extends React.Component {
                                                                     aplicaciones: aplicaciones
                                                                 }
                                                             })
-
-                                                            /*this.props.changeTipoPago('fondo', {
-                                                                ...this.props.fondo, 
-                                                                monto: montoTotal, 
-                                                                aplicaciones: aplicaciones
-                                                            })*/
                                                         }}
                                                     />
                                                 </td>

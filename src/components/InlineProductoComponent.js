@@ -36,8 +36,6 @@ class InlineProductoComponent extends React.Component {
 							productoDescontinuado = p.activo
 						}
 
-						console.log(p)
-
 						return (
 						<tr title={`${ !productoDescontinuado ? '': 'Producto descontinuado'}`} key={`inline-${index}-${p.producto.id}`} className={`${p.activo ? '' : 'table-danger'}`}>
 							<td>

@@ -35,10 +35,6 @@ let nsLookup = function(domain, timeout, callback) {
 
 exports.checkConnection = (opts = {}) => {
     return new Promise((resolve, reject) => {
-        if (!helpers.isEnv('production')) {
-            return resolve(true)
-        }
-
         return nsLookup('google.com', opts.timeout || 5000, (err, addresses) => {
             if (err) {
                 if (opts.returnBool) {
@@ -62,7 +58,7 @@ exports.post = (options, onResult) => {
             body: JSON.stringify(options.data),
             headers: {
                 'Content-Type': 'application/json',
-                //'Connection': 'keep-alive',
+                'Connection': 'keep-alive',
                 'App-Version': process.env.APP_VERSION
             }
         }
@@ -128,7 +124,7 @@ exports.get = (options, onResult) => {
             url: uri, 
             qs: data,
             headers: {
-                //'Connection': 'keep-alive',
+                'Connection': 'keep-alive',
                 'App-Version': process.env.APP_VERSION
             }
         }

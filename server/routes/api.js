@@ -103,7 +103,7 @@ exports.cliente = (req, res) => {
             productos = req.query.productos
         }
         
-        let internetDisponible = true
+        let internetDisponible = await helpers.validarConexionInternet()
         let resetProds = async (productos, cliente) => {
             if (typeof productos === 'string') {
                 let ps = {}
@@ -141,29 +141,25 @@ exports.cliente = (req, res) => {
             }
         }
 
-        if (cliente.credito && cliente.credito.habilitado || validarPrecioUnitario) {
-            internetDisponible = await helpers.validarConexionInternet()
-
-            if (internetDisponible) {
-                return helpers.actualizarCliente({dbCliente:dbCliente, clienteId: id, api_key: req.query.api_key, productos:productos})
-                .then(async (result) => {
-                    return res.json({
-                        status: 'success',
-                        object: result.cliente,
-                        productos: result.productos,
-                        internetDisponible: internetDisponible
-                    })
+        if (internetDisponible) {
+            return helpers.actualizarCliente({dbCliente:dbCliente, clienteId: id, api_key: req.query.api_key, productos:productos})
+            .then(async (result) => {
+                return res.json({
+                    status: 'success',
+                    object: result.cliente,
+                    productos: result.productos,
+                    internetDisponible: internetDisponible
                 })
-                .catch(async (err) => {
-                    productos = await resetProds(req.query.productos, cliente)
-                    return res.json({
-                        status: 'error',
-                        object: cliente,
-                        productos: productos,
-                        message: 'Error al consultar el cliente con admintotal.'
-                    })
+            })
+            .catch(async (err) => {
+                productos = await resetProds(req.query.productos, cliente)
+                return res.json({
+                    status: 'error',
+                    object: cliente,
+                    productos: productos,
+                    message: 'Error al consultar el cliente con admintotal.'
                 })
-            }
+            })
         } 
 
         productos = await resetProds(req.query.productos, cliente)

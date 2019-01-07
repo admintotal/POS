@@ -78,7 +78,7 @@ exports.cantidadLetra = (num, moneda) => {
     return text;
 }
 
-function unidad(u){
+const unidad = (u) => {
     var text = '';
     if(u == '9')
         text = 'NUEVE';
@@ -101,7 +101,7 @@ function unidad(u){
     return text
 }
 
-function decena(n){
+const decena = (n) =>{
     text = '';
     if(n.length < 2 ){
         text = unidad(n)
@@ -170,7 +170,7 @@ function decena(n){
     return text
 }
 
-function centena(num) {
+const centena = (num) => {
     text = '';
     
     if(num.length < 3) 
@@ -707,4 +707,11 @@ exports.getNumeroTarjeta = (numero) => {
     }
 
     return  `${numero}`.substr(`${numero}`.length - 4);
+}
+
+exports.getVentasError = async (opts) => {
+    let {db, proj} = opts
+
+    let ventas = await db.ventas.find({error: true}, proj || {})
+    return ventas
 }

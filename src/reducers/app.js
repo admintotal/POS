@@ -67,11 +67,11 @@ export default function app(state=defaultState, action: actionType) {
         let pinpadModoPruebas = false
 
         if (action.data.pinpad && action.data.habilitarPinpad) {
-            if (action.data.pinpad.banco === 'banorte') {
+            if (action.data.pinpad.banco.toLowerCase() === 'banorte') {
                 pinpadModoPruebas = action.data.pinpad.modoPruebas
             }
 
-            if (action.data.pinpad.banco === 'santander') {
+            if (action.data.pinpad.banco.toLowerCase() === 'santander') {
                 pinpadModoPruebas = action.data.pinpad.url === 'https://qa3.mitec.com.mx'
             }
         }

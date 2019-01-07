@@ -548,12 +548,39 @@ exports.enviarRetiros = async function(api_key, dbCliente, retiros, opciones={})
 exports.ventas = async function(req, res) {
 	api.checkConnection().then(() => {
 		return db._getDB(req.query.api_key).then(async (DB) => {
-			let ventas = await DB.ventas.find({
+			let filtroObj = {
 				sincronizada: false, 
 				requiereFactura: false, 
 				motivoError: { $exists: false }, 
 				sincHabilitada: { $exists: false }
-			})
+			}
+
+			if (req.query.forzar && Boolean(req.query.forzar)) {
+				filtroObj = {
+					requiereFactura: false, 
+					$or: [
+		                {sincronizada: false},
+		                {motivoError:  { $exists: true }}
+		            ]
+				}
+			}
+			
+			if (req.query.desde) {
+	            if (!filtroObj.fecha) {
+	                filtroObj.fecha = {}
+	            }
+
+	            filtroObj.fecha['$gte'] = req.query.desde
+	        }
+
+	        if (req.query.hasta) {
+	            if (!filtroObj.fecha) {
+	                filtroObj.fecha = {}
+	            }
+
+	            filtroObj.fecha['$lte'] = req.query.hasta
+	        }
+			let ventas = await DB.ventas.find(filtroObj)
 
 			// enviar maximo de ventas
 			ventas = ventas.splice(0, 40)

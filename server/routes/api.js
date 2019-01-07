@@ -800,6 +800,7 @@ exports.guardarVenta = (req, res) => {
             d = await dbCliente.ventas.findOne({folio: req.body.folio, numero_serie: req.body.numero_serie})
         } else {
             d = await dbCliente.ventas.insert(venta)
+            await dbCliente.conf.update({}, {$set: {folio_inicial: venta.folio + 1}})
         }
             
         let clienteDefault = conf.configuracion.facturacion.cliente_mostrador_default;
@@ -926,6 +927,16 @@ exports.guardarVenta = (req, res) => {
 
                 if (d._id in sincronizacionVenta.urls_pdf) {
                     d.urlReciboVenta = sincronizacionVenta.urls_pdf[d._id]
+                }
+                
+                if (d._id in sincronizacionVenta.urls_error_timbrado) {
+                    d.urlErrorTimbrado = sincronizacionVenta.urls_error_timbrado[d._id]
+                }
+
+                if (d._id in sincronizacionVenta.ventas_guardadas) {
+                    d.folio = sincronizacionVenta.ventas_guardadas[d._id].folio
+                    d.numero_serie = sincronizacionVenta.ventas_guardadas[d._id].serie
+                    d.id = sincronizacionVenta.ventas_guardadas[d._id].id // admintotal id
                 }
 
                 await dbCliente.ventas.update({_id: d._id}, {$set: d})
@@ -1357,21 +1368,15 @@ exports.ventas = (req, res) => {
         let filtroObj = {}
 
         if (! usuario.autorizaciones.guardar_configuracion_desktop ) {
-            filtroObj = {
-                'sesionCaja.cajero.id': +req.query.usuario
-            }
+            filtroObj['sesionCaja.cajero.id'] = +req.query.usuario
         }
 
         if (req.query.sesion_caja) {
-            filtroObj = {
-                'sesionCaja._id': +req.query.sesion_caja
-            }
+            filtroObj['sesionCaja._id'] = req.query.sesion_caja
         }
 
         if (req.query.sincronizadas) {
-            filtroObj = {
-                'sincronizada': Boolean(+req.query.sincronizadas)
-            }
+            filtroObj['sincronizada'] = Boolean(+req.query.sincronizadas)
         }
 
         if (req.query.desde) {
@@ -1393,14 +1398,28 @@ exports.ventas = (req, res) => {
         if (req.query.folio) {
             filtroObj.folio = +req.query.folio
         }
+        
+        if (req.query.sincronizada === 'false') {
+            filtroObj.sincronizada = false
+        }
 
         if (req.query.status) {
-            if (req.query.status === 'error') {
-                filtroObj.error = true
-            } else if (req.query.status === 'sincronizadas') {
-                filtroObj.error = {$exists: false}
-                filtroObj.sincronizada = true
-            }
+            filtroObj['$or'] = []
+
+            req.query.status.split(',').forEach((status) => {
+                let f = {}
+                if (status === 'error') {
+                    f.error = true
+                } else if (status === 'pendientes') {
+                    f.sincronizada = false
+                } else if (status === 'sincronizadas') {
+                    f.error = {$exists: false}
+                    f.sincronizada = true
+                }
+
+                filtroObj['$or'].push(f)
+            })
+            
         }
 
     
@@ -1423,6 +1442,7 @@ exports.ventas = (req, res) => {
         let retiros;
         
         if (sesionActiva) {
+            let retirosSincronizados = 0
             retiros = await dbCliente.retiros.find({'sesion_caja._id': sesionActiva._id}) || []
 
             retiros.map((r, index) => {
@@ -1431,10 +1451,14 @@ exports.ventas = (req, res) => {
                 delete r['denominaciones']
                 totalRetiro += r.totalFondo
                 retiros[index] = r
+                if (r.sincronizado) {
+                    retirosSincronizados += 1
+                }
             })
 
             retiros = {
                 totalRetirado: totalRetiro,
+                sincronizados: retirosSincronizados,
                 objects: retiros,
                 sesion_activa: true
             }
@@ -1993,6 +2017,8 @@ exports.guardarConfiguracion = async (req, res) => {
         if (pinpad.password) {
             pinpad.password = helpers.encrypt(pinpad.password)
         }
+        
+        process.env.NUMERO_SERIE = numero_serie
 
         await dbCliente.conf.update({}, {$set: {
             numero_serie: numero_serie, 

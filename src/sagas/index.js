@@ -435,14 +435,9 @@ export function* guardarConfiguracionAsync(action) {
 		let data = yield call(Api.guardarConfiguracion, action.api_key, action.data)
 		yield put({type: actions.SET_CONFIGURACION, data: data.configuracion});
 		yield put({type: actions.MENSAJE_FLASH, tipo: 'success', mensaje: 'Los datos han sido guardados correctamente.'});
-
-		/*if (data.configuracion.habilitarPinpad) {
-			let pp = data.configuracion.pinpad
-			if (pp.banco.toLowerCase() === 'santander') {
-				yield call(maximize);
-			}
-		}*/
 		
+		yield put({type: actions.PV_SIGUIENTE_FOLIO, siguienteFolio: data.configuracion.folio_inicial})
+
 		if (data.descargarProductos) {
 			try {
 				yield put({type: actions.CANCELAR_SINCRONIZACION, api_key: action.api_key, sincronizacion: 'productos'})

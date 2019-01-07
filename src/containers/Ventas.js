@@ -13,6 +13,7 @@ import IngresoAutorizacionComponent from '../components/IngresoAutorizacionCompo
 import { Link } from 'react-router-dom';
 import ReactDatetime from 'react-datetime';
 import '../../node_modules/react-datetime/css/react-datetime.css';
+import queryString from 'query-string';
 
 class Ventas extends React.Component {
 	constructor(props) {
@@ -21,8 +22,9 @@ class Ventas extends React.Component {
 		this.state = {
             paginador: {},
             filtroVentas: {
+                visible: false,
                 usuario: props.usuario.id,
-                status: '',
+                status: [''],
                 folio: '',
                 desde: moment().startOf('day'),
                 hasta: moment().endOf('day'),
@@ -34,12 +36,30 @@ class Ventas extends React.Component {
 	}
 
 	componentDidMount() {
-        this.obtenerVentas()
+        let qs = queryString.parse(this.props.location.search)
+        let filtro = {}
+
+        if (qs.pendientesSinc) {
+            filtro = {
+                ...this.state.filtroVentas,
+                visible: true,
+                status: ['error', 'pendientes'],
+                desde: undefined,
+                hasta: undefined,
+                sesion_caja: this.props.sesionCaja ? this.props.sesionCaja._id : ''
+            }
+            this.setState({
+                ...this.state,
+                filtroVentas: filtro
+            })
+        }
+
+        this.obtenerVentas(filtro)
 	}
 
-    obtenerVentas() {
+    obtenerVentas(filtro={}) {
         this.props.cargando()
-        Api.obtenerVentas(this.props.api_key, {...this.state.filtroVentas}, true)
+        Api.obtenerVentas(this.props.api_key, {...this.state.filtroVentas, ...filtro}, true)
         .then((res)  => {
             this.setState({ventas: res.objects, retiros: res.retiros, paginador: res.paginador, ventasRealizadas: res.ventasRealizadas})
             this.props.cargando(false)
@@ -53,7 +73,7 @@ class Ventas extends React.Component {
     sincronizarVentas() {
         let comp = this
         comp.setState({habilitarSinc: false})
-        Api.sincronizarVentas(this.props.api_key).then((result) => {
+        Api.sincronizarVentas(this.props.api_key, {forzar: true, desde: this.state.filtroVentas.desde, hasta: this.state.filtroVentas.hasta}).then((result) => {
             comp.setState({habilitarSinc: true})
             if (result.status === 'success') {
                 this.obtenerVentas()
@@ -249,7 +269,7 @@ class Ventas extends React.Component {
                     </button>
 
                     { Boolean(retiros.totalRetirado && retiros.totalRetirado > 0) &&
-                        <button className="btn btn-link text-info mr-2" onClick={this.mostrarRetiros.bind(this)}>
+                        <button className={`btn btn-link text-${retiros.objects.length === retiros.sincronizados ? 'info' : 'warning'} mr-2`} onClick={this.mostrarRetiros.bind(this)}>
                             Total Retirado: <b>${formatCurrency(retiros.totalRetirado)}</b>
                         </button>
                     }
@@ -260,81 +280,92 @@ class Ventas extends React.Component {
                             </button>
                         </span>
                     }
+                    <a title="Filtro de ventas" className="btn btn-light ml-1" data-toggle="collapse" href="#collapseFilter" role="button" aria-expanded={this.state.filtroVentas.visible}>
+                        <i className="ion-funnel"></i>
+                    </a>
                 </div>
+                <div className={`collapse ${this.state.filtroVentas.visible ? 'show' : ''}`}  id="collapseFilter">
+                    <div className="row">
+                        <div className="col">
+                            <div className="form-group">
+                                <label htmlFor="">Status:</label>
+                                <select multiple={true} className="form-control" 
+                                    value={this.state.filtroVentas.status}
+                                    onChange={(e) => {
+                                        let vals = [...e.target.options].filter(o => o.selected).map(o => o.value)
+                                        console.log(vals)
+                                        this.changeFiltroVentas('status', vals)
+                                    }}
+                                >
+                                    <option value="">Todas</option>
+                                    <option value="pendientes">Pendientes</option>
+                                    <option value="sincronizadas">Sincronizadas</option>
+                                    <option value="error">Con Error</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div className="col">
+                            <div className="form-group">
+                                <label htmlFor="">Desde:</label>
+                                <ReactDatetime
+                                    ref={(picker) => {this.pickerDesde = picker }}
+                                    isValidDate={(current) => {
+                                        let valid = current.isBefore(moment())
+                                        return valid
+                                    }}
+                                    value={this.state.filtroVentas.desde}
+                                    inputProps={{
+                                        className:"form-control",
+                                        onBlur: () => {
+                                            setTimeout(() => this.pickerDesde.closeCalendar(), 550)
+                                        }
+                                    }}
+                                    onChange={(d) => {this.changeFiltroVentas('desde', d)}}
+                                 />
+                            </div>
+                        </div>
 
-                <div className="row">
-                    <div className="col">
-                        <div className="form-group">
-                            <label htmlFor="">Status:</label>
-                            <select className="form-control" 
-                                value={this.state.filtroVentas.status}
-                                onChange={(e) => {this.changeFiltroVentas('status', e.target.value)}}
-                            >
-                                <option value="">Todas</option>
-                                <option value="sincronizadas">Sincronizadas</option>
-                                <option value="error">Con Error</option>
-                            </select>
+                        <div className="col">
+                            <div className="form-group">
+                            <label htmlFor="">Hasta:</label>
+                                <ReactDatetime
+                                    ref={(picker) => {this.pickerHasta = picker }}
+                                    isValidDate={(current) => {
+                                        let valid = current.isBefore(moment())
+                                        return valid
+                                    }}
+                                    value={this.state.filtroVentas.hasta}
+                                    inputProps={{
+                                        className:"form-control",
+                                        onBlur: () => {
+                                            setTimeout(() => this.pickerHasta.closeCalendar(), 550)
+                                        }
+                                    }}
+                                    onChange={(d) => {this.changeFiltroVentas('hasta', d)}}
+                                 />
+                            </div>
                         </div>
-                    </div>
-                    <div className="col">
-                        <div className="form-group">
-                        <label htmlFor="">Desde:</label>
-                            <ReactDatetime
-                                ref={(picker) => {this.pickerDesde = picker }}
-                                isValidDate={(current) => {
-                                    let valid = current.isBefore(moment())
-                                    return valid
-                                }}
-                                value={this.state.filtroVentas.desde}
-                                inputProps={{
-                                    className:"form-control",
-                                    onBlur: () => {
-                                        setTimeout(() => this.pickerDesde.closeCalendar(), 550)
-                                    }
-                                }}
-                                onChange={(d) => {this.changeFiltroVentas('desde', d)}}
-                             />
-                        </div>
-                    </div>
-                    <div className="col">
-                        <div className="form-group">
-                        <label htmlFor="">Hasta:</label>
-                            <ReactDatetime
-                                ref={(picker) => {this.pickerHasta = picker }}
-                                isValidDate={(current) => {
-                                    let valid = current.isBefore(moment())
-                                    return valid
-                                }}
-                                value={this.state.filtroVentas.hasta}
-                                inputProps={{
-                                    className:"form-control",
-                                    onBlur: () => {
-                                        setTimeout(() => this.pickerHasta.closeCalendar(), 550)
-                                    }
-                                }}
-                                onChange={(d) => {this.changeFiltroVentas('hasta', d)}}
-                             />
-                        </div>
-                    </div>
 
-                    <div className="col">
-                        <div className="form-group">
-                        <label htmlFor="">Folio:</label>
-                            <input type="text" className="form-control" 
-                                onBlur={(e) => {this.changeFiltroVentas('folio', e.target.value)}} />
+                        <div className="col">
+                            <div className="form-group">
+                            <label htmlFor="">Folio:</label>
+                                <input type="text" className="form-control" 
+                                    onBlur={(e) => {this.changeFiltroVentas('folio', e.target.value)}} />
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="col">
-                        <div className="form-group">
-                        <label htmlFor="">Por pág:</label>
-                            <select className="form-control" 
-                                value={this.state.filtroVentas.elemPorPag}
-                                onChange={(e) => {this.changeFiltroVentas('elemPorPag', e.target.value)}} >
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                                <option value="200">200</option>
-                            </select>
+                        <div className="col">
+                            <div className="form-group">
+                            <label htmlFor="">Por pág:</label>
+                                <select className="form-control" 
+                                    value={this.state.filtroVentas.elemPorPag}
+                                    onChange={(e) => {this.changeFiltroVentas('elemPorPag', e.target.value)}} >
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="200">200</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -344,12 +375,12 @@ class Ventas extends React.Component {
                     	<table className="table table-condensed vm table-list table-hover table-list clickeable">
                     		<thead>
                     			<tr>
-                                    <th>Sinc.</th>
+                                    <th style={{width: '100px'}}>Sinc.</th>
                                     <th style={{width: '215px'}}>Folio</th>
                     				<th>Fecha</th>
                                     <th>Cliente</th>
                                     <th className="text-right">Monto</th>
-                                    <th style={{width: '90px'}}></th>
+                                    <th style={{width: '120px'}}></th>
                     			</tr>
                     		</thead>
                     		<tbody>
@@ -360,7 +391,7 @@ class Ventas extends React.Component {
                                             venta.motivoError ? `Error: ${venta.motivoError}` : (
                                                 venta.requiereFactura ? (venta.timbrada ? 'Venta Timbrada' : 'Venta no timbrada') : '')
                                         }
-                                        className={`${venta.requiereFactura ? (venta.timbrada ? 'text-info' : 'text-secondary') : ''} `}
+                                        className={`${venta.requiereFactura ? (venta.timbrada ? 'text-success' : 'text-info') : ''} `}
                                         >
                                         <td onClick={() => this.props.verVenta(venta, false, {
                                             onSincronizarVenta: (res) => {
@@ -372,16 +403,16 @@ class Ventas extends React.Component {
                                             <span className="badge badge-warning">Pendiente</span>
                                         }
                                         { !venta.pendiente &&
-                                            <div>
+                                            <span>
                                             {venta.sincronizada ?
                                                 <span className="badge badge-success">Si</span>
                                                 :
                                                 <span className="badge badge-default">Pendiente</span>
                                             }
-                                            </div>
+                                            </span>
                                         }
 
-                                        { venta.error && <div className="badge badge-warning ml-2"><i className="ion-alert"></i></div> }
+                                        { venta.error && <span className="badge badge-warning ml-2"><i className="ion-alert"></i></span> }
                                         </td>
                                         <td onClick={() => this.props.verVenta(venta, false, {
                                             onSincronizarVenta: (res) => {
@@ -389,10 +420,7 @@ class Ventas extends React.Component {
                                                 this.obtenerVentas(false);
                                             }
                                         })}>
-                                            { venta.requiereFactura ? 
-                                                    '-----' : 
-                                                    ( venta.numero_serie ? (venta.numero_serie + '-' + venta.folio) : venta.folio )
-                                            }
+                                            <span>{ venta.numero_serie ? (venta.numero_serie + '-' + (venta.folio || '')) : (venta.folio || '') }</span>
                                         </td>
         								<td onClick={() => this.props.verVenta(venta, false, {
                                             onSincronizarVenta: (res) => {
@@ -434,6 +462,21 @@ class Ventas extends React.Component {
                                                 <i className="ion-ios-paperplane"></i>
                                             </button>
                                             }
+                                            { (venta.requiereFactura && venta.urlErrorTimbrado) &&
+                                                <button 
+                                                    onClick={(e) => {
+                                                        let winopts = {
+                                                            title: 'Error de timbrado',
+                                                            width: 800,
+                                                            height: 400
+                                                        }
+                                                        nw.Window.open(`${venta.urlErrorTimbrado}?as_iframe=1&api_key=${this.props.api_key}`, winopts);
+                                                    }} 
+                                                    title="Ver error de timbrado" 
+                                                    className="btn btn-sm btn-danger ml-1" >
+                                                    <i className="ion-alert"></i>
+                                                </button>
+                                            }
                                         </td>
         							</tr>)
                     			})}
@@ -456,7 +499,8 @@ class Ventas extends React.Component {
 
 const mapStateToProps = state => ({
     ...state.app,
-    api_key: state.app.api_key
+    api_key: state.app.api_key,
+    sesionCaja: state.app.usuario.sesion_caja
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({

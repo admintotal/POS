@@ -3,10 +3,51 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import {cerrarCaja, guardarSesionCaja} from '../actions/puntoVentaActions';
 import FondoCajaComponent from '../components/FondoCajaComponent';
-import { mostrarAlerta } from '../actions';
+import { mostrarAlerta, cargando, mensajeFlash } from '../actions';
 import formatCurrency from 'format-currency';
+import * as Api from '../api';
 
 class SesionCaja extends React.Component {
+
+	componentDidMount() {
+		if (this.props.sesionCaja) {
+			this.props.cargando()
+	        Api.obtenerVentas(this.props.api_key, {usuario: this.props.usuario.id, sesion_caja: this.props.sesionCaja._id, status: 'error,pendientes'}, true)
+	        .then((res)  => {
+	            this.props.cargando(false)
+	            if (res.paginador.total) {
+					this.props.mostrarAlerta({
+						titulo: `Sincronizaciones pendientes`,
+						mensaje: `
+						<table class="table table-striped table-sm m-0">
+							<tbody>
+								<tr>
+									<td>Ventas</td>
+									<td class="text-danger font-weight-bold">${res.paginador.total}</td>
+								</tr>
+								<tr>
+									<td>Retiros de caja</td>
+									<td class="text-danger font-weight-bold">${res.retiros.objects.length - res.retiros.sincronizados}</td>
+								</tr>
+							</tbody>
+						</table>
+						`,
+						cancelable: true,
+						cancelarTxt: 'Cerrar',
+						aceptarTxt: 'Ver ventas',
+						handleAceptar: (e) => {
+							this.props.history.push('/mis-ventas?pendientesSinc=1')
+						}
+					})
+	            }
+	            
+	        })
+	        .catch((err) => {
+	            this.props.mensajeFlash('error', err)
+	            this.props.cargando(false)
+	        })
+		}
+	}
 	
 	getSesionCierre() {
 		return {
@@ -63,12 +104,15 @@ class SesionCaja extends React.Component {
 const mapStateToProps = state => ({
     ...state.puntoVenta,
     configuracion: state.app.configuracion,
+    usuario: state.app.usuario,
     api_key: state.app.api_key
 });
 
 
 const mapDispatchToProps = dispatch => bindActionCreators({
 	cerrarCaja,
+	cargando,
+	mensajeFlash,
 	guardarSesionCaja,
 	mostrarAlerta
 }, dispatch);

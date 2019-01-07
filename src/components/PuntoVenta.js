@@ -1520,6 +1520,7 @@ class PuntoVentaComponent extends React.Component {
         let porPagar = this.props.cambio > 0 ? 0 : Math.abs(this.props.cambio)
 
         if (habilitarPinpad) {
+            console.log(pinpad)
             pinpadModoPruebas = pinpad.modoPruebas
         }
 

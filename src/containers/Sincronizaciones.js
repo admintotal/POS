@@ -203,7 +203,7 @@ class Sincronizaciones extends React.Component {
 	            		<h2 className="text-center upper text-muted"><i className="ion-android-upload"></i></h2>
 	            		<div className="sincronizacionItem">
 	            			<h4 className="text-primary mb-1">Ventas</h4>
-		            		<button disabled={!sincronizaciones.ventas.habilitado} onClick={(e) => {this.props.sincronizarVentas(this.props.api_key)}} className="btn btn-sm btn-info">Sincronizar</button>
+		            		<button disabled={!sincronizaciones.ventas.habilitado} onClick={(e) => {this.props.sincronizarVentas(this.props.api_key, {forzar: true})}} className="btn btn-sm btn-info">Sincronizar</button>
 	            		</div>
 
 	            		<div className="sincronizacionItem">

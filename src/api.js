@@ -281,8 +281,16 @@ export const exportarVentasConError = (api_key) => {
 	});
 }
 
-export const sincronizarVentas = (api_key) => {
-	return axios.get(`${BASE_API_URL}/sincronizar/ventas?api_key=${api_key}`)
+export const sincronizarVentas = (api_key, opts={}) => {
+	if (opts.desde) {
+		opts.desde = opts.desde.toISOString()
+	}
+
+	if (opts.hasta) {
+		opts.hasta = opts.hasta.toISOString()
+	}
+	
+	return axios.get(`${BASE_API_URL}/sincronizar/ventas?api_key=${api_key}&${serializeUri(opts)}`)
 	.then(function (response) {
 		return response.data;
 	})
@@ -518,10 +526,14 @@ export const obtenerVenta = (api_key, id) => {
 export const obtenerVentas = (api_key, opts={}, promise=false) => {
 	if (opts.desde) {
 		opts.desde = opts.desde.toISOString()
+	} else {
+		delete opts.desde
 	}
 
 	if (opts.hasta) {
 		opts.hasta = opts.hasta.toISOString()
+	} else {
+		delete opts.hasta
 	}
 
 	if (promise) {

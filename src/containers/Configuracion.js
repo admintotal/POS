@@ -75,7 +75,7 @@ class Configuracion extends React.Component {
         if (data.numero_serie === this.props.numero_serie) {
             delete data['numero_serie']
         }
-
+        
         this.props.guardarConfiguracion(this.props.api_key, data)
     }
 
@@ -140,8 +140,8 @@ class Configuracion extends React.Component {
             if (res.status !== 'success') {
                 throw Error('')
             }
-
-            if (res.ultimo_folio) {
+            
+            if (res.ultimo_folio || res.ultimo_folio === 0) {
                 this.setState({
                     folio_inicial: ++res.ultimo_folio
                 })

@@ -87,6 +87,9 @@ class VentaComponent extends React.Component {
 
                         <h5 className="mb-0">{venta.cliente.razon_social}</h5>
                         <div className="text-muted">{moment(venta.fecha).format('DD/MM/YYYY HH:mm')}</div>
+                        { (venta.sesionCaja && venta.sesionCaja.cajero) &&
+                        <div className="text-muted">Capturado por: {venta.sesionCaja.cajero.username}</div>
+                        }
                     </div>
                     <div style={{maxHeight: '50vh', overflow: 'auto'}}>
                         <table className="table table-striped table-condensed vm">

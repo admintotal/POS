@@ -44,7 +44,7 @@ class Ventas extends React.Component {
                 ...this.state.filtroVentas,
                 visible: true,
                 status: ['error', 'pendientes'],
-                desde: undefined,
+                desde: this.props.sesionCaja ? moment(this.props.sesionCaja.fecha) : undefined,
                 hasta: undefined,
                 sesion_caja: this.props.sesionCaja ? this.props.sesionCaja._id : ''
             }

@@ -70,9 +70,14 @@ class Ventas extends React.Component {
         })
     }
 
-    sincronizarVentas() {
+    async sincronizarVentas() {
         let comp = this
         comp.setState({habilitarSinc: false})
+        try {
+            await Api.sincronizarFacturasNoTimbradas(this.props.api_key)
+        } catch(e) {
+
+        }
         Api.sincronizarVentas(this.props.api_key, {forzar: true, desde: this.state.filtroVentas.desde, hasta: this.state.filtroVentas.hasta}).then((result) => {
             comp.setState({habilitarSinc: true})
             if (result.status === 'success') {
@@ -200,7 +205,7 @@ class Ventas extends React.Component {
 
         // validación fecha
         if (['desde', 'hasta'].indexOf(campo) > -1) {
-            if (typeof v === "string") {
+            if (typeof v === "string" && v !== "") {
                 return 
             }
         }

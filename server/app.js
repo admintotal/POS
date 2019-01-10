@@ -202,6 +202,9 @@ router.route('/sincronizar/pedidos').get(apiKeyMiddleware, sincronizar.pedidos)
 router.route('/sincronizar/configuracion').get(apiKeyMiddleware, sincronizar.configuracion)
 router.route('/sincronizar/autorizaciones').get(apiKeyMiddleware, sincronizar.autorizaciones)
 router.route('/sincronizar/recepciones-pago').get(apiKeyMiddleware, sincronizar.recepcionesPago)
+// url para marcar como sincronizadas las facturas que no pudieron timbrarse pero
+// se timbraron manualmente en admintotal.
+router.route('/sincronizar/facturas-no-timbradas').get(apiKeyMiddleware, sincronizar.facturasNoTimbradas)
 
 
 router.route('/eliminar-datos').get(apiKeyMiddleware, api.eliminarDatos)

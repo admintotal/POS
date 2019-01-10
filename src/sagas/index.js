@@ -510,6 +510,12 @@ export function* pollAsync(api_key) {
 				// console.error(error)
 		    }
 
+		    try {
+		        yield call(Api.sincronizarFacturasNoTimbradas, api_key);
+			} catch (error) {
+				// console.error(error)
+		    }
+
 		    if (confData) {
 			    try {
 		        	yield put({type: actions.SET_CONFIGURACION, data: confData.configuracion});

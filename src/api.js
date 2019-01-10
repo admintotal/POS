@@ -289,6 +289,14 @@ export const sincronizarVentas = (api_key, opts={}) => {
 	if (opts.hasta) {
 		opts.hasta = opts.hasta.toISOString()
 	}
+
+	if (('desde' in opts) && !opts.desde) {
+		delete opts.desde
+	}
+
+	if (('hasta' in opts) && !opts.hasta) {
+		delete opts.hasta
+	}
 	
 	return axios.get(`${BASE_API_URL}/sincronizar/ventas?api_key=${api_key}&${serializeUri(opts)}`)
 	.then(function (response) {
@@ -355,6 +363,16 @@ export const sincronizarConfiguracion = (api_key) => {
 		if (response.data.status !== 'success') {
 			throw response.data;
 		}
+		return response.data;
+	})
+	.catch(function (error) {
+		throw error
+	});
+}
+
+export const sincronizarFacturasNoTimbradas = (api_key) => {
+	return axios.get(`${BASE_API_URL}/sincronizar/facturas-no-timbradas?api_key=${api_key}`)
+	.then(function (response) {
 		return response.data;
 	})
 	.catch(function (error) {

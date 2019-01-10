@@ -782,6 +782,54 @@ exports.recepcionesPago = async function(req, res) {
 		return res.json({status: 'error', message: 'Es necesaria la conexión a internet para continuar.'})
 	})
 }
+exports.facturasNoTimbradas = async function(req, res) {
+	api.checkConnection().then(() => {
+		return db._getDB(req.query.api_key).then(async (dbCliente) => {
+			let facturas = await dbCliente.ventas.cfind({
+				requiereFactura: true, 
+				error: true,
+				folio: {$gt: 0},
+				id: {$gt: 0}
+			}, {folio: 1, fecha: 1, total: 1, id: 1}).sort({folio: -1}).exec() || []
+
+			if (facturas.length) {
+				data = {facturas: facturas}
+				data['api_key'] = req.query.api_key
+				opts = {path: '/sincronizar/facturas-no-timbradas/', data: data, claveCliente: dbCliente.claveCliente}
+				try {
+					let resultado = await api._post(opts)
+					resultado.facturasActualizadas = 0
+					for(var id in resultado.data) {
+						var statusFactura = resultado.data[id]
+						var folio = +statusFactura.folio
+						if (statusFactura.timbrada) {
+							let updated = await dbCliente.ventas.update(
+								{requiereFactura:true, id: +id, folio: folio}, 
+								{$set: {timbrada: true}, $unset: {error: true, urlErrorTimbrado: true, motivoError: true}}
+							)
+							resultado.facturasActualizadas += updated
+						}
+					}
+
+					return res.json(resultado)
+				} catch(e) {
+					logger.log('error', 'Error al validar facturas no timbradas.')
+				}
+			}
+
+			return res.json({status: 'success', message: 'Nada por sincronizar'})
+		})
+		.catch((err) =>{
+			logger.log('error', err)
+			return res.json(err)
+		})
+	})
+	.catch((err) => {
+		logger.log('error', err)
+		return res.json({status: 'error', message: 'Es necesaria la conexión a internet para continuar.'})
+	})
+}
+
 exports.pedidos = async function(req, res) {
 	api.checkConnection().then(() => {
 		return db._getDB(req.query.api_key).then(async (dbCliente) => {

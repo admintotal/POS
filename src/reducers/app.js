@@ -85,6 +85,7 @@ export default function app(state=defaultState, action: actionType) {
                 numero_serie: action.data.numero_serie,
                 almacen: action.data.almacen,
                 mostrarCamposAdicionales: action.data.mostrarCamposAdicionales,
+                forzarDescargaProductosInicioSesion: action.data.forzarDescargaProductosInicioSesion,
                 mostrarExistenciasAlmacenes: action.data.mostrarExistenciasAlmacenes,
                 habilitarBascula: action.data.habilitarBascula,
                 habilitarPinpad: action.data.habilitarPinpad,

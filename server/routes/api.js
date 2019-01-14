@@ -2029,6 +2029,7 @@ exports.guardarConfiguracion = async (req, res) => {
             bascula: req.body.bascula,
             terminal: req.body.terminal || null,
             mostrarCamposAdicionales: req.body.mostrarCamposAdicionales,
+            forzarDescargaProductosInicioSesion: req.body.forzarDescargaProductosInicioSesion,
             mostrarExistenciasAlmacenes: req.body.mostrarExistenciasAlmacenes,
             habilitarProsepago: req.body.habilitarProsepago,
             habilitarPinpad: req.body.habilitarPinpad,
@@ -2095,11 +2096,19 @@ exports.obtenerUltimoFolio = async (req, res) => {
                 let apiData = {api_key: req.query.api_key, serie: req.params.serie}
                 opts = {path: '/series/ultimo-folio', data: apiData, claveCliente: dbCliente.claveCliente}
                 let apicall = await api._get(opts)
+
+                if (req.query.actualizar == '1' && (+apicall.ultimo_folio || +apicall.ultimo_folio === 0)) {
+                    await dbCliente.conf.update({numero_serie: req.params.serie}, {$set: {
+                        folio_inicial: +apicall.ultimo_folio + 1
+                    }})
+                }
+
                 res.json({
                     status: 'success',
                     ultimo_folio: apicall.ultimo_folio
                 })
             } catch(e) {
+                logger.log('error', e)
                 res.json({
                     status: 'error'
                 })

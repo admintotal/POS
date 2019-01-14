@@ -28,7 +28,7 @@ module.exports.banorte = {
         if (!java) {
             return {
                 status: 'error',
-                mensaje: 'El módulo de java no fué cargado correctamente.'
+                mensaje: 'El módulo de node-java no fué cargado correctamente.'
             }
         }
 

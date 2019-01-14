@@ -22,7 +22,11 @@ const remoteLogin = (options) => {
 			return reject(result)
 
 		}).catch((err) =>{
-			logger.log('error', {message: 'Error al hacer el login remoto', e: err})
+			logger.log('error', {
+				message: 'Error al hacer el login remoto', 
+				e: err,
+				options: options
+			})
 			return reject(err)
 		})
 	})

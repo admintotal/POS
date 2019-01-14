@@ -297,10 +297,10 @@ exports.javaVersion = () => {
     return new Promise((resolve, reject) => {
         try {
             let spawn = require('child_process').spawnSync('java', ['-version'])
-            let data = spawn.output.toString()
+            let stringOutput = spawn.output.toString()
 
-            let arch = data.toString().indexOf('64-Bit') > -1 ? 'x64' : 'x86'
-            data = data.toString().split('\n')[0];
+            let arch = stringOutput.toString().indexOf('64-Bit') > -1 ? 'x64' : 'x86'
+            let data = stringOutput.toString().split('\n')[0];
             let version = new RegExp('java version').test(data) ? data.split(' ')[2].replace(/"/g, '') : false;
             
             if (version != false) {
@@ -310,12 +310,14 @@ exports.javaVersion = () => {
                     arch: arch
                 });
             } else {
+                logger.log('error', stringOutput)
                 return reject({
                     status: 'error',
                     message: 'No se ha detectado la instalación de JRE 8'
                 })
             }
         } catch(e) {
+            logger.log('error', stringOutput)
             return reject({
                 status: 'error',
                 message: 'No se ha detectado la instalación de JRE 8'
@@ -631,6 +633,9 @@ exports.actualizarCliente = async (data={})  => {
 
 exports.getFolio = async (dbCliente, conf)  => {
     let folio = conf.folio_inicial || 1
+    
+    return folio
+    /*
     let ultimaVenta = await dbCliente.ventas.cfind({folio: {$ne: null}, numero_serie: conf.numero_serie}).sort({folio: -1}).limit(1).exec()
 
     if (ultimaVenta.length) {
@@ -639,6 +644,7 @@ exports.getFolio = async (dbCliente, conf)  => {
     }
 
     return Number(folio)
+    */
 }
 
 

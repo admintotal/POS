@@ -898,14 +898,19 @@ exports.autorizaciones = (req, res) => {
 		let cg = (await DB.conf.findOne({})).configuracion.general
 		let usuario = await DB.usuarios.findOne({api_token: req.query.api_key})
         let au = null
-		return exports.obtenerAutorizaciones(req.query.api_key, cg.clave, (err, data) => {
+		return exports.obtenerAutorizaciones(req.query.api_key, cg.clave, async (err, data) => {
             if (!err) {
+            	let autorizacionesValidas = []
                 data.objects.forEach(async (a) => {
                     if (usuario && (usuario.id == a.responsable)) {
                     	au = helpers.cloneObject(a)
                     }
+
                     await DB.autorizaciones.update({responsable: a.responsable}, {$set: a}, {upsert: true})
+                    autorizacionesValidas.push(a.responsable)
                 })
+                
+                await DB.autorizaciones.remove({responsable: {$nin: autorizacionesValidas}}, {multi: true})
 
                 return res.json({
 					status: 'success', 

@@ -177,6 +177,11 @@ class Configuracion extends React.Component {
         })
 
         Api.obtenerConfiguracion(this.props.api_key).then((conf) => {
+            let forzarDescargaProds = conf.forzarDescargaProductosInicioSesion
+            if (forzarDescargaProds === undefined) {
+                forzarDescargaProds = true
+            }
+
             this.setState({
                 folio_inicial: conf.folio_inicial || 1,
                 numero_serie: conf.numero_serie,
@@ -189,6 +194,7 @@ class Configuracion extends React.Component {
                 habilitarProsepago: conf.habilitarProsepago,
                 habilitarPinpad: conf.habilitarPinpad,
                 mostrarCamposAdicionales: conf.mostrarCamposAdicionales,
+                forzarDescargaProductosInicioSesion: forzarDescargaProds,
                 mostrarExistenciasAlmacenes: conf.mostrarExistenciasAlmacenes,
                 pinpad: {...this.state.pinpad, ...conf.pinpad},
                 configuracion: {
@@ -375,6 +381,19 @@ class Configuracion extends React.Component {
                                         }
                                     </div>
                                 </div>
+                            </div>
+
+                            <div className="form-group mt-2">
+                                <label className="control control-checkbox">
+                                    Forzar descarga de productos al iniciar sesión
+                                    <input 
+                                        checked={this.state.forzarDescargaProductosInicioSesion}
+                                        onChange={(e) => {this.setState({
+                                            forzarDescargaProductosInicioSesion: !this.state.forzarDescargaProductosInicioSesion
+                                        })}}
+                                        type="checkbox" />
+                                    <div className="control_indicator"></div>
+                                </label>
                             </div>
 
                             <div className="form-group mt-2">

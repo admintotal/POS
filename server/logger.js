@@ -59,8 +59,13 @@ logger.on('data', (data) => {
 			}
 		}))
 		
-		let msgDesc = data ? data.message : 'Error inesperado'
-		Raven.captureException(msgDesc, {extra: data})
+		try {
+			// "toString()" failed
+			let msgDesc = data ? data.message : 'Error inesperado'
+			Raven.captureException(msgDesc, {extra: data})
+		} catch(e) {
+
+		}
 	}
 })
 

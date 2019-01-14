@@ -33,10 +33,32 @@ export function* loginAsync(action) {
 		if (loginData.configuracion) {
 			yield put({type: actions.SET_CONFIGURACION, data: loginData.configuracion});
 
+			try {
+				let folioStatus = yield call(Api.obtenerUltimoFolio, loginData.usuario.api_token, loginData.configuracion.numero_serie, 1)
+				if (folioStatus.status !== 'success') {
+					yield put({
+						type: actions.MOSTRAR_ALERTA, 
+						titulo: 'Hubo un problema al obtener el último folio', 
+						mensaje: 'Asegurese de que el folio especificado en configuración es el correcto.'
+					});
+				}
+			} catch(e) {
+				yield put({
+					type: actions.MOSTRAR_ALERTA, 
+					titulo: 'Hubo un problema al obtener el último folio', 
+					mensaje: 'Asegurese de que el folio especificado en configuración es el correcto.'
+				});
+			}
+
 			if (loginData.configuracion.almacen) {
 				try {
 					yield put({type: actions.CANCELAR_SINCRONIZACION, api_key: loginData.usuario.api_token, sincronizacion: 'productos'})
-					yield call(Api.sincronizarProductos, loginData.usuario.api_token, loginData.configuracion.almacen.id, true)
+					let forzarDescargaProds = loginData.configuracion.forzarDescargaProductosInicioSesion
+					if (forzarDescargaProds === undefined) {
+						forzarDescargaProds = true
+					}
+
+					yield call(Api.sincronizarProductos, loginData.usuario.api_token, loginData.configuracion.almacen.id, forzarDescargaProds)
 				} catch(err) {
 					
 				}

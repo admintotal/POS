@@ -222,8 +222,8 @@ export const cancelarSincronizacion = (api_key, sincronizacion) => {
 	});
 }
 
-export const obtenerUltimoFolio = (api_key, serie) => {
-	return axios.get(`${BASE_API_URL}/obtener-ultimo-folio/${serie}?api_key=${api_key}`)
+export const obtenerUltimoFolio = (api_key, serie, actualizar=0) => {
+	return axios.get(`${BASE_API_URL}/obtener-ultimo-folio/${serie}?api_key=${api_key}&actualizar=${actualizar}`)
 	.then(function (response) {
 		return response.data;
 	})

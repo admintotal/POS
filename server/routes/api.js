@@ -1290,8 +1290,11 @@ exports.cobrarVentaTarjeta = (req, res) => {
                 venta.sincHabilitada = false
                 venta.tarjeta.monto = montoTarjetaCobrado
 
-                await dbCliente.ventas.update({folio: venta.folio, numero_serie: venta.numero_serie}, {$set: Object.assign(venta)}, {upsert: true})
+                await dbCliente.ventas.update({folio: venta.folio, numero_serie: venta.numero_serie, facha: venta.fecha}, {$set: Object.assign(venta)}, {upsert: insert})
                 venta = await dbCliente.ventas.findOne({folio: ventaObj.folio, numero_serie: ventaObj.numero_serie})
+                if (insert) {
+                    await dbCliente.conf.update({}, {$set: {folio_inicial: venta.folio + 1}})
+                }
            }
 
         }

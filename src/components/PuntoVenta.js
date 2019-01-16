@@ -231,7 +231,6 @@ class PuntoVentaComponent extends React.Component {
 
         clearTimeout(this.timeoutId)
 
-
         this.setState({...this.state, ac_producto: '', cantidad: 1})
 
         if (!cant) {
@@ -239,8 +238,8 @@ class PuntoVentaComponent extends React.Component {
         }
 
         if (this.props.configuracion.inventario.facturar_sin_existencia === false) {
-            this.props.productos.map((p) => {
-                return cacheProds.push(p.producto.id)
+            this.props.productos.forEach((p) => {
+                // cacheProds.push(p.producto.id)
             })
         }
 
@@ -254,6 +253,7 @@ class PuntoVentaComponent extends React.Component {
             }
 
             let producto = res.producto
+
             if (producto.restringir_decimales && !Number.isInteger(cant)) {
                 this.props.mostrarAlerta({
                     mensaje: `La cantidad del producto <b>${producto.descripcion}</b> no puede contener decimales.`
@@ -309,7 +309,7 @@ class PuntoVentaComponent extends React.Component {
             }
 
             producto = this.getProductoInline(cant, producto)
-
+            
             if (producto.es_recarga) {
                 // verifica la conexión a internet
                 Api.checkInternetConnection().then(() => {
@@ -345,8 +345,10 @@ class PuntoVentaComponent extends React.Component {
                     let cantidad = producto.cantidad
                     let existencia = producto.producto.existencia
                     
-                    this.props.productos.map((p) => {
-                        return cantidad += p.cantidad
+                    this.props.productos.forEach((p) => {
+                        if (p.producto.id === producto.producto.id) {
+                            cantidad += p.cantidad
+                        }
                     })
                     
                     producto.producto.existenciaAt = existencia
@@ -1107,6 +1109,8 @@ class PuntoVentaComponent extends React.Component {
         let ventaObj = Object.assign({}, {...this.getDatosVenta()})
         let cobrosTarjeta = {...this.state.cobrosTarjeta}
         let montoTarjetaOrig = ventaObj.tarjeta.monto
+        let imprimir = true
+
         try {
             if (!cobro.monto) {
                 return this.props.mostrarAlerta({mensaje: 'El monto a cobrar no puede ser 0.'})
@@ -1134,8 +1138,10 @@ class PuntoVentaComponent extends React.Component {
                     cobros: statusCobro.venta.tarjeta.cobros
                 })
 
-                Impresora.imprimirVoucher(statusCobro.venta._id, this.props.api_key, {tipo: 'comercio', cobroId: statusCobro.cobroId})
-                Impresora.imprimirVoucher(statusCobro.venta._id, this.props.api_key, {tipo: 'cliente', cobroId: statusCobro.cobroId})
+                if (imprimir) {
+                    Impresora.imprimirVoucher(statusCobro.venta._id, this.props.api_key, {tipo: 'comercio', cobroId: statusCobro.cobroId})
+                    Impresora.imprimirVoucher(statusCobro.venta._id, this.props.api_key, {tipo: 'cliente', cobroId: statusCobro.cobroId})
+                }
 
                 this.props.mensajeFlash('success', 'El cargo se realizó correctamente.', 6000)
                 
@@ -1164,8 +1170,10 @@ class PuntoVentaComponent extends React.Component {
                 }
             })
             
-            if (e.transaccion && this.state.integracionPinpad === 'banorte') {
-                Impresora.imprimirVoucherTransaccion(e.transaccion._id, this.props.api_key, 'cliente')
+            if (imprimir) {
+                if (e.transaccion && this.state.integracionPinpad === 'banorte') {
+                    Impresora.imprimirVoucherTransaccion(e.transaccion._id, this.props.api_key, 'cliente')
+                }
             }
 
             if (e.cobroPinpad) {
@@ -1240,13 +1248,25 @@ class PuntoVentaComponent extends React.Component {
             })
         }
 
-        if (inline.producto.existenciaAt && cantidad > inline.producto.existenciaAt) {
-            this.props.mostrarAlerta({
-                mensaje: `La cantidad del producto <b>${inline.producto.descripcion}</b> no puede ser mayor a ${inline.producto.existenciaAt}.`
+        if (inline.producto.existenciaAt) {
+            let totalCantidad = 0
+            totalCantidad += cantidad
+
+            this.props.productos.forEach((p, i) => {
+                if (p.producto.id === inline.producto.id && i != index) {
+                    totalCantidad += p.cantidad
+                }
             })
 
-            return false
+            if (totalCantidad > inline.producto.existenciaAt) {
+                this.props.mostrarAlerta({
+                    mensaje: `La cantidad del producto <b>${inline.producto.descripcion}</b> no puede ser mayor a ${inline.producto.existenciaAt}.`
+                })
+                
+                return false
+            }
         }
+
         if (inline.producto.restringir_decimales && !Number.isInteger(cantidad)) {
             this.props.mostrarAlerta({
                 mensaje: `La cantidad del producto <b>${inline.producto.descripcion}</b> no puede contener decimales.`
@@ -1520,7 +1540,6 @@ class PuntoVentaComponent extends React.Component {
         let porPagar = this.props.cambio > 0 ? 0 : Math.abs(this.props.cambio)
 
         if (habilitarPinpad) {
-            console.log(pinpad)
             pinpadModoPruebas = pinpad.modoPruebas
         }
 

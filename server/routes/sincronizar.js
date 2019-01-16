@@ -374,6 +374,8 @@ const enviarVentas = function(api_key, dbCliente, datos={}) {
 				if (v.tarjeta.cobros && v.tarjeta.cobros.length) {
 					minVenta.cobrosPinpad = v.tarjeta.cobros
 				}
+				
+				let __sesionCaja = helpers.cloneObject(minVenta['sesionCaja'])
 
 				delete minVenta['sincronizada']
 				delete minVenta['totalArticulos']
@@ -402,6 +404,7 @@ const enviarVentas = function(api_key, dbCliente, datos={}) {
 
 				if (! (id in infoVentas) ) {
 					infoVentas[id] = {
+						__sesionCaja: __sesionCaja,
 						sessionCaja: {
 							cierre: {},
 							almacen: {},
@@ -428,18 +431,30 @@ const enviarVentas = function(api_key, dbCliente, datos={}) {
 					}
 				})
 			}
-			
+				
 			let proms = Object.keys(infoVentas).map(async (key) => {
 				try{
 					let sesion_caja = await dbCliente.sesiones_caja.findOne({'inicio._id': key})
 					let d = infoVentas[key]
-					let cierre = sesion_caja.fin
+					let cierre
+
+					if ( sesion_caja ) {
+						cierre = sesion_caja.fin
+						d.sessionCaja.fecha = sesion_caja.inicio.fecha
+						d.sessionCaja.fondo = sesion_caja.inicio.totalFondo
+						d.sessionCaja.cajero = {id:sesion_caja.inicio.cajero.id, username: sesion_caja.inicio.cajero.username}
+						d.sessionCaja.almacen = {id:sesion_caja.inicio.almacen.id, codigo: sesion_caja.inicio.almacen.codigo}
+						d.sessionCaja.denominaciones = sesion_caja.inicio.denominaciones
+					} else {
+						console.log('------------')
+						console.log('Asignando sesión basada en ventas')
+						console.log('------------')
+						d.sessionCaja.fecha = d.__sesionCaja.fecha
+						d.sessionCaja.fondo = d.__sesionCaja.totalFondo
+						d.sessionCaja.cajero = {id:d.__sesionCaja.cajero.id, username: d.__sesionCaja.cajero.username}
+						d.sessionCaja.almacen = {id:d.__sesionCaja.almacen.id, codigo: d.__sesionCaja.almacen.codigo}
+					}
 					
-					d.sessionCaja.fecha = sesion_caja.inicio.fecha
-					d.sessionCaja.fondo = sesion_caja.inicio.totalFondo
-					d.sessionCaja.cajero = {id:sesion_caja.inicio.cajero.id, username: sesion_caja.inicio.cajero.username}
-					d.sessionCaja.almacen = {id:sesion_caja.inicio.almacen.id, codigo: sesion_caja.inicio.almacen.codigo}
-					d.sessionCaja.denominaciones = sesion_caja.inicio.denominaciones
 					d.retiros = []
 					
 					retiros.map((ret) => {

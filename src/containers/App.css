@@ -373,7 +373,8 @@ h1{
 	padding: 0;
 }
 .sidebarMenu .navItem{
-    display: block;
+    display: block !important;
+    border: none;
     text-decoration: none;
     color: #323232;
     background-color: #fff;
@@ -381,6 +382,14 @@ h1{
     padding: 10px 25px;
     -webkit-transition: all .3s; /* Safari */
     transition: all .3s;
+}
+.sidebarMenu .submenu .navItem{
+    padding-left: 45px;
+    background-color: #ecf7f9;
+}
+.sidebarMenu .navItem.active{
+    font-weight: bold;
+    background-color: #D6EDF2;
 }
 
 .sidebarMenu .navItem.active,

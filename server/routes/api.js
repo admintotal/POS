@@ -96,6 +96,60 @@ exports.cliente = (req, res) => {
             cliente = await dbCliente.clientes.findOne({id: id})
         }
 
+        // Acciones por producto
+        if (req.query.accion) {
+            let accion = req.query.accion
+            cliente = await dbCliente.clientes.findOne({id: +id})
+            
+            if (!req.query.usuario_id) {
+                return res.json({
+                    status: 'error',
+                    message: 'Es necesario especificar el id del usuario'
+                })
+            }
+
+            usuario = await dbCliente.usuarios.findOne({id: +req.query.usuario_id})
+
+            if (!usuario || !usuario.autorizaciones.guardar_configuracion_desktop) {
+                return res.json({
+                    status: 'error',
+                    message: 'No tiene permiso para realizar esta acción'
+                })
+            }
+
+            if (!cliente) {
+                return res.json({
+                    status: 'error',
+                    statusCode: 404,
+                    message: 'El cliente especificado no existe'
+                })
+            }
+
+            switch(accion) {
+                case 'eliminar':
+                    await dbCliente.clientes.remove({id: +id})
+                    return res.json({
+                        status: 'success',
+                        message: 'El cliente ha sido eliminado'
+                    })
+                    break;
+
+                case 'sincronizar':
+                    return res.json({
+                        status: 'success',
+                        message: 'El cliente ha sido sincronizado'
+                    })
+                    break;
+
+                default:
+                    return res.json({
+                        status: 'error',
+                        message: 'La acción especificada es inválida'
+                    })
+                    break;
+            }
+        }
+
         let validarPrecioUnitario = conf.configuracion.facturacion.validar_precio_unitario
         let productos = null
 
@@ -181,9 +235,64 @@ exports.cliente = (req, res) => {
     })
 }
 
+exports.clientes2 = (req, res) => {
+    return db._getDB(req.query.api_key).then(async (dbCliente) => {
+        let page = req.query.page
+        let limit = req.query.perPage
+        let conf = await dbCliente.conf.findOne({})
+        let filtroObj = {}
+        let q = req.query.q ? req.query.q.trim() : ''
+
+
+        if (q) {            
+            let orFilters = []
+            orFilters.push({rfc: {$regex: new RegExp(q, 'i')}})
+            orFilters.push({razon_social: {$regex: new RegExp(q, 'i')}})
+            orFilters.push({codigo: {$regex: new RegExp(q, 'i')}})
+            filtroObj['$or'] = orFilters
+        }
+
+        if (req.query.accion) {
+            switch(req.query.accion) {
+                case 'eliminar':
+                    let cantEliminada = await dbCliente.clientes.remove(filtroObj, {multi: true})
+                    return res.json({
+                        status: 'success',
+                        message: `${cantEliminada} clientes han sido eliminados.`
+                    })
+                    break;
+            }
+        }
+        
+        let elemPorPag = +(req.query.elemPorPag || 50)
+        let requestedUrl = req.protocol + '://' + req.get('Host') + '/api' + req.path
+        let paginaActual = +req.query.pagina
+        let paginador = await helpers.paginador(dbCliente.clientes, {
+            filtroObj: filtroObj,
+            elemPorPag: elemPorPag,
+            paginaActual: paginaActual,
+            requestedUrl: requestedUrl,
+            sort: {codigo: 1},
+            qs: cloneObject(req.query)
+        })
+        
+        let clientes = paginador.objects
+        delete paginador.objects
+
+        return res.json({
+            status: 'success',
+            objects: clientes,
+            paginador: paginador
+        })
+    })
+    .catch((e) => {
+        return res.json({status: 'error', message: e.message || 'El token especificado es inválido'})
+    })
+}
+
 exports.productos = (req, res) => {
     return db._getDB(req.query.api_key).then(async (DB) => {
-        let limit = null
+        let limit = 30
         let q = req.query.q ? req.query.q.trim() : ''
         let conf = await DB.conf.findOne({})
         let cg = conf.configuracion.general
@@ -196,6 +305,7 @@ exports.productos = (req, res) => {
         if (q) {            
             let orFilters = []
             orFilters.push({codigo: {$regex: new RegExp(q, 'i')}})
+            orFilters.push({codigo_sin_marca: {$regex: new RegExp(q, 'i')}})
             orFilters.push({ums_codigos_barras: {$elemMatch: q}})
             orFilters.push({descripcion: {$regex: new RegExp(q, 'i')}})
             query = await DB.productos.cfind({'almacen': conf.almacen.id, activo: true, $or: orFilters})
@@ -248,6 +358,79 @@ exports.productos = (req, res) => {
     })
 }
 
+exports.productos2 = (req, res) => {
+    db._getDB(req.query.api_key).then(async (dbCliente) => {
+
+        let page = req.query.page
+        let limit = req.query.perPage
+        let conf = await dbCliente.conf.findOne({})
+        let almacen_id = conf.almacen ? conf.almacen.id : null
+        let filtroObj = {}
+        let q = req.query.q ? req.query.q.trim() : ''
+
+        if (req.query.almacen) {
+            almacen_id = +req.query.almacen
+        }
+
+        if (almacen_id) {
+            filtroObj.almacen = almacen_id
+        }
+
+        if (q) {            
+            let orFilters = []
+            orFilters.push({codigo: {$regex: new RegExp(q, 'i')}})
+            orFilters.push({codigo_sin_marca: {$regex: new RegExp(q, 'i')}})
+            orFilters.push({ums_codigos_barras: {$elemMatch: q}})
+            orFilters.push({descripcion: {$regex: new RegExp(q, 'i')}})
+            filtroObj['$or'] = orFilters
+        }
+
+        if (req.query.activo) {
+            filtroObj['activo'] = Boolean(+req.query.activo)
+        }
+
+        if (req.query.accion) {
+            switch(req.query.accion) {
+                case 'eliminar':
+                    let cantEliminada = await dbCliente.productos.remove(filtroObj, {multi: true})
+                    return res.json({
+                        status: 'success',
+                        message: `${cantEliminada} productos han sido eliminados.`
+                    })
+                    break;
+            }
+        }
+        
+        let elemPorPag = +(req.query.elemPorPag || 50)
+        let requestedUrl = req.protocol + '://' + req.get('Host') + '/api' + req.path
+        let paginaActual = +req.query.pagina
+        let paginador = await helpers.paginador(dbCliente.productos, {
+            filtroObj: filtroObj,
+            elemPorPag: elemPorPag,
+            paginaActual: paginaActual,
+            requestedUrl: requestedUrl,
+            sort: {codigo: 1},
+            qs: cloneObject(req.query)
+        })
+        
+        let productos = paginador.objects
+        delete paginador.objects
+
+        return res.json({
+            status: 'success',
+            objects: productos,
+            paginador: paginador
+        })
+    })
+    .catch((e) => {
+        logger.log('error', e)
+        return res.json({
+            status: 'error',
+            message: e || 'El token especificado es inválido'
+        })
+    })
+}
+
 exports.producto = (req, res) => {
     db._getDB(req.query.api_key).then(async (dbCliente) => {
         let id = req.params.id
@@ -259,6 +442,7 @@ exports.producto = (req, res) => {
 
         if (porCodigo) {
             producto = await dbCliente.productos.findOne({codigo: id, almacen: conf.almacen.id, activo: true})
+            
             if (! producto ) {
                 // codigos de barra um
                 producto = await dbCliente.productos.findOne({ums_codigos_barras: {$elemMatch: id}, almacen: conf.almacen.id, activo: true})
@@ -286,6 +470,60 @@ exports.producto = (req, res) => {
             }
         } else {
             producto = await dbCliente.productos.findOne({id: +id, almacen: conf.almacen.id, activo: true})
+        }
+        
+        // Acciones por producto
+        if (req.query.accion) {
+            let accion = req.query.accion
+            producto = await dbCliente.productos.findOne({id: +id})
+            
+            if (!req.query.usuario_id) {
+                return res.json({
+                    status: 'error',
+                    message: 'Es necesario especificar el id del usuario'
+                })
+            }
+
+            usuario = await dbCliente.usuarios.findOne({id: +req.query.usuario_id})
+
+            if (!usuario || !usuario.autorizaciones.guardar_configuracion_desktop) {
+                return res.json({
+                    status: 'error',
+                    message: 'No tiene permiso para realizar esta acción'
+                })
+            }
+
+            if (!producto) {
+                return res.json({
+                    status: 'error',
+                    statusCode: 404,
+                    message: 'El producto especificado no existe'
+                })
+            }
+
+            switch(accion) {
+                case 'eliminar':
+                    await dbCliente.productos.remove({id: +id})
+                    return res.json({
+                        status: 'success',
+                        message: 'El producto ha sido eliminado'
+                    })
+                    break;
+
+                case 'sincronizar':
+                    return res.json({
+                        status: 'success',
+                        message: 'El producto ha sido sincronizado'
+                    })
+                    break;
+
+                default:
+                    return res.json({
+                        status: 'error',
+                        message: 'La acción especificada es inválida'
+                    })
+                    break;
+            }
         }
 
         if (!producto) {

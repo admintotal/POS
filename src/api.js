@@ -163,6 +163,56 @@ export const autocompleteProducto = (api_key, q, almacen, limit='25') => {
 	});
 }
 
+export const obtenerProductos = (opts={}) => {
+	return axios.get(`${BASE_API_URL}/productos2?${serializeUri(opts)}`)
+	.then(function (response) {
+		return response.data;
+	})
+	.catch(function (error) {
+		throw error
+	});
+}
+
+export const obtenerClientes = (opts={}) => {
+	return axios.get(`${BASE_API_URL}/clientes2?${serializeUri(opts)}`)
+	.then(function (response) {
+		return response.data;
+	})
+	.catch(function (error) {
+		throw error
+	});
+}
+
+export const obtenerProducto = (opts={}) => {
+	let url = `${BASE_API_URL}/productos/${opts.id}?${serializeUri(opts)}`
+	return axios.get(url)
+	.then(function (response) {
+		if (response.data.status !== 'success') {
+			throw response.data;
+		}
+
+		return response.data;
+	})
+	.catch(function (error) {
+		throw error
+	});
+}
+
+export const obtenerCliente = (opts={}) => {
+	let url = `${BASE_API_URL}/clientes/${opts.id}?${serializeUri(opts)}`
+	return axios.get(url)
+	.then(function (response) {
+		if (response.data.status !== 'success') {
+			throw response.data;
+		}
+
+		return response.data;
+	})
+	.catch(function (error) {
+		throw error
+	});
+}
+
 export const getProducto = (api_key, id, porCodigo=false, cacheProds=[], cliente=null) => {
 	let url = `${BASE_API_URL}/productos/${id}?api_key=${api_key}&cantidadBascula=1&porCodigo=${porCodigo}&cacheIds=${cacheProds.join(',')}&cliente=${cliente}`
 	return axios.get(url)

@@ -6,13 +6,17 @@ import VersionComponent from './VersionComponent';
 import {toggleSidebar, logoutUsuario} from '../actions';
 
 class SideBarMenuComponent extends React.Component {
+    constructor(props) {
+      super(props)
+      this.state = {}
+    }
     render() {
         let configuracion = this.props.configuracion
         let usuario = this.props.usuario
         let almacen = this.props.almacen
         let toggleSidebar = this.props.toggleSidebar
         let logoutUsuario = this.props.logoutUsuario
-        
+
         return (
             <div className="sidebarMenu">
                 <div className="infoUsuario">
@@ -33,6 +37,20 @@ class SideBarMenuComponent extends React.Component {
                   <li><Link onClick={toggleSidebar} className="navItem" to="/recepciones-pago">Recepciones de Pago</Link></li>
                   { Boolean(usuario.permisos && usuario.permisos.pedido_cliente) && 
                     <li><Link onClick={toggleSidebar} className="navItem" to="/pedidos">Pedidos</Link></li>
+                  }
+                  { Boolean(usuario.autorizaciones.guardar_configuracion_desktop) &&
+                  <li>
+                    <a onClick={() => {
+                      this.setState({
+                        visibleSubmenuCatalogos: !this.state.visibleSubmenuCatalogos
+                      })
+                    }} className={`navItem ${this.state.visibleSubmenuCatalogos ? 'active' : ''}`}>Catálogos</a>
+                    
+                    <div className={`submenu ${this.state.visibleSubmenuCatalogos ? '' : 'd-none'}`} >
+                      <Link onClick={toggleSidebar} className="navItem" to="/productos">Productos</Link>
+                      <Link onClick={toggleSidebar} className="navItem" to="/clientes">Clientes</Link>
+                    </div>
+                  </li>
                   }
                   <li><Link onClick={toggleSidebar} className="navItem" to="/sincronizaciones">Sincronizaciones</Link></li>
                   <li><Link onClick={toggleSidebar} className="navItem" to="/actualizaciones">Actualizaciones</Link></li>

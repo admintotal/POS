@@ -7,6 +7,7 @@ import * as Api from '../api';
 import { cargando, mensajeFlash, mostrarAlerta } from '../actions';
 import TituloComponent from '../components/TituloComponent';
 import IngresoAutorizacionComponent from '../components/IngresoAutorizacionComponent';
+import { Link } from 'react-router-dom';
 
 class Configuracion extends React.Component {
     constructor(props) {
@@ -892,9 +893,21 @@ class Configuracion extends React.Component {
                             }
                         </fieldset>
                     </div>
+                </div>
 
-                    <div className="col-md-12 text-right">
+                <div className="row">
+                    <div className="col-md-12">
                         <hr/>
+                    </div>
+                    <div className="col-md-6">
+                        <Link to="/productos" className="btn btn-info mr-2">
+                            Administrar Productos
+                        </Link>
+                        <Link to="/clientes" className="btn btn-info">
+                            Administrar Clientes
+                        </Link>
+                    </div>
+                    <div className="col-md-12 text-right">
                         <button ref={(btn) => this.btnGuardar = btn} className="btn btn-primary" onClick={this.guardar.bind(this)}>Guardar</button>
                     </div>
                 </div>

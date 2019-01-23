@@ -1,11 +1,11 @@
 import React from 'react';
-import formatCurrency from 'format-currency';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Autocomplete from 'react-autocomplete';
 import TituloComponent from './TituloComponent';
 import TotalesComponent from './TotalesComponent';
 import InlineProductoComponent from './InlineProductoComponent';
+import PromocionesProductoComponent from './PromocionesProductoComponent';
 import * as Api from '../api';
 import { 
 	ClienteAutocompleteView, 
@@ -497,38 +497,10 @@ class PedidoFormComponent extends React.Component {
 
 					
 					{ modalPromocionesProducto &&
-					<div className="dialog-box">
-						<div className="text-primary text-center h5">Promociones</div>
-
-						<p className="text-info text-center">{modalPromocionesProducto.producto.producto.descripcion}</p>
-
-						<table className="table table-condensed vm">
-							<thead>
-								<tr>
-									<th className="text-right">Cantidad</th>
-									<th className="text-right">Valor Unitario</th>
-									<th className="text-right">Precio Neto</th>
-								</tr>
-							</thead>
-							<tbody>
-								{ modalPromocionesProducto.producto.promociones.map((p) => {
-									return (
-										<tr key={`promo-${p.cantidad}`}>
-											<td className="text-right">{formatCurrency(p.cantidad)}</td>
-											<td className="text-right">${formatCurrency(p.valor_unitario)}</td>
-											<td className="text-right">${formatCurrency(p.precio_neto)}</td>
-										</tr>
-									)
-								})}
-							</tbody>
-						</table>
-
-						<div className="form-group text-right mt-2">
-							<button className="btn btn-secondary mr-2" onClick={(e) => this.setState({modalPromocionesProducto: null})} tabIndex="-1">
-								Cerrar
-							</button>
-						</div>
-					</div>
+						<PromocionesProductoComponent 
+	                        producto={modalPromocionesProducto.producto.producto}
+	                        handleCerrar={(e) => { this.setState({modalPromocionesProducto: null})}}>
+	                    </PromocionesProductoComponent>
 					}
 
 					{ modalUmProducto &&

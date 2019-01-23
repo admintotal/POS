@@ -15,6 +15,8 @@ import ReporteDetallado from './containers/ReporteDetallado';
 import ConsultaTransacciones from './containers/ConsultaTransacciones';
 import RecepcionPago from './containers/RecepcionPago';
 import RecepcionesPago from './containers/RecepcionesPago';
+import Productos from './containers/Productos';
+import Clientes from './containers/Clientes';
 import PedidoFormComponent from './components/PedidoFormComponent';
 
 export default () => (
@@ -37,6 +39,8 @@ export default () => (
       <Route path="/verificador-precios" component={VerificadorPrecios} />
       <Route path="/consulta-transacciones-pinpad" component={ConsultaTransacciones} />
       <Route path="/reportes/:tipo/:id" component={ReporteDetallado} />
+      <Route path="/productos" component={Productos} />
+      <Route path="/clientes" component={Clientes} />
     </Switch>
   </App>
 );

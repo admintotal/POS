@@ -229,7 +229,7 @@ class Ventas extends React.Component {
                 paginador: resp.paginador
             })
         } else {
-            console.log(resp)
+            
         }
     }
 
@@ -298,7 +298,6 @@ class Ventas extends React.Component {
                                     value={this.state.filtroVentas.status}
                                     onChange={(e) => {
                                         let vals = [...e.target.options].filter(o => o.selected).map(o => o.value)
-                                        console.log(vals)
                                         this.changeFiltroVentas('status', vals)
                                     }}
                                 >

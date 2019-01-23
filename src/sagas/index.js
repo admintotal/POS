@@ -33,21 +33,31 @@ export function* loginAsync(action) {
 		if (loginData.configuracion) {
 			yield put({type: actions.SET_CONFIGURACION, data: loginData.configuracion});
 
-			try {
-				let folioStatus = yield call(Api.obtenerUltimoFolio, loginData.usuario.api_token, loginData.configuracion.numero_serie, 1)
-				if (folioStatus.status !== 'success') {
-					yield put({
-						type: actions.MOSTRAR_ALERTA, 
-						titulo: 'Hubo un problema al obtener el último folio', 
-						mensaje: 'Asegurese de que el folio especificado en configuración es el correcto.'
-					});
-				}
-			} catch(e) {
-				yield put({
-					type: actions.MOSTRAR_ALERTA, 
-					titulo: 'Hubo un problema al obtener el último folio', 
-					mensaje: 'Asegurese de que el folio especificado en configuración es el correcto.'
-				});
+			if (loginData.configuracion.numero_serie) {
+				try {
+			        yield call(Api.sincronizarVentas, loginData.usuario.api_token, {forzar: true});
+					try {
+						let folioStatus = yield call(Api.obtenerUltimoFolio, loginData.usuario.api_token, loginData.configuracion.numero_serie, 1)
+						if (folioStatus.status === 'success') {
+							loginData.siguienteFolio = folioStatus.ultimo_folio
+						} else {
+							yield put({
+								type: actions.MOSTRAR_ALERTA, 
+								titulo: 'Hubo un problema al obtener el último folio', 
+								mensaje: 'Asegurese de que el folio especificado en configuración es el correcto.'
+							});
+						}
+					} catch(e) {
+						yield put({
+							type: actions.MOSTRAR_ALERTA, 
+							titulo: 'Hubo un problema al obtener el último folio', 
+							mensaje: 'Asegurese de que el folio especificado en configuración es el correcto.'
+						});
+					}
+				} catch (error) {
+					// console.error(error)
+			    }
+				
 			}
 
 			if (loginData.configuracion.almacen) {
@@ -272,7 +282,7 @@ export function* sincronizarRecepcionesPagoAsync(action) {
 export function* sincronizarVentasAsync(action) {
 	try{
 		yield put({type: actions.SINC_SET_HABILITADO, sincronizacion: 'ventas', habilitado: false})
-		let statusSinc = yield call(Api.sincronizarVentas, action.api_key);
+		let statusSinc = yield call(Api.sincronizarVentas, action.api_key, {forzar: true});
 		
 		yield call(delay, 1000);
 		yield put({type: actions.SINC_SET_HABILITADO, sincronizacion: 'ventas', habilitado: true})
@@ -490,7 +500,7 @@ export function* pollAsync(api_key) {
 		while(true) {
 		let confData = null
 			try {
-		        yield call(Api.sincronizarVentas, api_key);
+		        yield call(Api.sincronizarVentas, api_key, {forzar: true});
 			} catch (error) {
 				// console.error(error)
 		    }

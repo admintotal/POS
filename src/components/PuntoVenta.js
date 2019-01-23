@@ -1253,7 +1253,7 @@ class PuntoVentaComponent extends React.Component {
             totalCantidad += cantidad
 
             this.props.productos.forEach((p, i) => {
-                if (p.producto.id === inline.producto.id && i != index) {
+                if (p.producto.id === inline.producto.id && i !== index) {
                     totalCantidad += p.cantidad
                 }
             })

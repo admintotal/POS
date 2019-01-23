@@ -843,7 +843,7 @@ exports.guardarVenta = (req, res) => {
                     sincronizada: true,
                     timbrada: false,
                     error: true,
-                    motivoError: String(e),
+                    motivoError: e.message,
                 }})
                 return res.json({
                     status: 'error', 
@@ -890,7 +890,7 @@ exports.guardarVenta = (req, res) => {
                     sincronizada: true,
                     timbrada: false,
                     error: true,
-                    motivoError: String(e),
+                    motivoError: e.message,
                 }})
                 return res.json({
                     status: 'error', 
@@ -952,12 +952,12 @@ exports.guardarVenta = (req, res) => {
                     })
                 }
             } catch(e) {
-                logger.log('error', `Hubo un error al solicitar factura a admintotal`)
+                logger.log('error', e)
                 await dbCliente.ventas.update({_id: d._id}, {$set: {
                     sincronizada: true,
                     timbrada: false,
                     error: true,
-                    motivoError: String(e),
+                    motivoError: e.message,
                 }})
                 return res.json({
                     status: 'error', 
@@ -1006,7 +1006,7 @@ exports.guardarVenta = (req, res) => {
                     sincronizada: true,
                     timbrada: false,
                     error: true,
-                    motivoError: String(e),
+                    motivoError: e.message,
                 }})
                 return res.json({
                     status: 'error',

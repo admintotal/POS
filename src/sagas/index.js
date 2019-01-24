@@ -26,8 +26,8 @@ export function* loginAsync(action) {
 
 		// yield put({type: actions.SINCRONIZAR_ALMACENES, api_key: loginData.usuario.api_token});
 		// yield put({type: actions.SINCRONIZAR_CLIENTES, api_key: loginData.usuario.api_token});
-
 		yield put({type: actions.POLL_START, api_key: loginData.usuario.api_token});
+
 		yield put({type: actions.LOGOUT_ON_CLOSE});
 
 		if (loginData.configuracion) {

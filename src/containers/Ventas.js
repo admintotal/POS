@@ -20,6 +20,7 @@ class Ventas extends React.Component {
 		super(props)
         
 		this.state = {
+            ventasSeleccionadas: [],
             paginador: {},
             filtroVentas: {
                 visible: false,
@@ -78,7 +79,9 @@ class Ventas extends React.Component {
         } catch(e) {
 
         }
-        Api.sincronizarVentas(this.props.api_key, {forzar: true, desde: this.state.filtroVentas.desde, hasta: this.state.filtroVentas.hasta}).then((result) => {
+        
+        try {
+            let result = await Api.sincronizarVentas(this.props.api_key, {forzar: true, desde: this.state.filtroVentas.desde, hasta: this.state.filtroVentas.hasta})
             comp.setState({habilitarSinc: true})
             if (result.status === 'success') {
                 this.obtenerVentas()
@@ -90,7 +93,9 @@ class Ventas extends React.Component {
             } else {
                 this.props.mensajeFlash('error', result.message || result.data)
             }
-        })
+        } catch(e) {
+            this.props.mensajeFlash('error', e.message || 'Hubo un error al sincronizar las ventas.')
+        }
     }
 
     sincronizarVenta(id) {
@@ -243,10 +248,50 @@ class Ventas extends React.Component {
         }
     }
 
+    cambiarSerie() {
+        if (this.inputCambioSerieInput) {
+            let nuevaSerie = this.inputCambioSerieInput.value
+            this.props.mostrarAlerta({
+                titulo: 'Confirme para continuar',
+                mensaje: `¿Desea asignar la serie <b>${nuevaSerie}</b> a ${this.state.ventasSeleccionadas.length} ventas?`,
+                cancelable: true,
+                aceptarTxt: 'Sí, cambiar serie',
+                handleAceptar: async () => {
+                    this.props.cargando()
+                    try {
+                        let statusCambio = await Api.cambiarSerieVentas({
+                            api_key: this.props.api_key, 
+                            ventas: this.state.ventasSeleccionadas,
+                            serie: nuevaSerie
+                        })
+
+                        await this.sincronizarVentas()
+                        await this.obtenerVentas()
+
+                        this.props.cargando()
+
+                        this.props.mensajeFlash(statusCambio.status, statusCambio.message)
+
+                        if (statusCambio.status === 'success') {
+                            this.setState({modalEditarSerie: null, ventasSeleccionadas: []})
+                        }
+
+                    } catch(e) {
+                        this.props.cargando()
+                        this.props.mensajeFlash('error', e.message || 'Hubo un error al cambiar el status.')
+                    }
+                }
+            })
+        }
+    }
+
     render() {
         let ventas = this.state.ventas || []
+        let ventasSeleccionadas = this.state.ventasSeleccionadas || []
         let retiros = this.state.retiros || {}
+        let usuario = this.props.usuario
         let autorizadoListadoVentas = this.state.autorizadoListadoVentas
+        let modalEditarSerie = this.state.modalEditarSerie
 
         if (! autorizadoListadoVentas) {
             return (
@@ -278,6 +323,13 @@ class Ventas extends React.Component {
                             Total Retirado: <b>${formatCurrency(retiros.totalRetirado)}</b>
                         </button>
                     }
+
+                    { Boolean(usuario.autorizaciones.guardar_configuracion_desktop && ventasSeleccionadas.length) &&
+                        <button onClick={(e) => this.setState({modalEditarSerie: true})} className="btn btn-primary mr-2">
+                            Cambiar Serie ({ventasSeleccionadas.length} ventas)
+                        </button>
+                    }
+
                     { Boolean(ventas.length) &&
                         <span>
                             <button className="btn btn-info ml-1" onClick={this.sincronizarVentas.bind(this)} disabled={!this.state.habilitarSinc}>
@@ -289,6 +341,7 @@ class Ventas extends React.Component {
                         <i className="ion-funnel"></i>
                     </a>
                 </div>
+
                 <div className={`collapse ${this.state.filtroVentas.visible ? 'show' : ''}`}  id="collapseFilter">
                     <div className="row">
                         <div className="col">
@@ -379,6 +432,7 @@ class Ventas extends React.Component {
                     	<table className="table table-condensed vm table-list table-hover table-list clickeable">
                     		<thead>
                     			<tr>
+                                    <th style={{width: '35px'}}></th>
                                     <th style={{width: '100px'}}>Sinc.</th>
                                     <th style={{width: '215px'}}>Folio</th>
                     				<th>Fecha</th>
@@ -389,6 +443,7 @@ class Ventas extends React.Component {
                     		</thead>
                     		<tbody>
                     			{ ventas.map((venta) => {
+                                    var seleccionada = this.state.ventasSeleccionadas.indexOf(venta._id) > -1
                     				return ( <tr 
                                         key={`venta-${venta._id}`} 
                                         title={
@@ -397,6 +452,27 @@ class Ventas extends React.Component {
                                         }
                                         className={`${venta.requiereFactura ? (venta.timbrada ? 'text-success' : 'text-info') : ''} `}
                                         >
+                                        <td className="text-center" onClick={() => {
+                                            let ventasSeleccionadas = this.state.ventasSeleccionadas
+                                            if (seleccionada) {
+                                                ventasSeleccionadas.splice(ventasSeleccionadas.indexOf(venta._id), 1)
+                                            } else {
+                                                ventasSeleccionadas.push(venta._id)
+                                            }
+                                            this.setState({
+                                                ventasSeleccionadas: ventasSeleccionadas
+                                            })
+                                        }}>
+                                            { Boolean(venta.error) &&
+                                            <span>
+                                                 { seleccionada ?
+                                                    <i className="ion-ios-circle-filled text-success"></i>
+                                                    :
+                                                    <i className="ion-ios-circle-outline"></i>
+                                                 }
+                                             </span>
+                                            }
+                                        </td>
                                         <td onClick={() => this.props.verVenta(venta, false, {
                                             onSincronizarVenta: (res) => {
                                                 this.props.verVenta(null);
@@ -496,6 +572,38 @@ class Ventas extends React.Component {
                 :
                 <NoResultsComponent msg="No hay ventas capturadas."></NoResultsComponent>
             	}
+
+                { modalEditarSerie &&
+                <div className="dialog-box modalAutorizacion">
+                    <div className="text-primary text-center h5">Cambiar número de serie</div>
+                    <div className="text-info text-center text-bold">{ventasSeleccionadas.length} ventas seleccionadas</div>
+                    <div className="form-group">
+                        <label htmlFor="">Ingrese la nueva serie:</label>
+                        <input 
+                            type="text" 
+                            className="form-control" 
+                            ref={(i) => {this.inputCambioSerieInput = i}} 
+                            onChange={(e) => {
+                                let numero_serie = e.target.value.replace(/[^a-zA-Z]+/, '').toUpperCase()
+                                e.target.value = numero_serie
+                            }} 
+                            onKeyUp={(e) => {
+                                if(e.key === 'Enter') {
+                                    this.cambiarSerie()
+                                }
+                            }}
+                        autoFocus/>
+                    </div>
+                    <div className="form-group text-right mt-2">
+                        <button className="btn btn-secondary mr-2" onClick={() => {this.setState({modalEditarSerie: null})}} tabIndex="-1">
+                            Cancelar
+                        </button>
+                        <button className="btn btn-primary" onClick={this.cambiarSerie.bind(this)}>
+                            Aceptar
+                        </button>
+                    </div>
+                </div>
+                }
             </div>
         );
     }

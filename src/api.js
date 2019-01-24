@@ -95,6 +95,16 @@ export const solicitudTransaccionPinpad = (api_key, data) => {
 	});
 }
 
+export const cambiarSerieVentas = (data={}) => {
+	return axios.post(`${BASE_API_URL}/cambiar-serie-ventas?api_key=${data.api_key}`, data)
+	.then(function (response) {
+		return response.data
+	})
+	.catch(function (error) {
+		throw error
+	});
+}
+
 export const getSesionCajaDetalle = (api_key, id) => {
 	return axios.get(`${BASE_API_URL}/sesion-caja-detalles/${id}?api_key=${api_key}`)
 	.then(function (response) {

@@ -433,50 +433,49 @@ const enviarVentas = function(api_key, dbCliente, datos={}) {
 			}
 				
 			let proms = Object.keys(infoVentas).map(async (key) => {
-				try{
-					let sesion_caja = await dbCliente.sesiones_caja.findOne({'inicio._id': key})
-					let d = infoVentas[key]
-					let cierre
+				if ('ventas' in infoVentas[key]) {
+					try{
+						let sesion_caja = await dbCliente.sesiones_caja.findOne({'inicio._id': key})
+						let d = infoVentas[key]
+						let cierre
 
-					if ( sesion_caja ) {
-						cierre = sesion_caja.fin
-						d.sessionCaja.fecha = sesion_caja.inicio.fecha
-						d.sessionCaja.fondo = sesion_caja.inicio.totalFondo
-						d.sessionCaja.cajero = {id:sesion_caja.inicio.cajero.id, username: sesion_caja.inicio.cajero.username}
-						d.sessionCaja.almacen = {id:sesion_caja.inicio.almacen.id, codigo: sesion_caja.inicio.almacen.codigo}
-						d.sessionCaja.denominaciones = sesion_caja.inicio.denominaciones
-					} else {
-						console.log('------------')
-						console.log('Asignando sesión basada en ventas')
-						console.log('------------')
-						d.sessionCaja.fecha = d.__sesionCaja.fecha
-						d.sessionCaja.fondo = d.__sesionCaja.totalFondo
-						d.sessionCaja.cajero = {id:d.__sesionCaja.cajero.id, username: d.__sesionCaja.cajero.username}
-						d.sessionCaja.almacen = {id:d.__sesionCaja.almacen.id, codigo: d.__sesionCaja.almacen.codigo}
-					}
-					
-					d.retiros = []
-					
-					retiros.map((ret) => {
-						let r = helpers.cloneObject(ret)
-						if (r.sesion_caja._id === sesion_caja.inicio._id) {
-							delete r['cajero']
-							delete r['almacen']
-							delete r['sesion_caja']
-							d.retiros.push(r)
+						if ( sesion_caja ) {
+							cierre = sesion_caja.fin
+							d.sessionCaja.fecha = sesion_caja.inicio.fecha
+							d.sessionCaja.fondo = sesion_caja.inicio.totalFondo
+							d.sessionCaja.cajero = {id:sesion_caja.inicio.cajero.id, username: sesion_caja.inicio.cajero.username}
+							d.sessionCaja.almacen = {id:sesion_caja.inicio.almacen.id, codigo: sesion_caja.inicio.almacen.codigo}
+							d.sessionCaja.denominaciones = sesion_caja.inicio.denominaciones
+						} else {
+							d.sessionCaja.fecha = d.__sesionCaja.fecha
+							d.sessionCaja.fondo = d.__sesionCaja.totalFondo
+							d.sessionCaja.cajero = {id:d.__sesionCaja.cajero.id, username: d.__sesionCaja.cajero.username}
+							d.sessionCaja.almacen = {id:d.__sesionCaja.almacen.id, codigo: d.__sesionCaja.almacen.codigo}
 						}
-					})
+						
+						d.retiros = []
+						
+						retiros.map((ret) => {
+							let r = helpers.cloneObject(ret)
+							if (r.sesion_caja._id === sesion_caja.inicio._id) {
+								delete r['cajero']
+								delete r['almacen']
+								delete r['sesion_caja']
+								d.retiros.push(r)
+							}
+						})
 
-					
-					if (cierre) {
-						delete cierre['cajero']
-						delete cierre['almacen']
+						
+						if (cierre) {
+							delete cierre['cajero']
+							delete cierre['almacen']
+						}
+
+						d.sessionCaja.cierre = cierre
+						return d
+					} catch(e) {
+						logger.log('error', e)
 					}
-
-					d.sessionCaja.cierre = cierre
-					return d
-				} catch(e) {
-					logger.log('error', e)
 				}
 			})
 			
@@ -635,7 +634,7 @@ exports.ventas = async function(req, res) {
 			}
 			
 			if (resultado.ventas.length) {
-				await DB.ventas.update({_id: {$in: resultado.ventas}}, {$set: {sincronizada: true, timbrada: true}}, {multi: true})
+				await DB.ventas.update({_id: {$in: resultado.ventas}}, {$set: {sincronizada: true, timbrada: true}, $unset: {error: true, motivoError: true}}, {multi: true})
 				if (resultado.no_timbradas.length) {
 					await DB.ventas.update({_id: {$in: resultado.no_timbradas}}, {$set: {timbrada: false}}, {multi: true})
 				}

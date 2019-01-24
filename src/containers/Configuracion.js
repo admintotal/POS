@@ -352,7 +352,7 @@ class Configuracion extends React.Component {
                                         <label htmlFor="">Serie:</label>
                                         <input
                                             onChange={(e) => {
-                                                let numero_serie = e.target.value.replace(/[0-9]/g, '').replace(/ /g, '').toUpperCase()
+                                                let numero_serie = e.target.value.replace(/[^a-zA-Z]+/, '').toUpperCase()
                                                 this.setState({numero_serie: numero_serie})
                                             }} 
                                             onBlur={(e) => {

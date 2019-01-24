@@ -1593,6 +1593,40 @@ exports.guardarPedido = (req, res) => {
     })
 }
 
+exports.cambiarStatusVentas = (req, res) => {
+    db._getDB(req.query.api_key).then(async (dbCliente) => {
+        let serie = req.body.serie
+        let ids = req.body.ventas || []
+        
+        if (!serie || serie === '') {
+            return res.json({
+                status: 'error',
+                message: 'Es necesario especificar la nueva serie.'
+            })
+        }
+
+        if (!ids.length) {
+            return res.json({
+                status: 'error',
+                message: 'Ningún id de venta fué especificado.'
+            })
+        }
+
+        let ventas = await dbCliente.ventas.update({_id: {$in: ids}}, {$set: {numero_serie: serie}}, {multi: true})
+        return res.json({
+            status: 'success',
+            message: `${ventas} han sido actualizadas correctamente.`
+        })
+    })
+    .catch((e) => {
+        logger.log('error', e)
+        return res.json({
+            status: 'error',
+            message: e || 'El token especificado es inválido'
+        })
+    })
+}
+
 exports.ventas = (req, res) => {
     db._getDB(req.query.api_key).then(async (dbCliente) => {
         if (!req.query.usuario) {

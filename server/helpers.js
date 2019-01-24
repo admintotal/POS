@@ -634,7 +634,7 @@ exports.actualizarCliente = async (data={})  => {
 exports.getFolio = async (dbCliente, conf)  => {
     let folio = conf.folio_inicial || 1
     
-    return folio
+    return +folio
     /*
     let ultimaVenta = await dbCliente.ventas.cfind({folio: {$ne: null}, numero_serie: conf.numero_serie}).sort({folio: -1}).limit(1).exec()
 

@@ -251,6 +251,11 @@ class Ventas extends React.Component {
     cambiarSerie() {
         if (this.inputCambioSerieInput) {
             let nuevaSerie = this.inputCambioSerieInput.value
+
+            if (!nuevaSerie || nuevaSerie === '') {
+                this.inputCambioSerieInput.focus()
+            }
+
             this.props.mostrarAlerta({
                 titulo: 'Confirme para continuar',
                 mensaje: `¿Desea asignar la serie <b>${nuevaSerie}</b> a ${this.state.ventasSeleccionadas.length} ventas?`,

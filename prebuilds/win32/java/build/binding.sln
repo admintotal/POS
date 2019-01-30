@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2015
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nodejavabridge_bindings", "nodejavabridge_bindings.vcxproj", "{CA5C975D-A85E-5A08-82F9-7E5F348F807A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nodejavabridge_bindings", "nodejavabridge_bindings.vcxproj", "{4EB6BB61-AAB0-3E4E-A487-B6C369E058C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -10,14 +10,14 @@ Global
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{CA5C975D-A85E-5A08-82F9-7E5F348F807A}.Release_x64|Win32.ActiveCfg = Release_x64|Win32
-		{CA5C975D-A85E-5A08-82F9-7E5F348F807A}.Release_x64|Win32.Build.0 = Release_x64|Win32
-		{CA5C975D-A85E-5A08-82F9-7E5F348F807A}.Debug_x64|Win32.ActiveCfg = Debug_x64|Win32
-		{CA5C975D-A85E-5A08-82F9-7E5F348F807A}.Debug_x64|Win32.Build.0 = Debug_x64|Win32
-		{CA5C975D-A85E-5A08-82F9-7E5F348F807A}.Debug|Win32.ActiveCfg = Debug|Win32
-		{CA5C975D-A85E-5A08-82F9-7E5F348F807A}.Debug|Win32.Build.0 = Debug|Win32
-		{CA5C975D-A85E-5A08-82F9-7E5F348F807A}.Release|Win32.ActiveCfg = Release|Win32
-		{CA5C975D-A85E-5A08-82F9-7E5F348F807A}.Release|Win32.Build.0 = Release|Win32
+		{4EB6BB61-AAB0-3E4E-A487-B6C369E058C2}.Release_x64|Win32.ActiveCfg = Release_x64|Win32
+		{4EB6BB61-AAB0-3E4E-A487-B6C369E058C2}.Release_x64|Win32.Build.0 = Release_x64|Win32
+		{4EB6BB61-AAB0-3E4E-A487-B6C369E058C2}.Debug_x64|Win32.ActiveCfg = Debug_x64|Win32
+		{4EB6BB61-AAB0-3E4E-A487-B6C369E058C2}.Debug_x64|Win32.Build.0 = Debug_x64|Win32
+		{4EB6BB61-AAB0-3E4E-A487-B6C369E058C2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4EB6BB61-AAB0-3E4E-A487-B6C369E058C2}.Debug|Win32.Build.0 = Debug|Win32
+		{4EB6BB61-AAB0-3E4E-A487-B6C369E058C2}.Release|Win32.ActiveCfg = Release|Win32
+		{4EB6BB61-AAB0-3E4E-A487-B6C369E058C2}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

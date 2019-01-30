@@ -19,10 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{95FA8D84-14E6-6E80-A593-2120CACC500A}</ProjectGuid>
+    <ProjectGuid>{7582B38C-F775-B5B3-F2AC-B5BFDC1ACB8D}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>serialport</RootNamespace>
     <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
   <PropertyGroup Label="Configuration">
@@ -60,15 +61,16 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\jahaziel\.nw-gyp\0.29.4\include\node;C:\Users\jahaziel\.nw-gyp\0.29.4\src;C:\Users\jahaziel\.nw-gyp\0.29.4\deps\uv\include;C:\Users\jahaziel\.nw-gyp\0.29.4\deps\v8\include;..\..\nan;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/bigobj /d2FastFail /Zc:sizedDealloc- /Zc:threadSafeInit- /MP %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>C:\Users\usuario\.nw-gyp\0.35.5\include\node;C:\Users\usuario\.nw-gyp\0.35.5\src;C:\Users\usuario\.nw-gyp\0.35.5\deps\uv\include;C:\Users\usuario\.nw-gyp\0.35.5\deps\v8\include;..\..\..\..\node_modules\nan;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/bigobj /d2FastFail /Zc:sizedDealloc- /Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4267;4530;4506;4351;4355;4800;4595;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <DisableSpecificWarnings>4530;4506;4351;4355;4800;4251;4275;4244;4267;4595;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Async</ExceptionHandling>
       <MinimalRebuild>false</MinimalRebuild>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitFramePointers>false</OmitFramePointers>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -80,14 +82,14 @@
       <WarningLevel>Level3</WarningLevel>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;user32.lib;uuid.lib;odbc32.lib;odbccp32.lib;delayimp.lib;credui.lib;dbghelp.lib;shlwapi.lib;winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;&quot;C:\Users\jahaziel\.nw-gyp\0.29.4\ia32\nw.lib&quot;;&quot;C:\Users\jahaziel\.nw-gyp\0.29.4\ia32\node.lib&quot;</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;user32.lib;uuid.lib;odbc32.lib;odbccp32.lib;delayimp.lib;credui.lib;dbghelp.lib;shlwapi.lib;winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;&quot;C:\Users\usuario\.nw-gyp\0.35.5\ia32\nw.lib&quot;;&quot;C:\Users\usuario\.nw-gyp\0.35.5\ia32\node.lib&quot;</AdditionalDependencies>
       <AdditionalOptions>/ignore:4199 /maxilksize:0x7ff00000 /fastfail %(AdditionalOptions)</AdditionalOptions>
       <AllowIsolation>true</AllowIsolation>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <DelayLoadDLLs>iojs.exe;node.exe;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <GenerateMapFile>true</GenerateMapFile>
-      <MapExports>true</MapExports>
+      <GenerateMapFile>false</GenerateMapFile>
+      <MapExports>false</MapExports>
       <OutputFile>$(OutDir)$(ProjectName).node</OutputFile>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -95,21 +97,22 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>C:\Users\jahaziel\.nw-gyp\0.29.4\include\node;C:\Users\jahaziel\.nw-gyp\0.29.4\src;C:\Users\jahaziel\.nw-gyp\0.29.4\deps\uv\include;C:\Users\jahaziel\.nw-gyp\0.29.4\deps\v8\include;..\..\nan;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\usuario\.nw-gyp\0.35.5\include\node;C:\Users\usuario\.nw-gyp\0.35.5\src;C:\Users\usuario\.nw-gyp\0.35.5\deps\uv\include;C:\Users\usuario\.nw-gyp\0.35.5\deps\v8\include;..\..\..\..\node_modules\nan;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=serialport;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;BUILDING_NODE_EXTENSION;DEBUG;_DEBUG;V8_ENABLE_CHECKS;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\jahaziel\.nw-gyp\0.29.4\include\node;C:\Users\jahaziel\.nw-gyp\0.29.4\src;C:\Users\jahaziel\.nw-gyp\0.29.4\deps\uv\include;C:\Users\jahaziel\.nw-gyp\0.29.4\deps\v8\include;..\..\nan;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/bigobj /d2FastFail /Zc:sizedDealloc- /Zc:threadSafeInit- /MP %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>C:\Users\usuario\.nw-gyp\0.35.5\include\node;C:\Users\usuario\.nw-gyp\0.35.5\src;C:\Users\usuario\.nw-gyp\0.35.5\deps\uv\include;C:\Users\usuario\.nw-gyp\0.35.5\deps\v8\include;..\..\..\..\node_modules\nan;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/bigobj /d2FastFail /Zc:sizedDealloc- /Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4267;4530;4506;4351;4355;4800;4595;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <DisableSpecificWarnings>4530;4506;4351;4355;4800;4251;4275;4244;4267;4595;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Async</ExceptionHandling>
       <MinimalRebuild>false</MinimalRebuild>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitFramePointers>false</OmitFramePointers>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -121,14 +124,14 @@
       <WarningLevel>Level3</WarningLevel>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;user32.lib;uuid.lib;odbc32.lib;odbccp32.lib;delayimp.lib;credui.lib;dbghelp.lib;shlwapi.lib;winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;&quot;C:\Users\jahaziel\.nw-gyp\0.29.4\ia32\nw.lib&quot;;&quot;C:\Users\jahaziel\.nw-gyp\0.29.4\ia32\node.lib&quot;</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;user32.lib;uuid.lib;odbc32.lib;odbccp32.lib;delayimp.lib;credui.lib;dbghelp.lib;shlwapi.lib;winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;&quot;C:\Users\usuario\.nw-gyp\0.35.5\ia32\nw.lib&quot;;&quot;C:\Users\usuario\.nw-gyp\0.35.5\ia32\node.lib&quot;</AdditionalDependencies>
       <AdditionalOptions>/ignore:4199 /maxilksize:0x7ff00000 /fastfail %(AdditionalOptions)</AdditionalOptions>
       <AllowIsolation>true</AllowIsolation>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <DelayLoadDLLs>iojs.exe;node.exe;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <GenerateMapFile>true</GenerateMapFile>
-      <MapExports>true</MapExports>
+      <GenerateMapFile>false</GenerateMapFile>
+      <MapExports>false</MapExports>
       <OutputFile>$(OutDir)$(ProjectName).node</OutputFile>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -136,23 +139,24 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>C:\Users\jahaziel\.nw-gyp\0.29.4\include\node;C:\Users\jahaziel\.nw-gyp\0.29.4\src;C:\Users\jahaziel\.nw-gyp\0.29.4\deps\uv\include;C:\Users\jahaziel\.nw-gyp\0.29.4\deps\v8\include;..\..\nan;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\usuario\.nw-gyp\0.35.5\include\node;C:\Users\usuario\.nw-gyp\0.35.5\src;C:\Users\usuario\.nw-gyp\0.35.5\deps\uv\include;C:\Users\usuario\.nw-gyp\0.35.5\deps\v8\include;..\..\..\..\node_modules\nan;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=serialport;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;BUILDING_NODE_EXTENSION;DEBUG;_DEBUG;V8_ENABLE_CHECKS;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\jahaziel\.nw-gyp\0.29.4\include\node;C:\Users\jahaziel\.nw-gyp\0.29.4\src;C:\Users\jahaziel\.nw-gyp\0.29.4\deps\uv\include;C:\Users\jahaziel\.nw-gyp\0.29.4\deps\v8\include;..\..\nan;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/bigobj /d2FastFail /Zc:sizedDealloc- /Zc:threadSafeInit- /MP %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>C:\Users\usuario\.nw-gyp\0.35.5\include\node;C:\Users\usuario\.nw-gyp\0.35.5\src;C:\Users\usuario\.nw-gyp\0.35.5\deps\uv\include;C:\Users\usuario\.nw-gyp\0.35.5\deps\v8\include;..\..\..\..\node_modules\nan;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/bigobj /d2FastFail /Zc:sizedDealloc- /Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4267;4530;4506;4351;4355;4800;4595;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <DisableSpecificWarnings>4530;4506;4351;4355;4800;4251;4275;4244;4267;4595;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Async</ExceptionHandling>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitFramePointers>true</OmitFramePointers>
       <Optimization>Full</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -166,18 +170,18 @@
       <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Lib>
-      <AdditionalOptions>/LTCG %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/LTCG:INCREMENTAL %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <Link>
-      <AdditionalDependencies>kernel32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;user32.lib;uuid.lib;odbc32.lib;odbccp32.lib;delayimp.lib;credui.lib;dbghelp.lib;shlwapi.lib;winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;&quot;C:\Users\jahaziel\.nw-gyp\0.29.4\ia32\nw.lib&quot;;&quot;C:\Users\jahaziel\.nw-gyp\0.29.4\ia32\node.lib&quot;</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;user32.lib;uuid.lib;odbc32.lib;odbccp32.lib;delayimp.lib;credui.lib;dbghelp.lib;shlwapi.lib;winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;&quot;C:\Users\usuario\.nw-gyp\0.35.5\ia32\nw.lib&quot;;&quot;C:\Users\usuario\.nw-gyp\0.35.5\ia32\node.lib&quot;</AdditionalDependencies>
       <AdditionalOptions>/ignore:4199 /maxilksize:0x7ff00000 /fastfail /LTCG:INCREMENTAL %(AdditionalOptions)</AdditionalOptions>
       <AllowIsolation>true</AllowIsolation>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <DelayLoadDLLs>iojs.exe;node.exe;%(DelayLoadDLLs)</DelayLoadDLLs>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <GenerateMapFile>true</GenerateMapFile>
-      <MapExports>true</MapExports>
+      <GenerateMapFile>false</GenerateMapFile>
+      <MapExports>false</MapExports>
       <OptimizeReferences>true</OptimizeReferences>
       <OutputFile>$(OutDir)$(ProjectName).node</OutputFile>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
@@ -186,23 +190,24 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>C:\Users\jahaziel\.nw-gyp\0.29.4\include\node;C:\Users\jahaziel\.nw-gyp\0.29.4\src;C:\Users\jahaziel\.nw-gyp\0.29.4\deps\uv\include;C:\Users\jahaziel\.nw-gyp\0.29.4\deps\v8\include;..\..\nan;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\usuario\.nw-gyp\0.35.5\include\node;C:\Users\usuario\.nw-gyp\0.35.5\src;C:\Users\usuario\.nw-gyp\0.35.5\deps\uv\include;C:\Users\usuario\.nw-gyp\0.35.5\deps\v8\include;..\..\..\..\node_modules\nan;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=serialport;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;BUILDING_NODE_EXTENSION;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\jahaziel\.nw-gyp\0.29.4\include\node;C:\Users\jahaziel\.nw-gyp\0.29.4\src;C:\Users\jahaziel\.nw-gyp\0.29.4\deps\uv\include;C:\Users\jahaziel\.nw-gyp\0.29.4\deps\v8\include;..\..\nan;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/bigobj /d2FastFail /Zc:sizedDealloc- /Zc:threadSafeInit- /MP %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>C:\Users\usuario\.nw-gyp\0.35.5\include\node;C:\Users\usuario\.nw-gyp\0.35.5\src;C:\Users\usuario\.nw-gyp\0.35.5\deps\uv\include;C:\Users\usuario\.nw-gyp\0.35.5\deps\v8\include;..\..\..\..\node_modules\nan;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/bigobj /d2FastFail /Zc:sizedDealloc- /Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4267;4530;4506;4351;4355;4800;4595;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <DisableSpecificWarnings>4530;4506;4351;4355;4800;4251;4275;4244;4267;4595;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Async</ExceptionHandling>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitFramePointers>true</OmitFramePointers>
       <Optimization>Full</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -216,18 +221,18 @@
       <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Lib>
-      <AdditionalOptions>/LTCG %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/LTCG:INCREMENTAL %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <Link>
-      <AdditionalDependencies>kernel32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;user32.lib;uuid.lib;odbc32.lib;odbccp32.lib;delayimp.lib;credui.lib;dbghelp.lib;shlwapi.lib;winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;&quot;C:\Users\jahaziel\.nw-gyp\0.29.4\ia32\nw.lib&quot;;&quot;C:\Users\jahaziel\.nw-gyp\0.29.4\ia32\node.lib&quot;</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;user32.lib;uuid.lib;odbc32.lib;odbccp32.lib;delayimp.lib;credui.lib;dbghelp.lib;shlwapi.lib;winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;&quot;C:\Users\usuario\.nw-gyp\0.35.5\ia32\nw.lib&quot;;&quot;C:\Users\usuario\.nw-gyp\0.35.5\ia32\node.lib&quot;</AdditionalDependencies>
       <AdditionalOptions>/ignore:4199 /maxilksize:0x7ff00000 /fastfail /LTCG:INCREMENTAL %(AdditionalOptions)</AdditionalOptions>
       <AllowIsolation>true</AllowIsolation>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <DelayLoadDLLs>iojs.exe;node.exe;%(DelayLoadDLLs)</DelayLoadDLLs>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <GenerateMapFile>true</GenerateMapFile>
-      <MapExports>true</MapExports>
+      <GenerateMapFile>false</GenerateMapFile>
+      <MapExports>false</MapExports>
       <OptimizeReferences>true</OptimizeReferences>
       <OutputFile>$(OutDir)$(ProjectName).node</OutputFile>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
@@ -236,7 +241,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>C:\Users\jahaziel\.nw-gyp\0.29.4\include\node;C:\Users\jahaziel\.nw-gyp\0.29.4\src;C:\Users\jahaziel\.nw-gyp\0.29.4\deps\uv\include;C:\Users\jahaziel\.nw-gyp\0.29.4\deps\v8\include;..\..\nan;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\usuario\.nw-gyp\0.35.5\include\node;C:\Users\usuario\.nw-gyp\0.35.5\src;C:\Users\usuario\.nw-gyp\0.35.5\deps\uv\include;C:\Users\usuario\.nw-gyp\0.35.5\deps\v8\include;..\..\..\..\node_modules\nan;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=serialport;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;BUILDING_NODE_EXTENSION;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
@@ -246,7 +251,7 @@
   <ItemGroup>
     <ClCompile Include="..\src\serialport.cpp"/>
     <ClCompile Include="..\src\serialport_win.cpp"/>
-    <ClCompile Include="C:\Users\jahaziel\AppData\Roaming\npm\node_modules\nw-gyp\src\win_delay_load_hook.cc"/>
+    <ClCompile Include="C:\Users\usuario\AppData\Roaming\nvm\v11.6.0\node_modules\nw-gyp\src\win_delay_load_hook.cc"/>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
   <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets"/>

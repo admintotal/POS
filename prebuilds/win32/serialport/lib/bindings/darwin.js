@@ -11,6 +11,9 @@ const defaultBindingOptions = Object.freeze({
   vtime: 0
 });
 
+/**
+ * The Darwin binding layer for OSX
+ */
 class DarwinBinding extends BaseBinding {
   static list() {
     return promisify(binding.list)();
@@ -44,6 +47,7 @@ class DarwinBinding extends BaseBinding {
       .then(() => {
         const fd = this.fd;
         this.poller.stop();
+        this.poller.destroy();
         this.poller = null;
         this.openOptions = null;
         this.fd = null;

@@ -4,12 +4,15 @@ const BaseBinding = require('./base');
 const promisify = require('../util').promisify;
 const serialNumParser = require('./win32-sn-parser');
 
+/**
+ * The Windows binding layer
+ */
 class WindowsBinding extends BaseBinding {
   static list() {
     return promisify(binding.list)().then(ports => {
       // Grab the serial number from the pnp id
       ports.forEach(port => {
-        if (port.pnpId) {
+        if (port.pnpId && !port.serialNumber) {
           const serialNumber = serialNumParser(port.pnpId);
           if (serialNumber) {
             port.serialNumber = serialNumber;

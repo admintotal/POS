@@ -4,10 +4,6 @@ const logger = debug('serialport:poller');
 const EventEmitter = require('events');
 const FDPoller = require('bindings')('serialport.node').Poller;
 
-/**
- * Enum of event values
- * @enum {int}
- */
 const EVENTS = {
   UV_READABLE: 1,
   UV_WRITABLE: 2,
@@ -47,8 +43,8 @@ class Poller extends EventEmitter {
   }
   /**
    * Wait for the next event to occur
-   * @param {string} Event ('readable'|'writable'|'disconnect')
-   * @param {function} callback
+   * @param {string} event ('readable'|'writable'|'disconnect')
+   * @returns {Poller} returns itself
    */
   once(event) {
     switch (event) {
@@ -66,8 +62,9 @@ class Poller extends EventEmitter {
   }
 
   /**
-   * Ask the bindings to listen for an event
-   * @param {EVENTS} eventFlag
+   * Ask the bindings to listen for an event, it is recommend to use `.once()` for easy use
+   * @param {EVENTS} eventFlag polls for an event or group of events based upon a flag.
+   * @returns {undefined}
    */
   poll(eventFlag) {
     eventFlag = eventFlag || 0;
@@ -87,10 +84,21 @@ class Poller extends EventEmitter {
 
   /**
    * Stop listening for events and cancel all outstanding listening with an error
+   * @returns {undefined}
    */
   stop() {
     logger('Stopping poller');
     this.poller.stop();
+    this.emitCanceled();
+  }
+
+  destroy() {
+    logger('Destroying poller');
+    this.poller.destroy();
+    this.emitCanceled();
+  }
+
+  emitCanceled() {
     const err = new Error('Canceled');
     err.canceled = true;
     this.emit('readable', err);

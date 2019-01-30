@@ -11,7 +11,9 @@ const defaultBindingOptions = Object.freeze({
   vmin: 1,
   vtime: 0
 });
-
+/**
+ * The linux binding layer
+ */
 class LinuxBinding extends BaseBinding {
   static list() {
     return linuxList();
@@ -45,6 +47,7 @@ class LinuxBinding extends BaseBinding {
       .then(() => {
         const fd = this.fd;
         this.poller.stop();
+        this.poller.destroy();
         this.poller = null;
         this.openOptions = null;
         this.fd = null;

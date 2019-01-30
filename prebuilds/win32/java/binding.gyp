@@ -24,8 +24,26 @@
       ['OS=="mac"', {
       	'javaver%' : "<!(awk -F/ -v h=`node findJavaHome.js` 'BEGIN {n=split(h, a); print a[2]; exit}')"
       }],
-      ['OS=="linux" or OS=="mac" or OS=="freebsd" or OS=="openbsd" or OS=="solaris"', {
-        'javalibdir%': "<!(./find_java_libdir.sh <(target_arch) <(OS))"
+      ['OS=="linux" and target_arch=="arm"', {
+        'javalibdir%': "<!(h=\"`node findJavaHome.js`\" sh -c 'if [ -d \"$h/jre/lib/arm/classic\" ]; then echo $h/jre/arm/i386/classic; else echo $h/jre/lib/arm/server; fi')"
+      }],
+      ['OS=="linux" and target_arch=="ia32"', {
+        'javalibdir%': "<!(h=\"`node findJavaHome.js`\" sh -c 'if [ -d \"$h/jre/lib/i386/classic\" ]; then echo $h/jre/lib/i386/classic; else echo $h/jre/lib/i386/server; fi')"
+      }],
+      ['OS=="linux" and target_arch=="x64"', {
+        'javalibdir%': "<!(h=\"`node findJavaHome.js`\" sh -c 'if [ -d \"$h/jre/lib/amd64/classic\" ]; then echo $h/jre/lib/amd64/classic; else echo $h/jre/lib/amd64/server; fi')"
+      }],
+      ['OS=="linux" and (target_arch=="s390x" or target_arch=="s390")', {
+        'javalibdir%': "<!(h=\"`node findJavaHome.js`\" sh -c 'if [ -d \"$h/jre/lib/s390x/classic\" ]; then echo $h/jre/lib/s390x/classic; else echo $h/jre/lib/s390/classic; fi')"
+      }],
+      ['OS=="linux" and (target_arch=="ppc64" or target_arch=="ppc")', {
+        'javalibdir%': "<!(h=\"`node findJavaHome.js`\" sh -c 'if [ -d \"$h/jre/lib/ppc64/classic\" ]; then echo $h/jre/lib/ppc64/classic; fi')"
+      }],
+      ['OS=="solaris" and target_arch=="ia32"', {
+        'javalibdir%': "<!(h=\"`node findJavaHome.js`\" sh -c 'if [ -d \"$h/jre/lib/i386/classic\" ]; then echo $h/jre/lib/i386/classic; else echo $h/jre/lib/i386/server; fi')"
+      }],
+      ['OS=="solaris" and target_arch=="x64"', {
+        'javalibdir%': "<!(h=\"`node findJavaHome.js`\" sh -c 'if [ -d \"$h/jre/lib/amd64/classic\" ]; then echo $h/jre/lib/amd64/classic; else echo $h/jre/lib/amd64/server; fi')"
       }],
     ]
   },
@@ -74,8 +92,8 @@
               '<(javahome)/include/solaris',
             ],
             'libraries': [
-               '-L<(javalibdir)',
-              '-Wl,-rpath,<(javalibdir)',
+               '-L<(javahome)/jre/lib/<(arch)/server/',
+              '-Wl,-rpath,<(javahome)/jre/lib/<(arch)/server/',
               '-ljvm'
             ]
           }
@@ -86,8 +104,8 @@
               '<(javahome)/include/freebsd',
             ],
             'libraries': [
-              '-L<(javalibdir)',
-              '-Wl,-rpath,<(javalibdir)',
+              '-L<(javahome)/jre/lib/<(arch)/server/',
+              '-Wl,-rpath,<(javahome)/jre/lib/<(arch)/server/',
               '-ljvm'
             ]
           }
@@ -98,8 +116,8 @@
               '<(javahome)/include/openbsd',
             ],
             'libraries': [
-              '-L<(javalibdir)',
-              '-Wl,-rpath,<(javalibdir)',
+              '-L<(javahome)/jre/lib/<(arch)/server/',
+              '-Wl,-rpath,<(javahome)/jre/lib/<(arch)/server/',
               '-ljvm'
             ]
           }
@@ -117,8 +135,8 @@
                     '<(javahome)/include/darwin'
                   ],
                   'libraries': [
-                    '-L<(javalibdir)',
-                    '-Wl,-rpath,<(javalibdir)',
+                    '-L<(javahome)/jre/lib/server',
+                    '-Wl,-rpath,<(javahome)/jre/lib/server',
                     '-ljvm'
                   ],
                 },

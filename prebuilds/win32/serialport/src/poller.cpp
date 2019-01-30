@@ -19,7 +19,7 @@ Poller::~Poller() {
   // if we call uv_poll_stop after uv_poll_init failed we segfault
   if (uv_poll_init_success) {
     uv_poll_stop(poll_handle);
-    uv_close((uv_handle_t*) poll_handle, Poller::onClose);
+    uv_close(reinterpret_cast<uv_handle_t*> (poll_handle), Poller::onClose);
   } else {
     delete poll_handle;
   }
@@ -76,6 +76,7 @@ NAN_MODULE_INIT(Poller::Init) {
 
   Nan::SetPrototypeMethod(tpl, "poll", poll);
   Nan::SetPrototypeMethod(tpl, "stop", stop);
+  Nan::SetPrototypeMethod(tpl, "destroy", destroy);
 
   constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
   Nan::Set(target, Nan::New("Poller").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
@@ -120,6 +121,12 @@ NAN_METHOD(Poller::poll) {
 NAN_METHOD(Poller::stop) {
   Poller* obj = Nan::ObjectWrap::Unwrap<Poller>(info.Holder());
   obj->stop();
+}
+
+NAN_METHOD(Poller::destroy) {
+  Poller* obj = Nan::ObjectWrap::Unwrap<Poller>(info.Holder());
+  obj->persistent().Reset();
+  delete obj;
 }
 
 inline Nan::Persistent<v8::Function> & Poller::constructor() {

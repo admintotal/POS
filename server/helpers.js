@@ -715,6 +715,36 @@ exports.getNumeroTarjeta = (numero) => {
     return  `${numero}`.substr(`${numero}`.length - 4);
 }
 
+exports.cancelarTransaccionAdmintotal = (datos) => {
+    return new Promise(async (resolve, reject) => {
+
+        let {referencia, api_key, importe} = datos
+
+        if (!api_key) {
+            return {
+                status: 'error',
+                message: 'Api key no especificado'
+            }
+        }
+
+        if (!referencia) {
+            return {
+                status: 'error',
+                message: 'La referencia no fué especificada.'
+            }
+        }
+
+        const api = require('./services')
+        let url = '/sincronizar/cancelar-transaccion-pinpad/'
+        return api._post({path: url, data: datos, claveCliente: datos.claveCliente})
+            .then((result) => {
+                resolve(result)
+            }).catch((err) => {
+                reject(err)
+            })
+    })
+}
+
 exports.getVentasError = async (opts) => {
     let {db, proj} = opts
 

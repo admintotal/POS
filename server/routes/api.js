@@ -2458,6 +2458,34 @@ exports.solicitudTransaccionPinpad = async (req, res) =>  {
             switch (solicitud.toLowerCase()) {
                 case 'cancelacion':
                     resultadoSolicitud = await pinpad.cancelarTransaccion({referencia: referencia, monto: monto})
+                    
+                    if (resultadoSolicitud.status === 'success') {
+                        try {
+                            // cancelar en admintotal
+                            let cancelacionAdmintotal = await helpers.cancelarTransaccionAdmintotal({
+                                claveCliente: dbCliente.claveCliente,
+                                api_key: req.query.api_key,
+                                referencia: referencia,
+                                importe: monto
+                            })
+
+                            if (cancelacionAdmintotal.status !== 'success') {
+                                logger.log('error', {
+                                    message: "Ocurrió un error al cancelar transacción en admintotal",
+                                    cancelacion: resultadoSolicitud,
+                                    cancelacionAt: cancelacionAdmintotal
+                                })
+                            }
+
+                        } catch(e) {
+                            logger.log('error', {
+                                message: "Ocurrió un error al cancelar transacción en admintotal",
+                                cancelacion: resultadoSolicitud,
+                                e: e.message
+                            })
+                        }
+                    }
+
                     break;
 
                 case 'devolucion':

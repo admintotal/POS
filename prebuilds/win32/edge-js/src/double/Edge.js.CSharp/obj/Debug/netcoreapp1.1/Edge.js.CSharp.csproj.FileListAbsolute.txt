@@ -1,9 +1,0 @@
-C:\Users\usuario\Projects\POS\node_modules\edge-js\src\double\Edge.js.CSharp\bin\Debug\netcoreapp1.1\Edge.js.CSharp.deps.json
-C:\Users\usuario\Projects\POS\node_modules\edge-js\src\double\Edge.js.CSharp\bin\Debug\netcoreapp1.1\Edge.js.CSharp.dll
-C:\Users\usuario\Projects\POS\node_modules\edge-js\src\double\Edge.js.CSharp\bin\Debug\netcoreapp1.1\Edge.js.CSharp.pdb
-C:\Users\usuario\Projects\POS\node_modules\edge-js\src\double\Edge.js.CSharp\obj\Debug\netcoreapp1.1\Edge.js.CSharp.csprojAssemblyReference.cache
-C:\Users\usuario\Projects\POS\node_modules\edge-js\src\double\Edge.js.CSharp\obj\Debug\netcoreapp1.1\Edge.js.CSharp.csproj.CoreCompileInputs.cache
-C:\Users\usuario\Projects\POS\node_modules\edge-js\src\double\Edge.js.CSharp\obj\Debug\netcoreapp1.1\Edge.js.CSharp.AssemblyInfoInputs.cache
-C:\Users\usuario\Projects\POS\node_modules\edge-js\src\double\Edge.js.CSharp\obj\Debug\netcoreapp1.1\Edge.js.CSharp.AssemblyInfo.cs
-C:\Users\usuario\Projects\POS\node_modules\edge-js\src\double\Edge.js.CSharp\obj\Debug\netcoreapp1.1\Edge.js.CSharp.dll
-C:\Users\usuario\Projects\POS\node_modules\edge-js\src\double\Edge.js.CSharp\obj\Debug\netcoreapp1.1\Edge.js.CSharp.pdb

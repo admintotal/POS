@@ -1191,17 +1191,12 @@ exports.guardarVenta = (req, res) => {
                 }
             } catch(e) {
                 logger.log('error', e)
-                await dbCliente.ventas.update({_id: d._id}, {$set: {
-                    sincronizada: true,
-                    timbrada: false,
-                    error: true,
-                    motivoError: e.message,
-                }})
+                await dbCliente.ventas.remove({_id: d._id})
                 return res.json({
                     status: 'error', 
                     message: 'Hubo un error al solicitar la factura.',
                     clienteDefault: clienteDefault,
-                    ventaGuardada: true
+                    ventaGuardada: false
                 })
             }
         } else if (venta.fondo.monto || venta.monedero.monto) {
@@ -1239,18 +1234,13 @@ exports.guardarVenta = (req, res) => {
                 }
                 
             } catch(e) {
-                logger.log('error', `Hubo un problema al enviar la venta a admintotal`)
-                await dbCliente.ventas.update({_id: d._id}, {$set: {
-                    sincronizada: true,
-                    timbrada: false,
-                    error: true,
-                    motivoError: e.message,
-                }})
+                logger.log('error', e)
+                await dbCliente.ventas.remove({_id: d._id})
                 return res.json({
                     status: 'error',
                     clienteDefault: clienteDefault, 
                     message: 'Hubo un problema al enviar la venta a admintotal.',
-                    ventaGuardada: true
+                    ventaGuardada: false
                 })
             }
         } else {
@@ -2150,6 +2140,7 @@ exports.imprimirRetiroEfectivo = (req, res) => {
             general: conf.configuracion.general,
             sesion: retiro,
             titulo: titulo,
+            tipo: 'retiro',
             impresora: conf.impresora ? conf.impresora : {},
             tituloPagina: `${titulo} - ${retiro.fecha}`
         })
@@ -2294,8 +2285,7 @@ exports.guardarConfiguracion = async (req, res) => {
         }
         
         process.env.NUMERO_SERIE = numero_serie
-
-        await dbCliente.conf.update({}, {$set: {
+        let conf = {
             numero_serie: numero_serie, 
             folio_inicial: req.body.folio_inicial,
             almacen: almacen, 
@@ -2309,7 +2299,13 @@ exports.guardarConfiguracion = async (req, res) => {
             habilitarProsepago: req.body.habilitarProsepago,
             habilitarPinpad: req.body.habilitarPinpad,
             pinpad: pinpad,
-        }})
+        }
+
+        if (req.body.impresiones) {
+            conf.impresiones = req.body.impresiones
+        }
+
+        await dbCliente.conf.update({}, {$set: conf})
         
         return res.json({
             status: 'success', 

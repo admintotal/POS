@@ -32,42 +32,49 @@
 	<br>
 	{% if tipo == 'fin' %}
 	
-	<div>
-		Total Cierre: <b style="float:right">${{ sesion.fondo|cur }}</b>
-	</div>	
+		<div>
+			Total Cierre: <b style="float:right">${{ sesion.fondo|cur }}</b>
+		</div>	
 
-	<div>
-		Fondo incial: <b style="float:right">${{ sesion.fondoInicial|cur }}</b>
-	</div>	
-	<div>
-		Total enviado en corte: <b style="float:right">${{ sesion.totalEnviado|cur }}</b>
-	</div>	
-	<div>
-		Total venta efectivo: <b style="float:right">${{ sesion.totalEfectivo|cur }}</b>
-	</div>	
-	<div>
-		Diferencia efectivo: <b style="float:right">${{ sesion.diferenciaEfectivo|cur }}</b>
-	</div>	
-	<div>
-		Total venta cheque: <b style="float:right">${{ sesion.totalCheque|cur }}</b>
-	</div>	
-	<div>
-		Total venta tarjeta: <b style="float:right">${{ sesion.totalTarjeta|cur }}</b>
-	</div>
-	{% if +sesion.totalPinpad %}
-	<div>
-		Total PinPad: <b style="float:right">${{ sesion.totalPinpad|cur }}</b>
-	</div>		
-	{% endif %}
-	<div>
-		Total venta transferencia: <b style="float:right">${{ sesion.totalTransferencia|cur }}</b>
-	</div>	
-	<div>
-		Total venta fondo: <b style="float:right">${{ sesion.totalFondo|cur }}</b>
-	</div>	
+		<div>
+			Fondo incial: <b style="float:right">${{ sesion.fondoInicial|cur }}</b>
+		</div>	
+		<div>
+			Total enviado en corte: <b style="float:right">${{ sesion.totalEnviado|cur }}</b>
+		</div>	
+		<div>
+			Total venta efectivo: <b style="float:right">${{ sesion.totalEfectivo|cur }}</b>
+		</div>	
+		<div>
+			Diferencia efectivo: <b style="float:right">${{ sesion.diferenciaEfectivo|cur }}</b>
+		</div>	
+		<div>
+			Total venta cheque: <b style="float:right">${{ sesion.totalCheque|cur }}</b>
+		</div>	
+		<div>
+			Total venta tarjeta: <b style="float:right">${{ sesion.totalTarjeta|cur }}</b>
+		</div>
+		{% if +sesion.totalPinpad %}
+		<div>
+			Total PinPad: <b style="float:right">${{ sesion.totalPinpad|cur }}</b>
+		</div>		
+		{% endif %}
+		<div>
+			Total venta transferencia: <b style="float:right">${{ sesion.totalTransferencia|cur }}</b>
+		</div>	
+		<div>
+			Total venta fondo: <b style="float:right">${{ sesion.totalFondo|cur }}</b>
+		</div>	
 	{% else %}
-	<div>
-		Total: <b style="float:right">${{ sesion.fondo|cur }}</b>
+		<div>
+			Total: <b style="float:right">${{ sesion.fondo|cur }}</b>
+		</div>
+	{% endif %}
+
+	{% if tipo == 'retiro' %}
+	<div style="padding-top:40px;text-align:center;margin:0 25px;">
+		<hr>
+		Firma de Autorización
 	</div>
 	{% endif %}
 </div>

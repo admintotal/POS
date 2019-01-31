@@ -7,6 +7,7 @@ import * as Api from '../api';
 import {cargando, mensajeFlash, mostrarAlerta, verVenta} from '../actions';
 import * as Impresora from '../impresoras';
 import TituloComponent from '../components/TituloComponent';
+import RetirosEfectivoComponent from '../components/RetirosEfectivoComponent';
 import Paginador from '../components/PaginadorComponent';
 import NoResultsComponent from '../components/NoResultsComponent';
 import IngresoAutorizacionComponent from '../components/IngresoAutorizacionComponent';
@@ -133,8 +134,7 @@ class Ventas extends React.Component {
     }
 
     mostrarRetiros() {
-        this.setState({})
-        let trs = []
+        /*
         this.state.retiros.objects.map(r => {
             return trs.push(`
                 <tr>
@@ -163,6 +163,7 @@ class Ventas extends React.Component {
                 <h4 class="text-right">Total: $${formatCurrency(this.state.retiros.totalRetirado)}</h4>
             `
         })
+        */
     }
 
     titleRowVenta(venta) {
@@ -319,7 +320,11 @@ class Ventas extends React.Component {
                     </button>
 
                     { Boolean(retiros.totalRetirado && retiros.totalRetirado > 0) &&
-                        <button className={`btn btn-link text-${retiros.objects.length === retiros.sincronizados ? 'info' : 'warning'} mr-2`} onClick={this.mostrarRetiros.bind(this)}>
+                        <button className={`btn btn-link text-${retiros.objects.length === retiros.sincronizados ? 'info' : 'warning'} mr-2`} onClick={(e) => {
+                            this.setState({
+                                mostrarRetiros: true
+                            })
+                        }}>
                             Total Retirado: <b>${formatCurrency(retiros.totalRetirado)}</b>
                         </button>
                     }
@@ -463,7 +468,7 @@ class Ventas extends React.Component {
                                                 ventasSeleccionadas: ventasSeleccionadas
                                             })
                                         }}>
-                                            { Boolean(venta.error) &&
+                                            { Boolean(venta.error && !venta.requiereFactura) &&
                                             <span>
                                                  { seleccionada ?
                                                     <i className="ion-ios-circle-filled text-success"></i>
@@ -501,6 +506,9 @@ class Ventas extends React.Component {
                                             }
                                         })}>
                                             <span>{ venta.numero_serie ? (venta.numero_serie + '-' + (venta.folio || '')) : (venta.folio || '') }</span>
+                                            {venta.requiereFactura &&
+                                                <div style={{lineHeight: 1}}><small className="text-muted">Factura</small></div>
+                                            }
                                         </td>
         								<td onClick={() => this.props.verVenta(venta, false, {
                                             onSincronizarVenta: (res) => {
@@ -572,6 +580,17 @@ class Ventas extends React.Component {
                 :
                 <NoResultsComponent msg="No hay ventas capturadas."></NoResultsComponent>
             	}
+
+                {this.state.mostrarRetiros &&
+                    <RetirosEfectivoComponent 
+                        handleCerrar={e => {
+                            this.setState({mostrarRetiros: false})
+                        }}
+                        sesionCaja={this.props.sesionCaja}
+                        total={this.state.retiros.totalRetirado}
+                        retiros={this.state.retiros.objects}>
+                    </RetirosEfectivoComponent>
+                }
 
                 { modalEditarSerie &&
                 <div className="dialog-box modalAutorizacion">

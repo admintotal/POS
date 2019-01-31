@@ -11,6 +11,7 @@ import {
     mostrarAlerta
 } from '../actions';
 import {arrayDiff, isEnv} from '../helpers';
+import * as Impresora from '../impresoras';
 
 class ReporteDetallado extends React.Component {
 
@@ -117,6 +118,17 @@ class ReporteDetallado extends React.Component {
 		})
 
 	}
+
+	imprimirRetiro(retiro) {
+        Impresora.imprimirRetiroEfectivo(this.props.api_key, retiro._id)
+        .then(() => {
+
+        })
+        .catch((err) => {
+            this.props.mensajeFlash('error', 'Hubo un error al imprmir el voucher.')
+
+        })
+    }
 
 	renderSesionCaja() {
 
@@ -231,6 +243,7 @@ class ReporteDetallado extends React.Component {
 									<th>Sinc.</th>
 	                				<th>Fecha</th>
 	                                <th className="text-right">Total</th>
+	                                <th></th>
 								</tr>
 							</thead>
 							<tbody>
@@ -242,6 +255,14 @@ class ReporteDetallado extends React.Component {
 										}</td>
 										<td>{moment(v.fecha).format('DD/MM/YYYY HH:mm:ss')}</td>
 										<td className="text-right font-weight-bold text-success">${formatCurrency(v.totalFondo)}</td>
+										<td className="text-right">
+											<button 
+                                                onClick={this.imprimirRetiro.bind(this, v)} 
+                                                title="Imprimir" 
+                                                className="btn btn-sm btn-secondary" >
+                                                <i className="ion-printer"></i>
+                                            </button>
+										</td>
 									</tr>)
 								})}
 							</tbody>

@@ -129,12 +129,15 @@ async function descargar(api_key, coleccion, options) {
 			    const iterator = async (opts, guardarColeccion) => {
 			    	let conf = await dbCliente.conf.findOne({})
 			    	let inicioDescarga = moment().toISOString()
-			    	let resetSinc = () => {
+			    	let resetSinc = (error) => {
 			    		let upd = {}
 		    			upd[`sincronizaciones.${coleccion}.total`] = 0
 		    			upd[`sincronizaciones.${coleccion}.sincronizados`] = 0
 		    			upd[`sincronizaciones.${coleccion}.en_proceso`] = false
 		    			upd[`sincronizaciones.${coleccion}.finalizado`] = inicioDescarga
+		    			if (error) {
+		    				upd[`sincronizaciones.${coleccion}.error`] = error
+		    			}
 			    		return upd
 			    	}
 
@@ -145,10 +148,20 @@ async function descargar(api_key, coleccion, options) {
 			    		return {status: 'error', message: 'El proceso ha sido cancelado'}
 			    	}
 
-					api.checkConnection().then(() => {
-						// timeout 20 segundos
-						opts.timeout = 25000
+					// timeout 20 segundos
+					opts.timeout = 25000
+					let conexion = false
+			        try { conexion = await api.checkConnection() } catch(e) {}
 
+			        if (!forzarDescarga && conf.sincronizaciones[coleccion].error) {
+			        	// error guarda los parametros de la peticion en la que ocurrió el error
+			        	console.log("Error detectado !!!!")
+			        	let error_params = conf.sincronizaciones[coleccion].error
+			        	error_params.data.api_key = opts.data.api_key
+			        	opts = error_params
+			        }
+
+			        if (conexion) {
 				    	api._get(opts).then(async (result) => {
 				    		if (! result.objects ) {
 				    			let u = resetSinc()
@@ -156,13 +169,20 @@ async function descargar(api_key, coleccion, options) {
 				    			u['result'] = result
 				    			u['opts'] = opts
 				    			delete u['finalizado']
-				    			await dbCliente.conf.update({}, {$set: u})
+				    			await dbCliente.conf.update({}, {
+				    				$set: u
+				    			})
 				    			// logger.log('error', {result:result, opts: opts})
 				    			return
 				    		}
 
 				    		if (! result.objects.length ) {
-				    			await dbCliente.conf.update({}, {$set: resetSinc()})
+				    			await dbCliente.conf.update({}, {
+				    				$set: resetSinc(),
+				    				$unset: {
+				    					[`sincronizaciones.${coleccion}.error`]: 1
+				    				}
+				    			})
 				    			logger.log('info', `Sincronización de ${coleccion} finzalizada.`)
 				    			// helpers.mostrarNotificacion(`Sincronización de ${coleccion} finzalizada.`)
 				    			return 
@@ -173,7 +193,13 @@ async function descargar(api_key, coleccion, options) {
 								let u = {}
 								u[`sincronizaciones.${coleccion}.sincronizados`] = total_sincronizados
 								u[`sincronizaciones.${coleccion}.total`] = result.meta.total_count
-					    		await dbCliente.conf.update({}, {$set: u})
+
+					    		await dbCliente.conf.update({}, {
+					    			$set: u,
+					    			$unset: {
+				    					[`sincronizaciones.${coleccion}.error`]: 1
+				    				}
+					    		})
 								
 								if (result.meta.next) {
 					    			opts.data = qsToObject(result.meta.next.split('?')[1])
@@ -183,12 +209,17 @@ async function descargar(api_key, coleccion, options) {
 					    			return iterator(opts, guardarColeccion)
 					    		}
 
-				    			await dbCliente.conf.update({}, {$set: resetSinc()})
+				    			await dbCliente.conf.update({}, {
+				    				$set: resetSinc(), 
+				    				$unset: {
+				    					[`sincronizaciones.${coleccion}.error`]: 1
+				    				}
+				    			})
 				    			logger.log('info', `Sincronización de ${coleccion} finzalizada.`)
 							})
 				    	})
 				    	.catch(async (err) => {
-				    		let u = resetSinc()
+				    		let u = resetSinc(opts)
 			    			u['error'] = true
 			    			u['opts'] = opts
 			    			delete u['finalizado']
@@ -197,7 +228,7 @@ async function descargar(api_key, coleccion, options) {
 			    			logger.log('error', err)
 			    			return reject(err)
 				    	})
-				    }).catch(async (err) => {
+			        } else {
 			    		let u = resetSinc()
 		    			u['error'] = true
 		    			u['opts'] = opts
@@ -205,7 +236,7 @@ async function descargar(api_key, coleccion, options) {
 		    			await dbCliente.conf.update({}, {$set: u})
 		    			helpers.mostrarNotificacion(`Problemas de conexión para realizar la sincronización de ${coleccion}.`)
 		    			return reject(err)
-			    	})
+			        }
 			    }
 				
 			    logger.log('info', `Iniciando descarga de ${coleccion}`)
@@ -950,6 +981,7 @@ exports.cancelarSincronizacion = function(req, res) {
 		sincronizaciones[key].en_proceso = false
 		sincronizaciones[key].total = 0
 		sincronizaciones[key].sincronizados = 0
+		delete sincronizaciones[key].error
 		await dbCliente.conf.update({}, {$set: {sincronizaciones: sincronizaciones}})
 		return res.json({
 			status: 'success',

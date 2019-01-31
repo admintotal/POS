@@ -94,6 +94,7 @@ export default function app(state=defaultState, action: actionType) {
                     modoPruebas: pinpadModoPruebas,
                 },
                 bascula: action.data.bascula,
+                impresiones: action.data.impresiones,
                 impresora: action.data.impresora,
                 habilitarProsepago: action.data.habilitarProsepago,
                 terminal: action.data.terminal

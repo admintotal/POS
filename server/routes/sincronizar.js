@@ -858,7 +858,10 @@ exports.facturasNoTimbradas = async function(req, res) {
 
 					return res.json(resultado)
 				} catch(e) {
-					logger.log('error', 'Error al validar facturas no timbradas.')
+					logger.log('error', {
+						message: 'Error al validar facturas no timbradas.',
+						e: e
+					})
 				}
 			}
 

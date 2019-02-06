@@ -178,7 +178,9 @@ public class Startup {
 
                     cpIntegraEMV.dbgSetUrl(url);
                     cpIntegraEMV.dbgHidePopUp(true);
+                    cpIntegraEMV.HidePopUpDCC(true);
                     cpIntegraEMV.EstableceTipoMoneda(cpIntegraEMV.ObtieneMonedaVtaPropiaBanda());
+                    cpIntegraEMV.dbgSetCurrency("MXN");
                     cpIntegraEMV.dbgStartTxEMV(total);
 
                     if (cpIntegraEMV.chkPp_CdError() == "")
@@ -262,7 +264,9 @@ public class Startup {
                     if(!tarjetaPrecargada) {
                         cpIntegraEMV.dbgSetUrl(url);
                         cpIntegraEMV.dbgHidePopUp(true);
+                        cpIntegraEMV.HidePopUpDCC(true);
                         cpIntegraEMV.EstableceTipoMoneda(cpIntegraEMV.ObtieneMonedaVtaPropiaBanda());
+                        cpIntegraEMV.dbgSetCurrency("MXN");
                         cpIntegraEMV.dbgStartTxEMV(total);
                     }
 
@@ -338,9 +342,6 @@ public class Startup {
                                 Console.WriteLine("DENEGADA");
                                 errMsg = cpIntegraEMV.getRspFriendlyResponse();
                                 /* Mensaje amigable + getRspFriendlyResponse */
-
-                                resultadoCobro.Add("status", "error");
-                                resultadoCobro.Add("mensaje", "La operación fue rechazada por su banco emisor:\n " + errMsg);
                                 resultadoCobro.Add("getRspOperationNumber", cpIntegraEMV.getRspOperationNumber());
                                 resultadoCobro.Add("getRspCdResponse", cpIntegraEMV.getRspCdResponse());
                                 resultadoCobro.Add("getTx_Reference", cpIntegraEMV.getTx_Reference());
@@ -348,6 +349,9 @@ public class Startup {
                                 resultadoCobro.Add("chkPp_Serial", cpIntegraEMV.chkPp_Serial());
                                 resultadoCobro.Add("getRspDate", cpIntegraEMV.getRspDate());
                                 resultadoCobro.Add("getRspAuth", cpIntegraEMV.getRspAuth());
+
+                                resultadoCobro.Add("status", "error");
+                                resultadoCobro.Add("mensaje", "La operación fue rechazada por su banco emisor:\n " + errMsg);
                                 break; 
 
                             case "error":
@@ -366,6 +370,7 @@ public class Startup {
                         }
 
                         cpIntegraEMV.dbgEndOperation();
+                        cpIntegraEMV.dbgCancelOperation();
                         return JsonConvert.SerializeObject(resultadoCobro);
                     }
                     else
@@ -378,7 +383,6 @@ public class Startup {
                         resultadoCobro.Add("status", "error");
                         resultadoCobro.Add("mensaje", errMsg);
                         cpIntegraEMV.dbgEndOperation();
-                        cpIntegraEMV.dbgCancelOperation();
                         return JsonConvert.SerializeObject(resultadoCobro);
                     }
                 }  

@@ -3,12 +3,6 @@ cache/
 node_modules/
 
 server/dist
-server/lib/pinpad/banorte/*.dll
-server/lib/pinpad/banorte/*.jar
-server/lib/pinpad/santander/*.dll
-server/lib/pinpad/santander/*.jar
-
-
 .idea
 .DS_Store
 Thumbs.db

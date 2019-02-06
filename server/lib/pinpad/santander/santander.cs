@@ -181,6 +181,7 @@ public class Startup {
                     cpIntegraEMV.HidePopUpDCC(true);
                     cpIntegraEMV.EstableceTipoMoneda(cpIntegraEMV.ObtieneMonedaVtaPropiaBanda());
                     cpIntegraEMV.dbgSetCurrency("MXN");
+                    cpIntegraEMV.SetTipoDCC("0");
                     cpIntegraEMV.dbgStartTxEMV(total);
 
                     if (cpIntegraEMV.chkPp_CdError() == "")
@@ -267,6 +268,7 @@ public class Startup {
                         cpIntegraEMV.HidePopUpDCC(true);
                         cpIntegraEMV.EstableceTipoMoneda(cpIntegraEMV.ObtieneMonedaVtaPropiaBanda());
                         cpIntegraEMV.dbgSetCurrency("MXN");
+                        cpIntegraEMV.SetTipoDCC("0");
                         cpIntegraEMV.dbgStartTxEMV(total);
                     }
 

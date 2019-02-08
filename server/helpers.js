@@ -560,6 +560,18 @@ exports.cobrarVentaPinpad = async (venta, conf) => {
 
         venta.cobrosPinpad.push(infoCobro)
         let mensaje = ((cobroPinpad.datos && cobroPinpad.datos.mensaje) ? cobroPinpad.datos.mensaje : cobroPinpad.mensaje)
+
+        // el pinpad no respondió, reiniciamos la instancia.
+        // esto solamente ocurrió con santander
+        if (cobroPinpad.status == 'error' && !mensaje && cobroPinpad.integracion == 'santander') {
+            mensaje = 'No se recibió respuesta por parte de la pinpad.'
+            try {
+                await pinpad.liberarDispositivo()
+                delete process.pinpadInstance
+            } catch (e) {
+                logger.log('error', e)
+            }
+        }
         
         if (cobroPinpad.status !== 'success') {
             return {

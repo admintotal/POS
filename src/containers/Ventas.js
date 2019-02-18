@@ -503,6 +503,7 @@ class Ventas extends React.Component {
                                         }
 
                                         { venta.error && <span className="badge badge-warning ml-2"><i className="ion-alert"></i></span> }
+                                        { venta.entregaDomicilio && <span title="Entrega a domicilio" className="badge badge-info ml-2"><i className="ion-android-car"></i></span> }
                                         </td>
                                         <td onClick={() => this.props.verVenta(venta, false, {
                                             onSincronizarVenta: (res) => {

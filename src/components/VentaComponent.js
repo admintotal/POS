@@ -5,7 +5,7 @@ import formatCurrency from 'format-currency';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
 import {cerrarVenta, mensajeFlash, mostrarAlerta} from '../actions';
-import { truncate, getNumeroTarjeta } from '../helpers';
+import { truncate, getNumeroTarjeta, getHoraEntrega } from '../helpers';
 import * as Api from '../api';
 import * as Impresora from '../impresoras';
 
@@ -90,7 +90,16 @@ class VentaComponent extends React.Component {
                         { (venta.sesionCaja && venta.sesionCaja.cajero) &&
                         <div className="text-muted">Capturado por: {venta.sesionCaja.cajero.username}</div>
                         }
+
+                        { venta.entregaDomicilio &&
+                            <div className="alert alert-info p-1">
+                                <i className="ion-android-car"></i> Entrega a domicilio {venta.fechaEntregaDomicilio && 
+                                    <span>{venta.fechaEntregaDomicilio.fecha} de {getHoraEntrega(venta.fechaEntregaDomicilio.horaA)} a {getHoraEntrega(venta.fechaEntregaDomicilio.horaB)}</span>
+                                }
+                            </div>
+                        }
                     </div>
+
                     <div style={{maxHeight: '50vh', overflow: 'auto'}}>
                         <table className="table table-striped table-condensed vm">
                             <thead>

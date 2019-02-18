@@ -24,6 +24,7 @@ const defaultState = () => {
         pagoServicioLdi: false,
         requiereFactura: false,
         entregaDomicilio: false,
+        fechaEntregaDomicilio: {},
         direccionEntrega: null,
 
         productos: [],
@@ -124,7 +125,12 @@ export default function puntoVenta(state={...defaultState()}, action: actionType
             return { ...state, requiereFactura: !state.requiereFactura }
 
     	case actions.PV_ENTREGAR_DOMICILIO:
-            return { ...state, entregaDomicilio: !state.entregaDomicilio }
+            let entregaDomicilio = Boolean(action.fecha_entrega.fecha)
+            return { 
+                ...state, 
+                entregaDomicilio: entregaDomicilio, 
+                fechaEntregaDomicilio: {...action.fecha_entrega}
+            }
     	
     	case actions.PV_SELECCIONAR_DIRECCION_ENTREGA:
             let direccionEntrega = null;

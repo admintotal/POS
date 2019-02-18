@@ -198,6 +198,30 @@ export const getPrecioNeto = ({producto, cantidad}) => {
     return precio_neto  
 }
 
+export const getHorasEntrega = () => {
+    let opciones_hora = []
+    for (let x = 80; x <= 220; x += 5) {
+        opciones_hora.push({
+            id: x,
+            texto: String(x).endsWith("5") ? `${String(x).replace(/.$/,":30")}` : `${String(x).replace(/.$/,":00")}`
+        })
+    }
+    return opciones_hora
+}
+
+export const getHoraEntrega = (hora) => {
+    let horas = getHorasEntrega()
+    let h = horas.find((e) => {
+        return e.id == hora
+    })
+
+    if (h) {
+        return h.texto
+    }
+
+    return null
+}
+
 export const getStateTotales = (state) => {
     let total = 0
     let totalDescuento = 0

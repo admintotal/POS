@@ -29,9 +29,10 @@ export function requerirFactura() {
   }
 }
 
-export function entregarDomicilio() {
+export function entregarDomicilio(fecha_entrega={}) {
   return {
     type: actions.PV_ENTREGAR_DOMICILIO,
+    fecha_entrega: fecha_entrega
   }
 }
 

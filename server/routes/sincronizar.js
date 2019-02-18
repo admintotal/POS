@@ -235,7 +235,7 @@ async function descargar(api_key, coleccion, options) {
 		    			delete u['finalizado']
 		    			await dbCliente.conf.update({}, {$set: u})
 		    			helpers.mostrarNotificacion(`Problemas de conexión para realizar la sincronización de ${coleccion}.`)
-		    			return reject(err)
+		    			return reject({message: "Sin conexión a internet"})
 			        }
 			    }
 				

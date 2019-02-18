@@ -6,6 +6,7 @@ import Autocomplete from 'react-autocomplete';
 import InlineProductoComponent from './InlineProductoComponent';
 import TotalesComponent from './TotalesComponent';
 import TituloComponent from './TituloComponent';
+import FechaEntregaComponent from './FechaEntregaComponent';
 import CobrosTarjetaComponent from './CobrosTarjetaComponent';
 import PromocionesProductoComponent from './PromocionesProductoComponent';
 import * as Api from '../api';
@@ -90,6 +91,7 @@ class PuntoVentaComponent extends React.Component {
             modalEditarProducto: null,
             modalServicioLdi: null,
             existenciasAlmacen: null,
+            modalFechaEntrega: {},
             cobrosTarjeta: {
                 visible: false
             },
@@ -932,7 +934,7 @@ class PuntoVentaComponent extends React.Component {
             'sesionCaja', 'cliente', 'productos', 'uso_cfdi', 'direccionEntrega', 'otraTerminalProsepago',
             'efectivo', 'transferencia', 'tarjeta', 'cheque', 'fondo', 'extra_fields', 'monedero',
             'total', 'totalDescuento', 'totalArticulos', 'cambio', 'pinpadSeleccionado',
-            'entregaDomicilio', 'requiereFactura', 'solicitiarRecarga', 'pagoServicioLdi', 'cobrosPinpad'
+            'entregaDomicilio', 'requiereFactura', 'solicitiarRecarga', 'pagoServicioLdi', 'cobrosPinpad', 'fechaEntregaDomicilio'
         ]
 
         for(let k in state) {
@@ -1133,25 +1135,30 @@ class PuntoVentaComponent extends React.Component {
             if (statusCobro.status === 'success') {
                 let pagoTarjeta = this.props.tarjeta
 
+                
                 this.props.changeTipoPago('tarjeta', {
                     ...pagoTarjeta,
                     monto: statusCobro.venta.tarjeta.monto,
                     cobros: statusCobro.venta.tarjeta.cobros
                 })
 
-                if (imprimir) {
-                    Impresora.imprimirVoucher(statusCobro.venta._id, this.props.api_key, {tipo: 'comercio', cobroId: statusCobro.cobroId})
-                    Impresora.imprimirVoucher(statusCobro.venta._id, this.props.api_key, {tipo: 'cliente', cobroId: statusCobro.cobroId})
-                }
 
-                this.props.mensajeFlash('success', 'El cargo se realizó correctamente.', 6000)
-                
                 cobrosTarjeta.infoTarjeta = null
 
-                if (this.validarCobro()) {
-                    this.guardar()
-                    cobrosTarjeta.visible = false
-                }
+                this.props.mostrarAlerta({
+                    mensaje: 'El cargo se realizó correctamente.',
+                    handleAceptar: async () => {
+                        if (imprimir) {
+                            Impresora.imprimirVoucher(statusCobro.venta._id, this.props.api_key, {tipo: 'comercio', cobroId: statusCobro.cobroId})
+                            Impresora.imprimirVoucher(statusCobro.venta._id, this.props.api_key, {tipo: 'cliente', cobroId: statusCobro.cobroId})
+                        }
+                        
+                        if (this.validarCobro()) {
+                            await this.guardar()
+                            cobrosTarjeta.visible = false
+                        }
+                    }
+                })
             }
 
             this.setState({
@@ -1539,6 +1546,7 @@ class PuntoVentaComponent extends React.Component {
         let productos = this.props.productos; //this.props.productos.slice().reverse()
         let habilitarDescuentosAutorizados = Boolean((facturacion.descuentos_autorizados_venta || []).length)
         let porPagar = this.props.cambio > 0 ? 0 : Math.abs(this.props.cambio)
+        let modalFechaEntrega = this.state.modalFechaEntrega.visible
 
         if (habilitarPinpad) {
             pinpadModoPruebas = pinpad.modoPruebas
@@ -1642,7 +1650,17 @@ class PuntoVentaComponent extends React.Component {
                                                                 type="checkbox"
                                                                 checked={this.props.entregaDomicilio}
                                                                 onChange={(ev) => {
-                                                                    this.props.entregarDomicilio()
+                                                                    if (this.props.entregaDomicilio) {
+                                                                        this.props.entregarDomicilio()
+                                                                    } else {
+                                                                        this.setState({
+                                                                            modalFechaEntrega: {
+                                                                                ...this.state.modalFechaEntrega,
+                                                                                visible: true
+                                                                            }
+                                                                        })
+                                                                    }
+                                                                    // this.props.entregarDomicilio()
                                                                 }}
                                                             />
                                                             <div className="control_indicator"></div>
@@ -2513,6 +2531,32 @@ class PuntoVentaComponent extends React.Component {
                             onConsultarDatos={this.obtenerInfoTarjeta.bind(this)}
                             onCobrar={this.cobrarTarjeta.bind(this)}
                         ></CobrosTarjetaComponent>
+                        }
+
+                        { modalFechaEntrega &&
+                            <FechaEntregaComponent
+                            fecha={this.props.fechaEntregaDomicilio.fecha}
+                            horaA={this.props.fechaEntregaDomicilio.horaA}
+                            horaB={this.props.fechaEntregaDomicilio.horaB}
+                            handleAceptar={(fecha_entrega) => {
+                                debugger
+                                this.props.entregarDomicilio(fecha_entrega)
+                                this.setState({
+                                    modalFechaEntrega: {
+                                        ...this.state.modalFechaEntrega,
+                                        visible: false
+                                    }
+                                })
+                            }}
+                            handleCancelar={() => {
+                                this.setState({
+                                    modalFechaEntrega: {
+                                        ...this.state.modalFechaEntrega,
+                                        visible: false
+                                    }
+                                })
+                            }}
+                            ></FechaEntregaComponent>
                         }
                     </div>
                 </div>

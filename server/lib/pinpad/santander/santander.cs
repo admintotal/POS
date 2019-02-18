@@ -286,12 +286,16 @@ public class Startup {
 
                         /* xml con id cobro afiliacion (MSI, Contado, etc) */
                         txtMerchant = cpIntegraEMV.dbgGetMerchantBanda(txtOperType);
-                        
+                        if (cpIntegraEMV.getRspCdError() != "") {
+                            resultadoCobro.Add("status", "error");
+                            resultadoCobro.Add("mensaje", cpIntegraEMV.getRspCdError() + " - " + cpIntegraEMV.getRspDsError());
+                            return JsonConvert.SerializeObject(resultadoCobro);
+                        }
+
                         XmlDocument doc = new XmlDocument();
                         doc.LoadXml("<root>" + txtMerchant + "</root>");
                         XmlNode merch = doc.DocumentElement.SelectSingleNode("/root/contado/af/merchant");
                         txtMerchant = merch.InnerText;
-
 
                         string CardType = "V/MC";
 

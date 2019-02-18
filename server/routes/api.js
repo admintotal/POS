@@ -1034,6 +1034,7 @@ exports.guardarVenta = (req, res) => {
         let d
         venta.pendiente = false
         if (req.body.folio && req.body.numero_serie) {
+            delete venta._id
             await dbCliente.ventas.update({folio: req.body.folio, numero_serie: req.body.numero_serie}, {$set: venta})
             d = await dbCliente.ventas.findOne({folio: req.body.folio, numero_serie: req.body.numero_serie})
         } else {
@@ -1392,23 +1393,24 @@ exports.cobrarVentaTarjeta = (req, res) => {
             venta.tarjeta.cobros = []
         }
 
+        if (insert) {
+            let borrador = JSON.parse(JSON.stringify(venta))
+            borrador.tarjeta = {}
+            await dbCliente.ventas.update(
+                {folio: venta.folio, numero_serie: venta.numero_serie, facha: venta.fecha}, 
+                {$set: borrador}, 
+                {upsert: insert}
+            )
+            await dbCliente.conf.update({}, {$set: {folio_inicial: venta.folio + 1}})
+        }
+
         let servicioCobro = null
         let numAffected = null
         let upsert = null
-            
-        // prosepago
-        if (conf.habilitarProsepago && !conf.habilitarPinpad) {
-            servicioCobro = 'prosepago'
-        }
-        
+                    
         // pinpad banco
         if (conf.habilitarPinpad && !conf.habilitarProsepago) {
             servicioCobro = conf.pinpad.banco
-        }
-
-        // seleccionado por el vendedor
-        if (conf.habilitarProsepago && conf.habilitarPinpad) {
-            servicioCobro = venta.pinpadSeleccionado
         }
 
         if (servicioCobro) {
@@ -1465,32 +1467,6 @@ exports.cobrarVentaTarjeta = (req, res) => {
                     }
 
                     break
-
-                case 'prosepago':
-
-                    return res.json({
-                        status: 'error',
-                        message: 'Por el momento no se pueden recibir múltiples pagos con la integración de ProsePago.'
-                    })
-
-                    // ahorita hace el cargo por el total de la venta
-                    // no esta tomando en cuenta el monto que nos mandan en el POST
-                    try {
-                        let resultado = await helpers.cobrarVentaProsepago(venta, conf, dbCliente.claveCliente, req.query.api_key)
-                        venta.cobroTarjeta = { datos: {} }
-                        venta.cobroTarjeta.datos.referencia = resultado.pago_prosepago.referencia
-                        venta.cobroTarjeta.datos.autorizacion = resultado.pago_prosepago.aprobacion
-                        venta.tarjeta.no_tarjeta = resultado.pago_prosepago.numero_tarjeta
-                        venta.tarjeta.monto = resultado.pago_prosepago.importe
-                        venta.tarjeta.integracion = servicioCobro
-                    } catch(error) {
-                        logger.log('error', error)
-                        return res.json({
-                            status: 'error',
-                            message: error.message || 'Ocurrió un error.'
-                        })
-                    }
-                    break
             }
 
             if (venta.cobroTarjeta) {
@@ -1518,7 +1494,11 @@ exports.cobrarVentaTarjeta = (req, res) => {
                 venta.sincHabilitada = false
                 venta.tarjeta.monto = montoTarjetaCobrado
 
-                await dbCliente.ventas.update({folio: venta.folio, numero_serie: venta.numero_serie, facha: venta.fecha}, {$set: Object.assign(venta)}, {upsert: insert})
+                await dbCliente.ventas.update(
+                    {folio: venta.folio, numero_serie: venta.numero_serie, facha: venta.fecha}, 
+                    {$set: Object.assign(venta)}, 
+                    {upsert: insert}
+                )
                 venta = await dbCliente.ventas.findOne({folio: ventaObj.folio, numero_serie: ventaObj.numero_serie})
                 if (insert) {
                     await dbCliente.conf.update({}, {$set: {folio_inicial: venta.folio + 1}})

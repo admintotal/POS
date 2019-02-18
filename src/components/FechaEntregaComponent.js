@@ -47,7 +47,7 @@ class FechaEntregaComponent extends React.Component {
 	                        }
 	                    }}
 	                    onChange={(d) => {
-	                    	if (typeof v === "string" && v !== "") {
+	                    	if (typeof d === "string" && d !== "") {
 				                return 
 				            }
 

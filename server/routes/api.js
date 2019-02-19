@@ -1444,6 +1444,7 @@ exports.cobrarVentaTarjeta = (req, res) => {
 
                         if (statusCobro.status !== 'success') {
                             statusCobro.transaccion = docTrans
+                            statusCobro.venta = venta
                             logger.log('error', statusCobro)
                             return res.json(statusCobro)
                         }
@@ -1454,7 +1455,8 @@ exports.cobrarVentaTarjeta = (req, res) => {
                                 status: 'error',
                                 message: venta.cobroTarjeta.mensaje,
                                 transaccion: docTrans,
-                                cobrosPinpad: venta.cobrosPinpad
+                                cobrosPinpad: venta.cobrosPinpad,
+                                venta: venta
                             })
                         }
                     } catch(e) {

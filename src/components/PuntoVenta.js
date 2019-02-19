@@ -969,6 +969,10 @@ class PuntoVentaComponent extends React.Component {
 
             p.producto = getProductoObj(p.producto)
         })
+
+        if (!data.entregaDomicilio) {
+            delete data.fechaEntregaDomicilio
+        }
         
         return data
     }
@@ -1128,6 +1132,7 @@ class PuntoVentaComponent extends React.Component {
             ventaObj.tarjeta.monto = cobro.monto
             
             let statusCobro = await Api.cobrarVentaTarjeta(this.props.api_key, ventaObj)
+
             if (statusCobro.venta) {
                 this.props.setProp({folio: statusCobro.venta.folio, numero_serie: statusCobro.venta.numero_serie})
             }
@@ -1168,6 +1173,10 @@ class PuntoVentaComponent extends React.Component {
             this.props.cargando(false)
         } catch(e) {
             this.props.cargando(false)
+            console.log(e)
+            if (e.venta) {
+                this.props.setProp({folio: e.venta.folio, numero_serie: e.venta.numero_serie})
+            }
             
             ventaObj.tarjeta.monto = montoTarjetaOrig
 

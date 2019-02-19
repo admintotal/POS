@@ -1,6 +1,6 @@
 {
   "name": "Admintotal",
-  "env": "production",
+  "env": "development",
   "version": "1.1.25",
   "description": "Admintotal Desktop",
   "main": "index.html",

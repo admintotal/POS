@@ -595,6 +595,7 @@ exports.ventas = async function(req, res) {
 		return db._getDB(req.query.api_key).then(async (DB) => {
 			let filtroObj = {
 				sincronizada: false, 
+				pendiente: false, 
 				requiereFactura: false, 
 				motivoError: { $exists: false }, 
 				sincHabilitada: { $exists: false }
@@ -603,6 +604,7 @@ exports.ventas = async function(req, res) {
 			if (req.query.forzar && Boolean(req.query.forzar)) {
 				filtroObj = {
 					requiereFactura: false, 
+					pendiente: false, 
 					$or: [
 		                {sincronizada: false},
 		                {motivoError:  { $exists: true }}

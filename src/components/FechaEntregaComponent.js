@@ -22,6 +22,16 @@ class FechaEntregaComponent extends React.Component {
 			return this.props.mensajeFlash('error', 'Especifique una fecha de entrega')
 		}
 
+		if (!this.state.horaA) {
+			this.horaA.focus()
+			return this.props.mensajeFlash('error', 'Especifique el horario de entrega.')
+		}
+
+		if (!this.state.horaB) {
+			this.horaB.focus()
+			return this.props.mensajeFlash('error', 'Especifique el horario de entrega.')
+		}
+
 		this.props.handleAceptar(this.state)
 	}
 
@@ -64,6 +74,7 @@ class FechaEntregaComponent extends React.Component {
 	            			<label htmlFor="">De:</label>
 	            			<select 
 		            			className="form-control"
+		            			ref={(input) => {this.horaA = input }}
 		            			value={this.props.horaA}
 		            			onChange={(ev) => {
 			                    	this.setState({
@@ -83,6 +94,7 @@ class FechaEntregaComponent extends React.Component {
 	            			<label htmlFor="">A:</label>
 	            			<select 
 	            				value={this.props.horaB}
+	            				ref={(input) => {this.horaB = input }}
 	            				className="form-control"
 	            				onChange={(ev) => {
 			                    	this.setState({

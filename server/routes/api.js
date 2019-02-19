@@ -1032,16 +1032,23 @@ exports.guardarVenta = (req, res) => {
         }
 
         let d
+        let venta_id = venta._id
         venta.pendiente = false
-        if (req.body.folio && req.body.numero_serie) {
+        if (venta_id) {
+            console.log("=============")
+            console.log("Se encontro ID")
             delete venta._id
-            await dbCliente.ventas.update({folio: req.body.folio, numero_serie: req.body.numero_serie}, {$set: venta})
-            d = await dbCliente.ventas.findOne({folio: req.body.folio, numero_serie: req.body.numero_serie})
+            await dbCliente.ventas.update(
+                {_id: venta_id}, 
+                {$set: venta}
+            )
+            d = await dbCliente.ventas.findOne({_id: venta_id})
+            console.log(d)
         } else {
             d = await dbCliente.ventas.insert(venta)
             await dbCliente.conf.update({}, {$set: {folio_inicial: venta.folio + 1}})
         }
-            
+
         let clienteDefault = conf.configuracion.facturacion.cliente_mostrador_default;
 
         if (solicitarRecarga) {
@@ -1263,6 +1270,7 @@ exports.guardarVenta = (req, res) => {
         }
 
         let imprimir = conf.impresora ? true : false
+        
         return res.json({
             status: 'success', 
             message: 'La venta ha sido guardada correctamente', 
@@ -1366,7 +1374,18 @@ exports.cobrarVentaTarjeta = (req, res) => {
         let ventaObj = req.body
         let insert = false
         let cobroId = null
-        let venta = await dbCliente.ventas.findOne({folio: ventaObj.folio, numero_serie: ventaObj.numero_serie})
+        let venta
+
+        if (ventaObj._id) {
+            venta = await dbCliente.ventas.findOne({_id: ventaObj._id})
+        } else {
+            venta = await dbCliente.ventas.findOne({
+                folio: ventaObj.folio, 
+                numero_serie: ventaObj.numero_serie,
+                fecha: ventaObj.fecha
+            })
+        }
+
         let usuario = await dbCliente.usuarios.findOne({api_token: req.query.api_key})
         let docTrans
 
@@ -1398,13 +1417,13 @@ exports.cobrarVentaTarjeta = (req, res) => {
 
         if (insert) {
             let borrador = JSON.parse(JSON.stringify(venta))
-            borrador.tarjeta = {}
             await dbCliente.ventas.update(
                 {folio: venta.folio, numero_serie: venta.numero_serie, facha: venta.fecha}, 
                 {$set: borrador}, 
                 {upsert: insert}
             )
             await dbCliente.conf.update({}, {$set: {folio_inicial: venta.folio + 1}})
+            venta = await dbCliente.ventas.findOne({folio: venta.folio, numero_serie: venta.numero_serie, facha: venta.fecha})
         }
 
         let servicioCobro = null

@@ -934,7 +934,7 @@ class PuntoVentaComponent extends React.Component {
             'sesionCaja', 'cliente', 'productos', 'uso_cfdi', 'direccionEntrega', 'otraTerminalProsepago',
             'efectivo', 'transferencia', 'tarjeta', 'cheque', 'fondo', 'extra_fields', 'monedero',
             'total', 'totalDescuento', 'totalArticulos', 'cambio', 'pinpadSeleccionado',
-            'entregaDomicilio', 'requiereFactura', 'solicitiarRecarga', 'pagoServicioLdi', 'cobrosPinpad', 'fechaEntregaDomicilio'
+            'entregaDomicilio', 'requiereFactura', 'solicitiarRecarga', 'pagoServicioLdi', 'cobrosPinpad', 'fechaEntregaDomicilio',
         ]
 
         for(let k in state) {
@@ -1134,28 +1134,40 @@ class PuntoVentaComponent extends React.Component {
             let statusCobro = await Api.cobrarVentaTarjeta(this.props.api_key, ventaObj)
 
             if (statusCobro.venta) {
-                this.props.setProp({folio: statusCobro.venta.folio, numero_serie: statusCobro.venta.numero_serie})
+                console.log(statusCobro.venta)
+                this.props.setProp({
+                    _id: statusCobro.venta._id, 
+                    folio: statusCobro.venta.folio, 
+                    numero_serie: statusCobro.venta.numero_serie
+                })
             }
 
             if (statusCobro.status === 'success') {
                 let pagoTarjeta = this.props.tarjeta
 
-                
                 this.props.changeTipoPago('tarjeta', {
                     ...pagoTarjeta,
                     monto: statusCobro.venta.tarjeta.monto,
                     cobros: statusCobro.venta.tarjeta.cobros
                 })
 
-
                 cobrosTarjeta.infoTarjeta = null
 
                 this.props.mostrarAlerta({
+                    titulo: 'Transacción satisfactoria',
                     mensaje: 'El cargo se realizó correctamente.',
                     handleAceptar: async () => {
                         if (imprimir) {
-                            Impresora.imprimirVoucher(statusCobro.venta._id, this.props.api_key, {tipo: 'comercio', cobroId: statusCobro.cobroId})
-                            Impresora.imprimirVoucher(statusCobro.venta._id, this.props.api_key, {tipo: 'cliente', cobroId: statusCobro.cobroId})
+                            Impresora.imprimirVoucher(
+                                statusCobro.venta._id, 
+                                this.props.api_key, 
+                                {tipo: 'comercio', cobroId: statusCobro.cobroId}
+                            )
+                            Impresora.imprimirVoucher(
+                                statusCobro.venta._id, 
+                                this.props.api_key, 
+                                {tipo: 'cliente', cobroId: statusCobro.cobroId}
+                            )
                         }
                         
                         if (this.validarCobro()) {
@@ -1173,9 +1185,17 @@ class PuntoVentaComponent extends React.Component {
             this.props.cargando(false)
         } catch(e) {
             this.props.cargando(false)
-            
+
             if (e.venta) {
-                this.props.setProp({folio: e.venta.folio, numero_serie: e.venta.numero_serie})
+                console.log("==============")
+                console.log("Error al realizar el cobro de la venta: ")
+                console.log(e.venta._id)
+                console.log("==============")
+                this.props.setProp({
+                    _id: e.venta._id,
+                    folio: e.venta.folio, 
+                    numero_serie: e.venta.numero_serie
+                })
             }
             
             ventaObj.tarjeta.monto = montoTarjetaOrig

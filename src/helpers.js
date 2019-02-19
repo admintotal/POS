@@ -212,7 +212,7 @@ export const getHorasEntrega = () => {
 export const getHoraEntrega = (hora) => {
     let horas = getHorasEntrega()
     let h = horas.find((e) => {
-        return e.id === hora
+        return +e.id === +hora
     })
 
     if (h) {

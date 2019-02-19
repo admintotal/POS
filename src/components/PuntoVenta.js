@@ -1173,7 +1173,7 @@ class PuntoVentaComponent extends React.Component {
             this.props.cargando(false)
         } catch(e) {
             this.props.cargando(false)
-            console.log(e)
+            
             if (e.venta) {
                 this.props.setProp({folio: e.venta.folio, numero_serie: e.venta.numero_serie})
             }

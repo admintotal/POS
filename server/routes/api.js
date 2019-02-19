@@ -1385,7 +1385,10 @@ exports.cobrarVentaTarjeta = (req, res) => {
         if (venta.tarjeta.monto > venta.total) {
         	return res.json({
                 status: 'error',
-                message: 'El monto a cobrar no puede ser mayor al total de la venta.'
+                message: `
+                    El monto a cobrar no puede ser mayor al total de la venta. 
+                    Total venta: $${venta.total} / A cobrar: $${venta.tarjeta.monto} 
+                `
             })
         }
                 

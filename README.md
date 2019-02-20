@@ -1,8 +1,9 @@
-# Admintotal desktop
+# POS Desktop
 
 
 ## Instalar nodejs
 [NVM para Linux](https://github.com/creationix/nvm)
+
 [NVM para Windows](https://github.com/coreybutler/nvm-windows)
 
 ```bash

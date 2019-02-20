@@ -345,7 +345,6 @@ public class Startup {
                                 break;
                                 
                             case "denied":
-                                Console.WriteLine("DENEGADA");
                                 errMsg = cpIntegraEMV.getRspFriendlyResponse();
                                 /* Mensaje amigable + getRspFriendlyResponse */
                                 resultadoCobro.Add("getRspOperationNumber", cpIntegraEMV.getRspOperationNumber());
@@ -361,7 +360,6 @@ public class Startup {
                                 break; 
 
                             case "error":
-                                Console.WriteLine("ERROR");
                                 resultadoCobro.Add("status", "error");
                                 resultadoCobro.Add("getRspOperationNumber", cpIntegraEMV.getRspOperationNumber());
                                 resultadoCobro.Add("getRspCdResponse", cpIntegraEMV.getRspCdResponse());
@@ -372,7 +370,12 @@ public class Startup {
                                 
                                 resultadoCobro.Add("errCode", cpIntegraEMV.getRspCdError());
                                 resultadoCobro.Add("mensaje", cpIntegraEMV.getRspDsError());
-                                break;                                
+                                break;
+                                   
+                            default:
+                                resultadoCobro.Add("status", "error");
+                                resultadoCobro.Add("mensaje", "La respuesta de la pinpad fué inesperada:\n " + RspDsResponse);
+                                break;                             
                         }
 
                         cpIntegraEMV.dbgEndOperation();

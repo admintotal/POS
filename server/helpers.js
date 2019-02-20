@@ -574,7 +574,7 @@ exports.cobrarVentaPinpad = async (venta, conf) => {
         }
         
         if (cobroPinpad.status !== 'success') {
-            return {
+            let errorObj = {
                 status: 'error',
                 message: mensaje,
                 cobroPinpad: {
@@ -585,6 +585,8 @@ exports.cobrarVentaPinpad = async (venta, conf) => {
                 },
                 cobrosPinpad: venta.cobrosPinpad
             }
+            logger.log('error', errorObj)
+            return errorObj
         }
 
         venta.cobroTarjeta = cobroPinpad
@@ -606,6 +608,7 @@ exports.cobrarVentaPinpad = async (venta, conf) => {
         }
 
     } catch(e) {
+        logger.log('error', e)
         venta.cobroTarjeta = {
             status: 'error',
             message: e.message || 'Error al realizar el cobro'

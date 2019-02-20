@@ -939,12 +939,7 @@ exports.guardarVenta = (req, res) => {
 
             if (!venta.tarjeta.multiplesTarjetas) {
                 let servicioCobro = null
-                
-                // prosepago
-                if (conf.habilitarProsepago && !conf.habilitarPinpad) {
-                    servicioCobro = 'prosepago'
-                }
-                
+                                
                 // pinpad banco
                 if (conf.habilitarPinpad && !conf.habilitarProsepago) {
                     servicioCobro = conf.pinpad.banco
@@ -983,7 +978,6 @@ exports.guardarVenta = (req, res) => {
                                 }
 
                                 if (statusCobro.status !== 'success') {
-                                    logger.log('error', statusCobro)
                                     statusCobro.transaccion = docTrans
                                     return res.json(statusCobro)
                                 }
@@ -999,31 +993,12 @@ exports.guardarVenta = (req, res) => {
                                 }
                             } catch(e) {
                                 logger.log('error', e.message || 'Error al realizar el cobro')
-
                                 return res.json({
                                     status: 'error',
                                     message: e.message || 'Error al realizar el cobro'
                                 })
                             }
 
-                            break
-
-                        case 'prosepago':
-                            try {
-                                let resultado = await helpers.cobrarVentaProsepago(venta, conf, dbCliente.claveCliente, req.query.api_key)
-                                venta.cobroTarjeta = { datos: {} }
-                                venta.cobroTarjeta.datos.referencia = resultado.pago_prosepago.referencia
-                                venta.cobroTarjeta.datos.autorizacion = resultado.pago_prosepago.aprobacion
-                                venta.tarjeta.no_tarjeta = resultado.pago_prosepago.numero_tarjeta
-                                venta.tarjeta.monto = resultado.pago_prosepago.importe
-                                venta.tarjeta.integracion = servicioCobro
-                            } catch(error) {
-                                logger.log('error', error)
-                                return res.json({
-                                    status: 'error',
-                                    message: error.message || 'Ocurrió un error.'
-                                })
-                            }
                             break
                     }
                 }

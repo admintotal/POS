@@ -1134,7 +1134,6 @@ class PuntoVentaComponent extends React.Component {
             let statusCobro = await Api.cobrarVentaTarjeta(this.props.api_key, ventaObj)
 
             if (statusCobro.venta) {
-                console.log(statusCobro.venta)
                 this.props.setProp({
                     _id: statusCobro.venta._id, 
                     folio: statusCobro.venta.folio, 
@@ -1187,17 +1186,13 @@ class PuntoVentaComponent extends React.Component {
             this.props.cargando(false)
 
             if (e.venta) {
-                console.log("==============")
-                console.log("Error al realizar el cobro de la venta: ")
-                console.log(e.venta._id)
-                console.log("==============")
                 this.props.setProp({
                     _id: e.venta._id,
                     folio: e.venta.folio, 
                     numero_serie: e.venta.numero_serie
                 })
             }
-            
+
             ventaObj.tarjeta.monto = montoTarjetaOrig
 
             this.setState({
@@ -1219,16 +1214,13 @@ class PuntoVentaComponent extends React.Component {
                     mensaje: e.cobroPinpad.mensaje
                 })
             } else {
-                // prosepago
                 if (e.message) {
                     this.props.mostrarAlerta({ 
                         titulo: 'Ocurrió un problema al intentar realizar el cargo',
                         mensaje: e.message
                     })
                 }
-
             }
-
         }
     }
 
@@ -1244,7 +1236,6 @@ class PuntoVentaComponent extends React.Component {
         let porcentajeMax = 0
 
         configuracion.facturacion.descuentos_autorizados_venta.map(d => {
-
             if (d.linea_id === inline.producto.linea_id && 
                 d.sublinea_id === inline.producto.sublinea_id && 
                 d.subsublinea_id === inline.producto.subsublinea_id ) {

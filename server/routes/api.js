@@ -1389,7 +1389,7 @@ exports.cobrarVentaTarjeta = (req, res) => {
 
         if (insert) {
             let borrador = helpers.cloneObject(venta)
-            borrador.tarjeta = {}
+            borrador.tarjeta = {cobros: []}
             await dbCliente.ventas.update(
                 {folio: venta.folio, numero_serie: venta.numero_serie, facha: venta.fecha}, 
                 {$set: borrador}, 

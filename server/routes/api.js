@@ -1010,15 +1010,12 @@ exports.guardarVenta = (req, res) => {
         let venta_id = venta._id
         venta.pendiente = false
         if (venta_id) {
-            console.log("=============")
-            console.log("Se encontro ID")
             delete venta._id
             await dbCliente.ventas.update(
                 {_id: venta_id}, 
                 {$set: venta}
             )
             d = await dbCliente.ventas.findOne({_id: venta_id})
-            console.log(d)
         } else {
             d = await dbCliente.ventas.insert(venta)
             await dbCliente.conf.update({}, {$set: {folio_inicial: venta.folio + 1}})

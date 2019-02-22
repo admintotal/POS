@@ -552,6 +552,7 @@ exports.cobrarPagoPinpad = async (pago, conf=null) => {
 }
 
 exports.cobrarVentaPinpad = async (venta, conf) => {
+    const logger = require('./logger').logger
     
     try{
         let pinpad = await exports.getPinpadInstance(conf.pinpad)

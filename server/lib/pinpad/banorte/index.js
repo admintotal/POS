@@ -24,6 +24,10 @@ module.exports.banorte = {
         }
     },
 
+    consultarTransacciones: () => {
+        return []
+    },
+
     configurar: () => {
         if (!java) {
             return {

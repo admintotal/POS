@@ -70,6 +70,13 @@ exports.post = (options, onResult) => {
         try {
             return request.post(params, function(err, httpResponse, body) {
                 if (err) {
+                    logger.log('error', {
+                        message: 'Error en petición POST con admintotal', 
+                        body: body,
+                        e: err,
+                        httpResponse: httpResponse,
+                        params: params
+                    })
                     return onResult(err, {})
                 }
 
@@ -136,6 +143,13 @@ exports.get = (options, onResult) => {
         try {
             return request.get(params, function(err, httpResponse, body) {
                 if (err) {
+                    logger.log('error', {
+                        message: 'Error en petición GET con admintotal', 
+                        body: body,
+                        httpResponse: httpResponse,
+                        e: err,
+                        params: params
+                    })
                     return onResult(err, {})
                 }
                 
@@ -200,6 +214,22 @@ exports.errorResponse = (err) => {
             status: 'error', 
             code: err.code,
             message: `Es necesaria la conexión a internet para realizar esta acción.`
+        }
+    }
+
+    if (err.code === 'ETIMEDOUT') {
+        return {
+            status: 'error', 
+            code: err.code,
+            message: `Se agotó el tiempo de espera para la respuesta.`
+        }
+    }
+
+    if (err.code === 'ECONNRESET') {
+        return {
+            status: 'error', 
+            code: err.code,
+            message: `ECONNRESET`
         }
     }
 

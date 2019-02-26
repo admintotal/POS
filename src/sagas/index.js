@@ -1,7 +1,7 @@
 import { put, call, takeEvery, take, fork,  cancel } from 'redux-saga/effects';
 import * as Api from '../api';
 import * as Impresora from '../impresoras';
-import {isEnv, kioskMode} from '../helpers';
+import {isEnv} from '../helpers';
 import * as actions from '../constants/ActionTypes';
 
 import AutoUpdater from 'nw-autoupdater';
@@ -84,8 +84,10 @@ export function* loginAsync(action) {
 			yield put({type: actions.PV_SIGUIENTE_FOLIO, siguienteFolio: loginData.siguienteFolio})
 		}
 
+		
 		if (isEnv('production')) {
-			yield call(kioskMode, true);
+			// yield call(kioskMode, true);
+			require('nw.gui').Window.get().maximize()
 		}
 
 		/*if (loginData.configuracion && loginData.configuracion.habilitarPinpad) {
@@ -120,7 +122,7 @@ export function* logoutAsync(action) {
 			yield put({type: actions.SET_SESSION, data: null});
 			yield put({type: actions.POLL_STOP});
 			yield put({type: actions.PV_BORRAR_DATOS});
-			yield call(kioskMode, false);
+			// yield call(kioskMode, false);
 		} else {
 			yield put({
 				type: actions.MOSTRAR_ALERTA, 

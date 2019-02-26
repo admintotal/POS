@@ -63,6 +63,6 @@
 	{% block contenido %}
 	{% endblock contenido %}
 
-	<div class="version">Versión: {{ process.env.APP_VERSION }}</div>
+	<div class="version">Versión: {{ app_version || process.env.APP_VERSION }}</div>
 </body>
 </html>

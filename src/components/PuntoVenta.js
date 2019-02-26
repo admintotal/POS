@@ -1152,23 +1152,23 @@ class PuntoVentaComponent extends React.Component {
 
                 cobrosTarjeta.infoTarjeta = null
 
+                if (imprimir) {
+                    Impresora.imprimirVoucher(
+                        statusCobro.venta._id, 
+                        this.props.api_key, 
+                        {tipo: 'comercio', cobroId: statusCobro.cobroId}
+                    )
+                    Impresora.imprimirVoucher(
+                        statusCobro.venta._id, 
+                        this.props.api_key, 
+                        {tipo: 'cliente', cobroId: statusCobro.cobroId}
+                    )
+                }
+
                 this.props.mostrarAlerta({
                     titulo: 'Transacción satisfactoria',
                     mensaje: 'El cargo se realizó correctamente.',
                     handleAceptar: async () => {
-                        if (imprimir) {
-                            Impresora.imprimirVoucher(
-                                statusCobro.venta._id, 
-                                this.props.api_key, 
-                                {tipo: 'comercio', cobroId: statusCobro.cobroId}
-                            )
-                            Impresora.imprimirVoucher(
-                                statusCobro.venta._id, 
-                                this.props.api_key, 
-                                {tipo: 'cliente', cobroId: statusCobro.cobroId}
-                            )
-                        }
-                        
                         if (this.validarCobro()) {
                             await this.guardar()
                             cobrosTarjeta.visible = false

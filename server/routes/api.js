@@ -569,12 +569,11 @@ exports.producto = (req, res) => {
             }
         }
 
-
         if (consultarAdmintotal) {
             try {
                 let resultadoConsulta = await helpers.consultarProductoAdmintotal(paramsAt)
                 let errores = []
-
+                
                 for(var k in resultadoConsulta) {
                     if (resultadoConsulta[k].status === "success") {
                         switch(k) {
@@ -909,6 +908,7 @@ exports.guardarVenta = (req, res) => {
             venta.sincronizada = false
             venta.fecha = moment().toISOString()
             venta.folio = await helpers.getFolio(dbCliente, conf)
+            venta.app_version = process.env.APP_VERSION
             venta.numero_serie = conf.numero_serie
         }
 
@@ -1248,6 +1248,7 @@ exports.guardarVenta = (req, res) => {
             message: 'La venta ha sido guardada correctamente', 
             venta: d, 
             imprimir: imprimir,
+            app_version: d.app_version,
             clienteDefault: clienteDefault,
             impresora: conf.impresora,
             erroresRecargas: erroresRecargas,
@@ -2021,6 +2022,7 @@ exports.imprimirRecibo = (req, res) => {
             numero_serie: venta.numero_serie || conf.numero_serie,
             impresora: conf.impresora ? conf.impresora : {},
             venta: venta,
+            app_version: venta.app_version,
             almacen: almacen,
             mostrarDirFiscal: mostrarDirFiscal,
             titulo: `venta_${conf.numero_serie}-${venta.folio}`
@@ -2047,6 +2049,7 @@ exports.imprimirReciboPago = (req, res) => {
             conf: conf.configuracion,
             impresora: conf.impresora ? conf.impresora : {},
             pago: pago,
+            app_version: d.pago,
             almacen: almacen,
             mostrarDirFiscal: mostrarDirFiscal,
             titulo: `pago_${pago.uuid}`
@@ -2664,6 +2667,33 @@ module.exports = async (_r) => {
     })
 }
 
+
+exports.consultarTransaccionesPinpad = async (req, res) =>  {
+	db._getDB(req.query.api_key).then(async (dbCliente) => {
+        try {
+        	let conf = await dbCliente.conf.findOne({})
+            let pinpad = await helpers.getPinpadInstance(conf.pinpad)
+            let objects = await pinpad.consultarTransacciones()
+            return res.json({
+            	status: 'success',
+            	objects: objects
+            })
+        } catch(e) {
+            logger.log('error', e)
+            return res.json({
+            	status: 'error', 
+            	mensaje: e.mensaje ? e.mensaje : e.message
+           	})
+        }
+
+    }).catch((e) => {
+        logger.log('error', e)
+        return res.json({
+            status: 'error',
+            message: String(e)
+        })
+    })
+}
 
 exports.consultarTransaccionPinpad = async (req, res) =>  {
     db._getDB(req.query.api_key).then(async (dbCliente) => {

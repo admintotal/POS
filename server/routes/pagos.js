@@ -112,6 +112,7 @@ exports.guardarPago = (req, res) => {
             }
             pago.cajero = pago.usuario
             pago.almacen = conf.almacen
+            pago.app_version = process.env.APP_VERSION
 
             if (!Array.isArray(pago.tarjeta.cobros)) {
                 pago.tarjeta.cobros = []

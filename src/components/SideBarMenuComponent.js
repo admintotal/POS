@@ -33,6 +33,9 @@ class SideBarMenuComponent extends React.Component {
                 <ul>
                   <li><Link onClick={toggleSidebar} className="navItem" to="/inicio">Inicio</Link></li>
                   <li><Link onClick={toggleSidebar} className="navItem" to="/mis-ventas">Ventas</Link></li>
+                  { configuracion.habilitarPinpad &&
+                    <li><Link onClick={toggleSidebar} className="navItem" to="/transacciones-pinpad">Transacciones Pinpad</Link></li>
+                  }
                   <li><Link onClick={toggleSidebar} className="navItem" to="/punto-venta">Punto de Venta</Link></li>
                   <li><Link onClick={toggleSidebar} className="navItem" to="/recepciones-pago">Recepciones de Pago</Link></li>
                   { Boolean(usuario.permisos && usuario.permisos.pedido_cliente) && 

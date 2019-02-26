@@ -174,6 +174,7 @@ router.route('/guardar-venta').post(apiKeyMiddleware, api.guardarVenta)
 
 router.route('/consultas/transaccion-pinpad/:referencia').get(apiKeyMiddleware, api.consultarTransaccionPinpad)
 router.route('/consultas/solicitud-transaccion-pinpad').post(apiKeyMiddleware, api.solicitudTransaccionPinpad)
+router.route('/consultas/transacciones-pinpad').get(apiKeyMiddleware, api.consultarTransaccionesPinpad)
 
 // pedidos 
 router.route('/pedidos').get(apiKeyMiddleware, api.pedidos)

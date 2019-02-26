@@ -8,6 +8,45 @@ module.exports.santander = {
         module.exports.santander.logger.log('info', `[${module.exports.santander.banco}] Liberando dispositivo.`)
     },
 
+    consultarTransacciones: () => {
+        let op = process.pinpadInstance.consultarTransacciones({}, true)
+        let respuestaXML = op.Result
+        let respuesta = []
+
+        respuestaXML.split('transacciones\>')[1].split('<transaccion>').forEach(function(nodo, i) {
+
+            if (nodo.indexOf('nb_referencia') !== -1) {
+                var objNode = {}
+                nodo = nodo.replace(/<\/(\w+)>/g, '|||').split('|||')
+
+                nodo.forEach(function(kv, i) {
+                    var value = kv.match(/<(\w+)/i);
+                    if (value && value.length === 2) {
+                        objNode[value[1]] = kv.replace(/<(\w+)/g, '').replace('>', '').replace('&gt;', '')
+                    }
+                })
+
+                respuesta.push({
+                    usuario: objNode.cd_usrtransaccion,
+                    autorizacion: objNode.nu_auth,
+                    importe: objNode.nu_importe,
+                    referencia: objNode.nb_referencia,
+                    status: objNode.nb_response,
+                    fecha: objNode.fh_registro,
+                    respuesta: `(${objNode.cd_resp}) ${objNode.nb_resp}`,
+                    tarjeta: {
+                        tipo: objNode.cc_tp,
+                        numero: objNode.cc_num,
+                        tarjetahabiente: (objNode.cc_nombre || '').trim(),
+                    },
+                })
+            }
+
+        })
+
+        return respuesta 
+    },
+
     obtenerInstancia: (config) => {
         module.exports.santander.logger.log('info', `[${module.exports.santander.banco}] Obteniendo instancia...`)
 

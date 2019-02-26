@@ -16,6 +16,7 @@ public class Proxy
     public Func<object, Task<object>> ObtenerInfoTarjeta;
     public Func<object, Task<object>> CancelarOperacion;
     public Func<object, Task<object>> ReimprimirVoucher;
+    public Func<object, Task<object>> consultarTransacciones;
 }
 
 public class Startup {
@@ -239,6 +240,23 @@ public class Startup {
             });
         };
 
+        result.consultarTransacciones = async (object input) => {
+            return Task.Run(() => {
+                DateTime today = DateTime.Today;
+                string respuesta = cpIntegraEMV.sndConsulta(
+                    usuario, 
+                    password, 
+                    s_CompanyId, 
+                    s_BranchId, 
+                    today.ToString("dd/MM/yyyy"),
+                    ""
+                );
+                
+                return respuesta;
+
+            });
+        };
+        
         result.RealizarCobro = async (object input) => {
             return Task.Run(() => {
 
@@ -322,7 +340,7 @@ public class Startup {
                         );
 
                         string RspDsResponse = (string) cpIntegraEMV.getRspDsResponse();
-
+                        
                         switch(RspDsResponse) 
                         {
                             case "approved":

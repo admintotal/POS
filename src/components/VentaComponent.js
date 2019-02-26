@@ -88,7 +88,7 @@ class VentaComponent extends React.Component {
                         <h5 className="mb-0">{venta.cliente.razon_social}</h5>
                         <div className="text-muted">{moment(venta.fecha).format('DD/MM/YYYY HH:mm')}</div>
                         { (venta.sesionCaja && venta.sesionCaja.cajero) &&
-                        <div className="text-muted">Capturado por: {venta.sesionCaja.cajero.username}</div>
+                        <div className="text-muted">Capturado por: {venta.sesionCaja.cajero.username} {venta.app_version && <span>| versión {venta.app_version}</span>}</div>
                         }
 
                         { venta.entregaDomicilio &&

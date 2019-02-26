@@ -709,6 +709,22 @@ export const obtenerPedidos = (api_key, usuario, limit=25, promise=false) => {
 	});
 }
 
+export const obtenerTransaccionesPinpad = (api_key) => {
+	return new Promise((resolve, reject) => {
+		return axios.get(`${BASE_API_URL}/consultas/transacciones-pinpad?api_key=${api_key}`)
+		.then(function (response) {
+			if (response.data.status !== 'success') {
+				return reject(response.data);
+			}
+			
+			return resolve(response.data);
+		})
+		.catch(function (error) {
+			return reject(error)
+		});
+	})
+}
+
 export const obtenerPedido = (api_key, id, promise=false) => {
 	if (promise) {
 		return new Promise((resolve, reject) => {

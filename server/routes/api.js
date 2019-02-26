@@ -1391,6 +1391,7 @@ exports.cobrarVentaTarjeta = (req, res) => {
         if (insert) {
             let borrador = helpers.cloneObject(venta)
             borrador.tarjeta = {cobros: []}
+            borrador.app_version = process.env.APP_VERSION
             await dbCliente.ventas.update(
                 {folio: venta.folio, numero_serie: venta.numero_serie, facha: venta.fecha}, 
                 {$set: borrador}, 

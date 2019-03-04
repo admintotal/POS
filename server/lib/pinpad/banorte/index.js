@@ -18,7 +18,7 @@ module.exports.banorte = {
         }
 
         try{
-            process.pinpadInstance.liberarDispositivo();
+            process.pinpadInstance.releaseDeviceSync()
         } catch(e) {
             module.exports.banorte.logger.log('error', e)
         }
@@ -621,7 +621,6 @@ module.exports.banorte = {
 
             }
             
-
             switch(parametrosSalida.getSync('RESULTADO_PAYW')) {
                 // APROBADA
                 case 'A':

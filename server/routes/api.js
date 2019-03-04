@@ -21,7 +21,7 @@ const productoCodigoBarrasCantidad = async (q, almacen, DB) => {
     if (q.length == 13 && q.startsWith(prefijo)) {
         let codigo_producto = q.slice(3, 7)
         let cantidad = q.slice(-6, -1)
-        let p = await DB.productos.findOne({codigo: codigo_producto, almacen: almacen})
+        let p = await DB.productos.findOne({codigo: codigo_producto, almacen: almacen, activo: true})
         cantidad = parseFloat(cantidad) / parseFloat(1000)
 
         if (p && p.venta_cb_cantidad) {
@@ -1362,6 +1362,33 @@ exports.cobrarVentaTarjeta = (req, res) => {
         let usuario = await dbCliente.usuarios.findOne({api_token: req.query.api_key})
         let docTrans
 
+        const setMontoTarjetaCobrado = ({venta, dbCliente}) => {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    let montoTarjetaCobrado = 0
+                    venta.tarjeta.cobros.forEach(cobro => {
+                        montoTarjetaCobrado += cobro.importe
+                    })
+                    
+                    venta.cambio -= venta.tarjeta.monto
+                    venta.tarjeta.monto = montoTarjetaCobrado
+                    venta.cambio += venta.tarjeta.monto
+
+                    if (dbCliente) {
+                        await dbCliente.ventas.update(
+                            {folio: venta.folio, numero_serie: venta.numero_serie, fecha: venta.fecha}, 
+                            {$set: venta}
+                        )
+                    }
+
+                    resolve()
+                } catch (e) {
+                    resolve()
+                    logger.log('error', e)
+                }
+            })
+        }
+
         if ( !venta ) {
             venta = ventaObj
             insert = true
@@ -1390,15 +1417,24 @@ exports.cobrarVentaTarjeta = (req, res) => {
 
         if (insert) {
             let borrador = helpers.cloneObject(venta)
-            borrador.tarjeta = {cobros: []}
+            // borrador.tarjeta = {cobros: []}
+            borrador.tarjeta.cobros = []
             borrador.app_version = process.env.APP_VERSION
+            venta = await dbCliente.ventas.insert(borrador)
+
+            /*
             await dbCliente.ventas.update(
                 {folio: venta.folio, numero_serie: venta.numero_serie, facha: venta.fecha}, 
                 {$set: borrador}, 
-                {upsert: insert}
+                {upsert: true}
             )
+            venta = await dbCliente.ventas.findOne({
+                folio: venta.folio, 
+                numero_serie: venta.numero_serie, 
+                fecha: venta.fecha
+            })
+            */
             await dbCliente.conf.update({}, {$set: {folio_inicial: venta.folio + 1}})
-            venta = await dbCliente.ventas.findOne({folio: venta.folio, numero_serie: venta.numero_serie, facha: venta.fecha})
         }
 
         let servicioCobro = null
@@ -1443,19 +1479,12 @@ exports.cobrarVentaTarjeta = (req, res) => {
                             statusCobro.transaccion = docTrans
                             statusCobro.venta = venta
                             logger.log('error', statusCobro)
+
+                            venta.tarjeta.monto -= venta.tarjeta.monto
+                            await setMontoTarjetaCobrado({venta, dbCliente})
                             return res.json(statusCobro)
                         }
 
-                        // venta.cobroTarjeta se setea por el método cobrarVentaPinpad
-                        if (venta.cobroTarjeta.status !== 'success') {
-                            return res.json({
-                                status: 'error',
-                                message: venta.cobroTarjeta.mensaje,
-                                transaccion: docTrans,
-                                cobrosPinpad: venta.cobrosPinpad,
-                                venta: venta
-                            })
-                        }
                     } catch(e) {
                         logger.log('error', e.message || 'Error al realizar el cobro')
 
@@ -1480,10 +1509,14 @@ exports.cobrarVentaTarjeta = (req, res) => {
                     creado: moment().toISOString()
                 })
 
+                /*
                 let montoTarjetaCobrado = 0
                 venta.tarjeta.cobros.map(cobro => {
                     montoTarjetaCobrado += cobro.importe
                 })
+                */
+
+                await setMontoTarjetaCobrado({venta})
 
                 delete venta.tarjeta.integracion
                 delete venta.tarjeta.no_tarjeta
@@ -1491,14 +1524,18 @@ exports.cobrarVentaTarjeta = (req, res) => {
                 delete venta.tarjeta.datos
                 
                 venta.sincHabilitada = false
-                venta.tarjeta.monto = montoTarjetaCobrado
-
+                // venta.tarjeta.monto = montoTarjetaCobrado
+                
                 await dbCliente.ventas.update(
-                    {folio: venta.folio, numero_serie: venta.numero_serie, facha: venta.fecha}, 
-                    {$set: Object.assign(venta)}, 
-                    {upsert: insert}
+                    {folio: venta.folio, numero_serie: venta.numero_serie, fecha: venta.fecha}, 
+                    {$set: venta}
                 )
-                venta = await dbCliente.ventas.findOne({folio: ventaObj.folio, numero_serie: ventaObj.numero_serie})
+                
+                venta = await dbCliente.ventas.findOne({
+                    folio: ventaObj.folio, 
+                    numero_serie: ventaObj.numero_serie, 
+                    fecha: venta.fecha
+                })
                 if (insert) {
                     await dbCliente.conf.update({}, {$set: {folio_inicial: venta.folio + 1}})
                 }

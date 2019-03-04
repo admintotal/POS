@@ -27,7 +27,7 @@ if (os.platform() == "win32") {
     try {
         process.__edge = require('edge-js')
     } catch(e) {
-        logger.log('error', {message: 'Hubo un error al cargar el módulo edge-js', e: e})
+        // logger.log('error', {message: 'Hubo un error al cargar el módulo edge-js', e: e})
     }
 }
 

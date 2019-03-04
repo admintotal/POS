@@ -863,9 +863,13 @@ class PuntoVentaComponent extends React.Component {
 
     getTotalMonederoCliente() {
         let totalMonedero = 0;
-        this.props.cliente.monedero.map((f) => {
-            return totalMonedero += precisionDecimales(f.saldo)
-        })
+
+        if (Array.isArray(this.props.cliente.monedero)) {
+            this.props.cliente.monedero.forEach((f) => {
+                totalMonedero += precisionDecimales(f.saldo)
+            })
+        }
+        
         return totalMonedero;
     }
 
@@ -1563,6 +1567,7 @@ class PuntoVentaComponent extends React.Component {
         let montoMonedero = this.props.monedero.monto > 0 ? this.props.monedero.monto : null;
         let fondoCliente = facturacion.metodo_pago_fondo && this.fondoCliente();
         let monederoCliente = this.monederoCliente();
+        let totalMonederoCliente = this.getTotalMonederoCliente();
         let productos = this.props.productos; //this.props.productos.slice().reverse()
         let habilitarDescuentosAutorizados = Boolean((facturacion.descuentos_autorizados_venta || []).length)
         let porPagar = this.props.cambio > 0 ? 0 : Math.abs(this.props.cambio)
@@ -1713,10 +1718,20 @@ class PuntoVentaComponent extends React.Component {
                                                 RFC: <span className="rfc font-weight-bold">{cliente.rfc}</span>
                                             </small>
 
-                                            { Boolean(cliente.direccion && cliente.direccion.email && cliente.direccion.email !== "") && 
-                                            <small className="text-info ml-1 ">
-                                                <span className="font-weight-bold">{cliente.direccion.email}</span>
+                                            {Boolean(totalMonederoCliente) &&
+                                            <small className="text-success ml-2">
+                                                    Monedero: <span className="font-weight-bold">
+                                                    ${formatCurrency(totalMonederoCliente)}
+                                                </span>
                                             </small>
+                                            }
+
+                                            { Boolean(cliente.direccion && cliente.direccion.email && cliente.direccion.email !== "") && 
+                                            <div>
+                                                <small className="text-info">
+                                                    <span className="font-weight-bold">{cliente.direccion.email}</span>
+                                                </small>
+                                            </div>
                                             }
                                             
                                             { Boolean(cliente.direccion && cliente.direccion.direccion_completa && cliente.direccion.direccion_completa !== ".") &&
@@ -1732,6 +1747,7 @@ class PuntoVentaComponent extends React.Component {
                                                     </span>
                                                 </small>
                                             }
+
                                         </div>
                                         <div className="col">
                                             <div className="form-group">

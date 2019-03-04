@@ -179,7 +179,7 @@ public class Startup {
 
                     cpIntegraEMV.dbgSetUrl(url);
                     cpIntegraEMV.dbgHidePopUp(true);
-                    cpIntegraEMV.HidePopUpDCC(true);
+                    // cpIntegraEMV.HidePopUpDCC(true);
                     cpIntegraEMV.EstableceTipoMoneda(cpIntegraEMV.ObtieneMonedaVtaPropiaBanda());
                     cpIntegraEMV.dbgSetCurrency("MXN");
                     cpIntegraEMV.SetTipoDCC("0");
@@ -283,7 +283,7 @@ public class Startup {
                     if(!tarjetaPrecargada) {
                         cpIntegraEMV.dbgSetUrl(url);
                         cpIntegraEMV.dbgHidePopUp(true);
-                        cpIntegraEMV.HidePopUpDCC(true);
+                        // cpIntegraEMV.HidePopUpDCC(true);
                         cpIntegraEMV.EstableceTipoMoneda(cpIntegraEMV.ObtieneMonedaVtaPropiaBanda());
                         cpIntegraEMV.dbgSetCurrency("MXN");
                         cpIntegraEMV.SetTipoDCC("0");
@@ -324,6 +324,7 @@ public class Startup {
                         string DescripcionMoneda = cpIntegraEMV.GetTipoMoneda();
                         
                         resultadoCobro.Add("txtMerchant", txtMerchant);
+                        
                         cpIntegraEMV.sndVtaDirectaEMV(
                             usuario, 
                             password, 
@@ -396,8 +397,8 @@ public class Startup {
                                 break;                             
                         }
 
+                        cpIntegraEMV.dbgClearDCC();
                         cpIntegraEMV.dbgEndOperation();
-                        cpIntegraEMV.dbgCancelOperation();
                         return JsonConvert.SerializeObject(resultadoCobro);
                     }
                     else

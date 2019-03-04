@@ -399,6 +399,7 @@ public class Startup {
 
                         cpIntegraEMV.dbgClearDCC();
                         cpIntegraEMV.dbgEndOperation();
+                        cpIntegraEMV.dbgCancelOperation();
                         return JsonConvert.SerializeObject(resultadoCobro);
                     }
                     else

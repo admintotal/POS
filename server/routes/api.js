@@ -2721,7 +2721,7 @@ exports.consultarTransaccionesPinpad = async (req, res) =>  {
             logger.log('error', e)
             return res.json({
             	status: 'error', 
-            	mensaje: e.mensaje ? e.mensaje : e.message
+            	message: e.mensaje ? e.mensaje : e.message
            	})
         }
 
@@ -2729,7 +2729,7 @@ exports.consultarTransaccionesPinpad = async (req, res) =>  {
         logger.log('error', e)
         return res.json({
             status: 'error',
-            message: String(e)
+            message: e.message
         })
     })
 }
@@ -2799,7 +2799,6 @@ exports.solicitudTransaccionPinpad = async (req, res) =>  {
                             })
                         }
                     }
-
                     break;
 
                 case 'devolucion':

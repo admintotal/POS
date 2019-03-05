@@ -1,7 +1,7 @@
 import { put, call, takeEvery, take, fork,  cancel } from 'redux-saga/effects';
 import * as Api from '../api';
 import * as Impresora from '../impresoras';
-import {isEnv} from '../helpers';
+import {isEnv, kioskMode} from '../helpers';
 import * as actions from '../constants/ActionTypes';
 
 import AutoUpdater from 'nw-autoupdater';
@@ -22,12 +22,9 @@ export function* loginAsync(action) {
 	try {
 		yield put({type: actions.CARGANDO, mostrar: true});
 		const loginData = yield call(Api.loginUser, action.data);
+
 		yield put({type: actions.VERIFICAR_ACTUALIZACION_ASYNC});
-
-		// yield put({type: actions.SINCRONIZAR_ALMACENES, api_key: loginData.usuario.api_token});
-		// yield put({type: actions.SINCRONIZAR_CLIENTES, api_key: loginData.usuario.api_token});
 		yield put({type: actions.POLL_START, api_key: loginData.usuario.api_token});
-
 		yield put({type: actions.LOGOUT_ON_CLOSE});
 
 		if (loginData.configuracion) {
@@ -36,8 +33,16 @@ export function* loginAsync(action) {
 			if (loginData.configuracion.numero_serie) {
 				try {
 			        yield call(Api.sincronizarVentas, loginData.usuario.api_token, {forzar: true});
+
+			        // obtenemos último folio desde admintotal
 					try {
-						let folioStatus = yield call(Api.obtenerUltimoFolio, loginData.usuario.api_token, loginData.configuracion.numero_serie, 1)
+						let folioStatus = yield call(
+							Api.obtenerUltimoFolio, 
+							loginData.usuario.api_token, 
+							loginData.configuracion.numero_serie, 
+							1
+						)
+
 						if (folioStatus.status === 'success') {
 							loginData.siguienteFolio = folioStatus.ultimo_folio
 						} else {
@@ -62,17 +67,30 @@ export function* loginAsync(action) {
 
 			if (loginData.configuracion.almacen) {
 				try {
-					yield put({type: actions.CANCELAR_SINCRONIZACION, api_key: loginData.usuario.api_token, sincronizacion: 'productos'})
+					yield put({
+						type: actions.CANCELAR_SINCRONIZACION, 
+						api_key: loginData.usuario.api_token, 
+						sincronizacion: 'productos'
+					})
+
 					let forzarDescargaProds = loginData.configuracion.forzarDescargaProductosInicioSesion
+					
 					if (forzarDescargaProds === undefined) {
 						forzarDescargaProds = true
 					}
 
-					yield call(Api.sincronizarProductos, loginData.usuario.api_token, loginData.configuracion.almacen.id, forzarDescargaProds)
-				} catch(err) {
-					
-				}
-				yield put({type: actions.POLL_PRODUCTOS_START, almacen: loginData.configuracion.almacen.id})
+					yield call(
+						Api.sincronizarProductos, 
+						loginData.usuario.api_token, 
+						loginData.configuracion.almacen.id, 
+						forzarDescargaProds
+					)
+				} catch(err) { }
+
+				yield put({
+					type: actions.POLL_PRODUCTOS_START, 
+					almacen: loginData.configuracion.almacen.id
+				})
 			}
 		}
 
@@ -84,19 +102,15 @@ export function* loginAsync(action) {
 			yield put({type: actions.PV_SIGUIENTE_FOLIO, siguienteFolio: loginData.siguienteFolio})
 		}
 
-		
+		// fullscreen solo en producción
 		if (isEnv('production')) {
-			// yield call(kioskMode, true);
-			require('nw.gui').Window.get().maximize()
+			if (loginData.configuracion && loginData.configuracion.modoKiosko) {
+				yield call(kioskMode, true);
+			} else {
+				require('nw.gui').Window.get().maximize()
+			}
 		}
 
-		/*if (loginData.configuracion && loginData.configuracion.habilitarPinpad) {
-			let pp = loginData.configuracion.pinpad
-			if (pp.banco.toLowerCase() === 'santander') {
-				yield call(maximize);
-			}
-		}*/
-		
 		yield put({type: actions.SET_SESSION, data: loginData.usuario});
 		yield call(Api.limpiarDb, loginData.usuario.api_token);
 		if (loginData.descargarClientes) {
@@ -122,7 +136,7 @@ export function* logoutAsync(action) {
 			yield put({type: actions.SET_SESSION, data: null});
 			yield put({type: actions.POLL_STOP});
 			yield put({type: actions.PV_BORRAR_DATOS});
-			// yield call(kioskMode, false);
+			yield call(kioskMode, false);
 		} else {
 			yield put({
 				type: actions.MOSTRAR_ALERTA, 

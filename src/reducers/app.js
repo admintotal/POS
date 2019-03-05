@@ -88,6 +88,7 @@ export default function app(state=defaultState, action: actionType) {
                 forzarDescargaProductosInicioSesion: action.data.forzarDescargaProductosInicioSesion,
                 mostrarExistenciasAlmacenes: action.data.mostrarExistenciasAlmacenes,
                 habilitarBascula: action.data.habilitarBascula,
+                modoKiosko: action.data.modoKiosko,
                 habilitarPinpad: action.data.habilitarPinpad,
                 pinpad: {
                     banco: action.data.pinpad ? action.data.pinpad.banco : null,

@@ -24,6 +24,7 @@ class Configuracion extends React.Component {
             impresora: props.impresora,
             pinpad: props.pinpad || {},
             habilitarPinpad: props.habilitarPinpad,
+            modoKiosko: props.modoKiosko,
             habilitarBascula: props.habilitarBascula,
             habilitarProsepago: props.habilitarProsepago,
             bascula: bascula,
@@ -194,6 +195,7 @@ class Configuracion extends React.Component {
                 terminales: conf.configuracion.terminales,
                 habilitarProsepago: conf.habilitarProsepago,
                 habilitarPinpad: conf.habilitarPinpad,
+                modoKiosko: conf.modoKiosko,
                 mostrarCamposAdicionales: conf.mostrarCamposAdicionales,
                 forzarDescargaProductosInicioSesion: forzarDescargaProds,
                 mostrarExistenciasAlmacenes: conf.mostrarExistenciasAlmacenes,
@@ -391,6 +393,19 @@ class Configuracion extends React.Component {
                                         checked={this.state.forzarDescargaProductosInicioSesion}
                                         onChange={(e) => {this.setState({
                                             forzarDescargaProductosInicioSesion: !this.state.forzarDescargaProductosInicioSesion
+                                        })}}
+                                        type="checkbox" />
+                                    <div className="control_indicator"></div>
+                                </label>
+                            </div>
+
+                            <div className="form-group mt-2">
+                                <label className="control control-checkbox">
+                                    Habilitar modo kiosko
+                                    <input 
+                                        checked={this.state.modoKiosko}
+                                        onChange={(e) => {this.setState({
+                                            modoKiosko: !this.state.modoKiosko
                                         })}}
                                         type="checkbox" />
                                     <div className="control_indicator"></div>

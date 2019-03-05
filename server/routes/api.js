@@ -2314,6 +2314,7 @@ exports.guardarConfiguracion = async (req, res) => {
             mostrarCamposAdicionales: req.body.mostrarCamposAdicionales,
             forzarDescargaProductosInicioSesion: req.body.forzarDescargaProductosInicioSesion,
             mostrarExistenciasAlmacenes: req.body.mostrarExistenciasAlmacenes,
+            modoKiosko: req.body.modoKiosko,
             habilitarProsepago: req.body.habilitarProsepago,
             habilitarPinpad: req.body.habilitarPinpad,
             pinpad: pinpad,

@@ -119,11 +119,11 @@
       "CompanyName": "Admintotal Develop S.A de C.V",
       "FileDescription": "Admintotal",
       "ProductName": "Admintotal Desktop",
-      "LegalCopyright": "Copyright 2018"
+      "LegalCopyright": "Copyright 2019"
     }
   },
   "window": {
-    "title": "Admintotal v1.1.28",
+    "title": "Admintotal v1.1.32",
     "icon": "./public/logo.png",
     "width": 1133,
     "min_width": 1000,

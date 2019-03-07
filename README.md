@@ -34,6 +34,26 @@ npm run build
 ```
 
 ```bat
+################################
+# Inno Setup 5.5.3
+################################
+wget http://files.jrsoftware.org/is/5/isetup-5.5.3.exe
+
+env WINEPREFIX=$HOME/.wine winecfg
+env WINEPREFIX=$HOME/.wine winetricks dotnet40 corefonts
+env WINEPREFIX=$HOME/.wine winetricks gdiplus
+
+WINEPREFIX=$HOME/.wine \
+  wine ~/.wine/drive_c/Program\ Files\ \(x86\)/Resource\ Hacker/ResourceHacker.exe \
+  -addoverwrite "C:\\Program\ Files\ \(x86\)\\Admintotal\\Admintotal.exe", \
+  "C:\\Program\ Files\ \(x86\)\\Admintotal\\Admintotal.exe", \
+  "C:\\Program\ Files\ \(x86\)\\Admintotal\\package.nw\\admintotal.ico", ICONGROUP, MAINICON, 0
+
+WINEPREFIX=$HOME/.wine wine "C:\\Program\ Files\ \(x86\)\\Admintotal\\Admintotal.exe"
+
+################################
+# Build C++ add-ons
+################################
 # windows-build-tools debemos de instalarlo desde una power shell ejecutada
 # como administrador, este paquete se encarga de instalar Python 2.7 y MSBuild Tools
 npm install --global --production windows-build-tools
@@ -50,9 +70,9 @@ set VCTargetsPath=C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\v140\
 # win 10
 cd module_to_build
 nw-gyp configure --target=0.31.5
-nw-gyp build --msvs_version=2015 --target=0.31.5
+nw-gyp build --target=0.31.5 --msvs_version=2015
 
-# win 7 (No se por que :s)
+# win 7 
 nw-gyp configure --target=0.31.5 --msvs_version=2015
 nw-gyp build --target=0.31.5 --msvs_version=2015
 ```

@@ -8,9 +8,15 @@ module.exports.santander = {
         module.exports.santander.logger.log('info', `[${module.exports.santander.banco}] Liberando dispositivo.`)
     },
 
-    consultarTransacciones: () => {
-        let op = process.pinpadInstance.consultarTransacciones({}, true)
-        let respuestaXML = op.Result
+    consultarTransacciones: (params={}) => {
+        let {fecha} = params
+        
+        if( !fecha ) {
+            fecha = moment().format("DD/MM/YYYY")
+        }
+
+        let transacciones = process.pinpadInstance.consultarTransacciones({fecha: fecha}, true)
+        let respuestaXML = transacciones.Result
         let respuesta = []
 
         respuestaXML.split('transacciones\>')[1].split('<transaccion>').forEach(function(nodo, i) {

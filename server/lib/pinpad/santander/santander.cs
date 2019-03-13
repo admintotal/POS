@@ -242,13 +242,14 @@ public class Startup {
 
         result.consultarTransacciones = async (object input) => {
             return Task.Run(() => {
-                DateTime today = DateTime.Today;
+                IDictionary<string, object> payload = (IDictionary<string,object>)input;
+                string fecha = (string) payload["fecha"];
                 string respuesta = cpIntegraEMV.sndConsulta(
                     usuario, 
                     password, 
                     s_CompanyId, 
                     s_BranchId, 
-                    today.ToString("dd/MM/yyyy"),
+                    fecha,
                     ""
                 );
                 

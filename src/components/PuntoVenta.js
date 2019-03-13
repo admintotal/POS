@@ -2219,7 +2219,7 @@ class PuntoVentaComponent extends React.Component {
                                 </div>
                                 }
 
-                                { pagarFondo &&
+                                { Boolean(pagarFondo && this.props.cliente.fondo) &&
                                 <div>
                                     <table className="table table-striped table-sm vm">
                                         <thead>

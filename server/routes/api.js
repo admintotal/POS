@@ -1417,23 +1417,9 @@ exports.cobrarVentaTarjeta = (req, res) => {
 
         if (insert) {
             let borrador = helpers.cloneObject(venta)
-            // borrador.tarjeta = {cobros: []}
             borrador.tarjeta.cobros = []
             borrador.app_version = process.env.APP_VERSION
             venta = await dbCliente.ventas.insert(borrador)
-
-            /*
-            await dbCliente.ventas.update(
-                {folio: venta.folio, numero_serie: venta.numero_serie, facha: venta.fecha}, 
-                {$set: borrador}, 
-                {upsert: true}
-            )
-            venta = await dbCliente.ventas.findOne({
-                folio: venta.folio, 
-                numero_serie: venta.numero_serie, 
-                fecha: venta.fecha
-            })
-            */
             await dbCliente.conf.update({}, {$set: {folio_inicial: venta.folio + 1}})
         }
 
@@ -1509,13 +1495,6 @@ exports.cobrarVentaTarjeta = (req, res) => {
                     creado: moment().toISOString()
                 })
 
-                /*
-                let montoTarjetaCobrado = 0
-                venta.tarjeta.cobros.map(cobro => {
-                    montoTarjetaCobrado += cobro.importe
-                })
-                */
-
                 await setMontoTarjetaCobrado({venta})
 
                 delete venta.tarjeta.integracion
@@ -1524,7 +1503,6 @@ exports.cobrarVentaTarjeta = (req, res) => {
                 delete venta.tarjeta.datos
                 
                 venta.sincHabilitada = false
-                // venta.tarjeta.monto = montoTarjetaCobrado
                 
                 await dbCliente.ventas.update(
                     {folio: venta.folio, numero_serie: venta.numero_serie, fecha: venta.fecha}, 
@@ -1642,12 +1620,11 @@ exports.ventas = (req, res) => {
             })
         }
 
-
         let page = req.query.page
         let limit = req.query.perPage
         let usuario = await dbCliente.usuarios.findOne({id: Number(req.query.usuario)})
         let filtroObj = {}
-
+        
         if (! usuario.autorizaciones.guardar_configuracion_desktop ) {
             filtroObj['sesionCaja.cajero.id'] = +req.query.usuario
         }
@@ -1655,6 +1632,7 @@ exports.ventas = (req, res) => {
         if (req.query.sesion_caja) {
             filtroObj['sesionCaja._id'] = req.query.sesion_caja
         }
+        
 
         if (req.query.sincronizadas) {
             filtroObj['sincronizada'] = Boolean(+req.query.sincronizadas)
@@ -2638,11 +2616,20 @@ exports.shellLogout = async (req, res) => {
 exports.shell = async (req, res) => {    
     let accesos = await db._api.find({})
     const _data = []
+    let java = null;
+    try{
+        java = require('java');
+    } catch(e){
+        
+    }
+
     let sandbox = {
         _db: db.get,
         helpers: helpers,
         request: request,
         moment: moment,
+        java: java,
+        pinpadInstance: process.pinpadInstance,
         env: process.env,
         edge: process.__edge,
         api: api,
@@ -2712,7 +2699,8 @@ exports.consultarTransaccionesPinpad = async (req, res) =>  {
         try {
         	let conf = await dbCliente.conf.findOne({})
             let pinpad = await helpers.getPinpadInstance(conf.pinpad)
-            let objects = await pinpad.consultarTransacciones()
+            let fecha = moment().format("DD/MM/YYYY")
+            let objects = await pinpad.consultarTransacciones({fecha: fecha})
             return res.json({
             	status: 'success',
             	objects: objects

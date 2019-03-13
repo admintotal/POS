@@ -44,7 +44,7 @@ class TransaccionesPinpad extends React.Component {
                         { Boolean(transacciones.length) ?
                         <div>
                             <div className="table-responsive">
-                    			<table className="table table-condensed vm table-list table-striped table-hover table-list">
+                    			<table className="table table-condensed vm table-list table-hover table-list clickeable">
                     				<thead>
                     					<tr>
                                             <th>Fecha</th>

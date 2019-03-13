@@ -666,22 +666,22 @@ exports.ventas = async function(req, res) {
 				throw responseObj
 			}
 			
-			if (resultado.ventas.length) {
+			if (resultado.ventas && resultado.ventas.length) {
 				await DB.ventas.update({_id: {$in: resultado.ventas}}, {$set: {sincronizada: true, timbrada: true}, $unset: {error: true, motivoError: true}}, {multi: true})
 				if (resultado.no_timbradas.length) {
 					await DB.ventas.update({_id: {$in: resultado.no_timbradas}}, {$set: {timbrada: false}}, {multi: true})
 				}
 			}
 
-			if (resultado.retiros_guardados.length) {
+			if (resultado.retiros_guardados && resultado.retiros_guardados.length) {
 				await DB.retiros.update({_id: {$in: resultado.retiros_guardados}}, {$set: {sincronizado: true}}, {multi: true})
 			}
 			
-			if (resultado.cierres_guardados.length) {
+			if (resultado.cierres_guardados && resultado.cierres_guardados.length) {
 				await DB.sesiones_caja.update({'fin._id': {$in: resultado.cierres_guardados}}, {$set: {sincronizado: true}}, {multi: true})
 			}
 
-			if (Object.keys(resultado.errores).length) {
+			if (resultado.errores && Object.keys(resultado.errores).length) {
 				for (let k in resultado.errores) {
 					DB.ventas.update({_id: k}, {$set: {sincronizada: true, error: true, motivoError: resultado.errores[k]}})
 				}
@@ -690,7 +690,7 @@ exports.ventas = async function(req, res) {
 			// let cierreCajaHabilitado = (await DB.ventas.find({sincronizada: false, requiereFactura: false, motivoError: { $exists: false }})).length === 0
 			resultado = Object.assign(resultado, {cierreCajaHabilitado: cierreCajaHabilitado})
 			
-			if (resultado.ventas.length) {
+			if (resultado.ventas && resultado.ventas.length) {
 				if (resultado.ventas.length == 1) {
 					helpers.mostrarNotificacion(`Una venta ha sido sincronizado.`)
 				} else {

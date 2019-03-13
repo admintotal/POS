@@ -24,7 +24,7 @@ module.exports.banorte = {
         }
     },
 
-    consultarTransacciones: () => {
+    consultarTransacciones: (params={}) => {
         return []
     },
 

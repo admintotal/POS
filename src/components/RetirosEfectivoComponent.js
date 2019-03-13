@@ -40,6 +40,7 @@ class RetirosEfectivoComponent extends React.Component {
                     </button>
                     <div className="text-center">
                         <h4 className="text-primary">Retiros de Efectivo</h4>
+                        <hr/>
                         { (this.props.sesionCaja && this.props.sesionCaja.cajero) &&
                         <div className="text-muted">Sesión de <b>{this.props.sesionCaja.cajero.username}</b></div>
                         }

@@ -100,8 +100,8 @@ class Pedidos extends React.Component {
                         
                         { Boolean(pedidos.length) ?
                         <div>
-                            <div className="text-info font-weight-bold"> 
-                                Solamente se muestran los últimos {this.state.limite} pedidos.
+                            <div className="alert alert-info p-2 my-2"> 
+                                Solamente se muestran los últimos {this.state.limite} pedidos capturados.
                             </div>
                             <div className="table-responsive">
                     			<table className="table table-condensed vm table-list table-hover table-list">

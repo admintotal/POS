@@ -700,7 +700,7 @@ fieldset{
     cursor: pointer;
     color: #da4040;
     position: absolute;
-    top: 10px;
+    top: 20px;
     right: 10px;
 }
 .QuickView .cerrar:focus{

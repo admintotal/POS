@@ -15,6 +15,7 @@ import { Link } from 'react-router-dom';
 import ReactDatetime from 'react-datetime';
 import '../../node_modules/react-datetime/css/react-datetime.css';
 import queryString from 'query-string';
+import {mostrarMetodosPagoVenta} from '../helpers';
 
 class Ventas extends React.Component {
 	constructor(props) {
@@ -131,39 +132,6 @@ class Ventas extends React.Component {
 
     exportarVentasConError() {
         Api.exportarVentasConError(this.props.api_key)
-    }
-
-    mostrarRetiros() {
-        /*
-        this.state.retiros.objects.map(r => {
-            return trs.push(`
-                <tr>
-                    <td>${r.sincronizado ? '<span class="badge badge-success">Si</span>' : '<span class="badge badge-default">Pendiente</span>'}</td>
-                    <td title="${moment(r.fecha).format('DD/MM/YYYY HH:mm:ss')}">${r.fecha ? moment(r.fecha).fromNow() : ''}</td>
-                    <td class="text-right b text-primary">$${formatCurrency(r.totalFondo)}</td>
-                </tr>
-            `)
-        })
-
-        this.props.mostrarAlerta({
-            titulo: 'Retiros de Efectivo',
-            mensaje: `
-                <table class="table table-striped table-condensed vm">
-                    <thead>
-                        <tr>
-                            <th>Sinc</th>
-                            <th>Creado</th>
-                            <th class="text-right">Monto</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${trs.join('')}
-                    </tbody>
-                </table>
-                <h4 class="text-right">Total: $${formatCurrency(this.state.retiros.totalRetirado)}</h4>
-            `
-        })
-        */
     }
 
     titleRowVenta(venta) {
@@ -448,6 +416,7 @@ class Ventas extends React.Component {
                     				<th>Fecha</th>
                                     <th>Cliente</th>
                                     <th className="text-right">Monto</th>
+                                    <th>Pago</th>
                                     <th style={{width: '120px'}}></th>
                     			</tr>
                     		</thead>
@@ -535,6 +504,12 @@ class Ventas extends React.Component {
                                                 this.obtenerVentas(false);
                                             }
                                         })}>${formatCurrency(venta.total)}</td>
+                                        <td onClick={() => this.props.verVenta(venta, false, {
+                                            onSincronizarVenta: (res) => {
+                                                this.props.verVenta(null);
+                                                this.obtenerVentas(false);
+                                            }
+                                        })}>{mostrarMetodosPagoVenta(venta)}</td>
                                         <td className="text-right">
                                             <button 
                                                 onClick={this.handleImprimirVenta.bind(this, venta)} 

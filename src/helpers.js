@@ -362,3 +362,22 @@ export const getProductoInline = (data, um) => {
         deshabilitarBorrado: data.deshabilitarBorrado,
     }
 }
+
+export const mostrarMetodosPagoVenta = (venta) => {
+    let formasPago = []
+    let mapa = {
+        'efectivo': 'Efectivo',
+        'tarjeta': 'Tarjeta',
+        'fondo': 'Fondo',
+        'monedero': 'Monedero',
+        'cheque': 'Cheque',
+        'transferencia': 'Transferencia',
+    }
+    Object.keys(mapa).forEach((fp) => {
+        if (venta[fp] && venta[fp].monto) {
+            formasPago.push(mapa[fp])
+        }
+    })
+    return formasPago.join(', ')
+
+}

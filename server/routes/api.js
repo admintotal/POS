@@ -1171,7 +1171,14 @@ exports.guardarVenta = (req, res) => {
                 }
             } catch(e) {
                 logger.log('error', e)
-                await dbCliente.ventas.remove({_id: d._id})
+                
+                if (d.tarjeta && !d.tarjeta.cobros) {
+                    logger.log('error', `Eliminando venta ${d.numero_serie}-${d.folio}`)
+                    await dbCliente.ventas.remove({_id: d._id})
+                } else {
+                    await dbCliente.ventas.update({_id: d._id}, {$set: {pendiente: true}})
+                }
+
                 return res.json({
                     status: 'error', 
                     message: 'Hubo un error al solicitar la factura.',
@@ -1215,7 +1222,14 @@ exports.guardarVenta = (req, res) => {
                 
             } catch(e) {
                 logger.log('error', e)
-                await dbCliente.ventas.remove({_id: d._id})
+
+                if (d.tarjeta && !d.tarjeta.cobros) {
+                    logger.log('error', `Eliminando venta ${d.numero_serie}-${d.folio}`)
+                    await dbCliente.ventas.remove({_id: d._id})
+                } else {
+                    await dbCliente.ventas.update({_id: d._id}, {$set: {pendiente: true}})
+                }
+
                 return res.json({
                     status: 'error',
                     clienteDefault: clienteDefault, 

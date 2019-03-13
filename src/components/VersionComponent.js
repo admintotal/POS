@@ -10,10 +10,11 @@ class VersionComponent extends React.Component {
             titulo: `Admintotal Desktop v${pjson.version}`, 
             mensaje: `
                 <div class="text-center text-muted">
-                    <div>_n: <b>${process.versions['node']}</b></div>
+                    <div>_node: <b>${process.versions['node']}</b></div>
                     <div>_nw: <b>${process.versions['node-webkit']}</b></div>
-                    <div>_nw-f: <b>${process.versions['nw-flavor']}</b></div>
+                    <div>_nw-flavor: <b>${process.versions['nw-flavor']}</b></div>
                     <div>_v8: <b>${process.versions['v8']}</b></div>
+                    <div>_env: <b>${process.env.NODE_ENV}</b></div>
                 </div>
             `
         })

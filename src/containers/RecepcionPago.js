@@ -253,7 +253,7 @@ class RecepcionPago extends React.Component {
         Api.guardarRecepcionPago(this.props.api_key, pago)
         .then((res) => {
             this.props.cargando(false)
-
+            
             if (res.status === 'error') {
                 if (!res.pago) {
                     return this.props.mostrarAlerta({
@@ -276,19 +276,19 @@ class RecepcionPago extends React.Component {
                     }
                 }
 
+                let conf = {}
+                if (this.props.configuracion.impresora) {
+                    conf.marginLeft = this.props.configuracion.impresora.marginLeft;
+                    conf.paperWidth = this.props.configuracion.impresora.paperWidth;
+                }
+
                 Impresora.imprimirReciboPago(res.pago._id, this.props.api_key, {
-                    conf: {
-                        marginLeft: res.impresora.marginLeft,
-                        paperWidth: res.impresora.paperWidth,
-                    }
+                    conf: conf
                 })
 
                 // en lo que se agrega el módulo de listado y reimpresiones
                 Impresora.imprimirReciboPago(res.pago._id, this.props.api_key, {
-                    conf: {
-                        marginLeft: res.impresora.marginLeft,
-                        paperWidth: res.impresora.paperWidth,
-                    }
+                    conf: conf
                 })
             }
 

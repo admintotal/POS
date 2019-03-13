@@ -21,11 +21,15 @@ class RecepcionPagoComponent extends React.Component {
         })
     }
 
+    onSincronizar() {
+
+    }
+
 
     render() {
         const recepcion_pago = this.props
         const abonos = Object.values(recepcion_pago.abonos)
-        console.log(recepcion_pago)
+        
         return (
             <div className="QuickView RecepcionPagoComponent">
                 <div className="overlay" onClick={e => this.props.cerrarRecepcionPago()}></div>
@@ -176,6 +180,10 @@ class RecepcionPagoComponent extends React.Component {
                             }
                         } catch(e) {
 
+                        }
+
+                        if (this.props.onSincronizar) {
+                            this.props.onSincronizar()
                         }
 
                     }} ref={btn => this.btnReenviar = btn} className="btn btn-success btn-block">Sincronizar</button>

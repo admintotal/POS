@@ -2079,7 +2079,6 @@ exports.imprimirReciboPago = (req, res) => {
             conf: conf.configuracion,
             impresora: conf.impresora ? conf.impresora : {},
             pago: pago,
-            app_version: d.pago,
             almacen: almacen,
             mostrarDirFiscal: mostrarDirFiscal,
             titulo: `pago_${pago.uuid}`

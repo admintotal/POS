@@ -237,12 +237,12 @@ export function verVenta(venta, habilitarEnvioEdicion=false, eventos={}) {
   };
 }
 
-export function verRecepcionPago(recepcionPago, habilitarEnvioEdicion=false, eventos={}) {
+export function verRecepcionPago(recepcionPago, eventos={}) {
   let {onSincronizar} = eventos
+  console.log(onSincronizar)
   return {
     type: action.VER_RECEPCION_PAGO,
     recepcionPago: recepcionPago,
-    habilitarEnvioEdicion: habilitarEnvioEdicion,
     onSincronizar: onSincronizar,
   };
 }

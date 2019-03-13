@@ -265,6 +265,7 @@ exports.guardarPago = (req, res) => {
                 logger.log('error', e)
                 return res.json({
                     status: 'error',
+                    imprimir: imprimir,
                     message: e.message,
                     pago: p
                 })

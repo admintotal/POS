@@ -4,7 +4,13 @@ import moment from 'moment';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as Api from '../api';
-import {cargando, mensajeFlash, mostrarAlerta, verRecepcionPago} from '../actions';
+import {
+    cargando, 
+    mensajeFlash, 
+    mostrarAlerta, 
+    verRecepcionPago, 
+    sincronizarRecepcionesPago
+} from '../actions';
 import * as Impresora from '../impresoras';
 import TituloComponent from '../components/TituloComponent';
 import Paginador from '../components/PaginadorComponent';
@@ -51,14 +57,6 @@ class RecepcionesPago extends React.Component {
             this.props.mensajeFlash('error', err)
             this.props.cargando(false)
         })
-    }
-
-    sincronizarVentas() {
-        
-    }
-
-    sincronizarVenta(id) {
-
     }
 
     changeFiltro(campo, v) {
@@ -117,6 +115,34 @@ class RecepcionesPago extends React.Component {
         Impresora.imprimirReciboPago(o._id, this.props.api_key)
     }
 
+    verRecepcionPago(recepcionPago) {
+        this.props.verRecepcionPago(
+            recepcionPago, 
+            {
+                onSincronizar: () => {
+                    this.obtenerRecepcionesPago()
+                }
+            }
+        )
+    }
+
+    async sincronizar() {
+        if (this.btnSincronizar) {
+            this.btnSincronizar.disabled = true
+        }
+
+        try {
+            await this.props.sincronizarRecepcionesPago(this.props.api_key)
+            this.obtenerRecepcionesPago()
+        } catch (e) {
+            console.error(e)
+        }
+
+        if (this.btnSincronizar) {
+            this.btnSincronizar.disabled = false
+        }
+    }
+
     render() {
         let objects = this.state.objects || []
         let autorizadoListado = this.state.autorizadoListado
@@ -136,6 +162,12 @@ class RecepcionesPago extends React.Component {
             	<TituloComponent texto="Recepciones de Pago"></TituloComponent>
 
                 <div className="text-right">
+                    <button 
+                        ref={(btn) => {this.btnSincronizar = btn}}
+                        onClick={this.sincronizar.bind(this)} 
+                        className="btn btn-info mr-1">
+                        Sincronizar
+                    </button>
                     <Link to="/recepcion-pago" className="btn btn-primary">
                         Nueva Recepción de Pago
                     </Link>
@@ -236,17 +268,17 @@ class RecepcionesPago extends React.Component {
                     			{ objects.map((rp) => {
                     				return (
                                     <tr>
-                                        <td>
+                                        <td onClick={e => { this.verRecepcionPago(rp) }}>
                                             {rp.sincronizado ?
                                             <span className="badge badge-success">Si</span> :
                                             <span className="badge badge-default">Pendiente</span>
                                             }
                                         </td>
-                                        <td onClick={e => { this.props.verRecepcionPago(rp) }}>{rp.referencia}</td>
-                                        <td onClick={e => { this.props.verRecepcionPago(rp) }}>{moment(rp.fecha).format('DD/MM/YYYY HH:mm')}</td>
-                                        <td onClick={e => { this.props.verRecepcionPago(rp) }}>{rp.cliente.razon_social}</td>
-                                        <td onClick={e => { this.props.verRecepcionPago(rp) }} className="text-right">${formatCurrency(rp.importe)}</td>
-                                        <td onClick={e => { this.props.verRecepcionPago(rp) }} className="text-right">${formatCurrency(rp.totalAplicado)}</td>
+                                        <td onClick={e => { this.verRecepcionPago(rp) }}>{rp.referencia}</td>
+                                        <td onClick={e => { this.verRecepcionPago(rp) }}>{moment(rp.fecha).format('DD/MM/YYYY HH:mm')}</td>
+                                        <td onClick={e => { this.verRecepcionPago(rp) }}>{rp.cliente.razon_social}</td>
+                                        <td onClick={e => { this.verRecepcionPago(rp) }} className="text-right">${formatCurrency(rp.importe)}</td>
+                                        <td onClick={e => { this.verRecepcionPago(rp) }} className="text-right">${formatCurrency(rp.totalAplicado)}</td>
                                         <td className="text-right">
                                             <button 
                                                 onClick={this.handleImprimir.bind(this, rp)} 
@@ -284,7 +316,8 @@ const mapDispatchToProps = dispatch => bindActionCreators({
     cargando,
     mensajeFlash,
     verRecepcionPago,
-    mostrarAlerta
+    mostrarAlerta,
+    sincronizarRecepcionesPago
 }, dispatch);
 
 export default connect(

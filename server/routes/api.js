@@ -21,7 +21,11 @@ const productoCodigoBarrasCantidad = async (q, almacen, DB) => {
     if (q.length == 13 && q.startsWith(prefijo)) {
         let codigo_producto = q.slice(3, 7)
         let cantidad = q.slice(-6, -1)
-        let p = await DB.productos.findOne({codigo: codigo_producto, almacen: almacen, activo: true})
+        let p = await DB.productos.findOne({
+            codigo: codigo_producto, 
+            almacen: almacen, 
+            activo: true
+        })
         cantidad = parseFloat(cantidad) / parseFloat(1000)
 
         if (p && p.venta_cb_cantidad) {
@@ -37,7 +41,6 @@ const productoCodigoBarrasCantidad = async (q, almacen, DB) => {
     return {
         status: 'error'
     }
-
 }
 
 exports.clientes = (req, res) => {
@@ -2023,22 +2026,6 @@ exports.imprimirVoucherTransaccion = (req, res) => {
     })
 }
 
-exports.imprimirVoucherPago = (req, res) => {
-    db._getDB(req.query.api_key).then(async (dbCliente) => {
-        let recepcionPago = await dbCliente.recepciones_pago.findOne({_id: req.params.id})
-        let conf = await dbCliente.conf.findOne({})
-        let t = await helpers.voucherToHtml(recepcionPago.cobroTarjeta.getRspVoucher, req.params.tipo, conf.impresora)
-        return res.send(t)
-    })
-    .catch((e) => {
-        logger.log('error', e)
-        return res.json({
-            status: 'error',
-            message: e || 'El token especificado es inválido'
-        })
-    })
-}
-
 exports.imprimirRecibo = (req, res) => {
     db._getDB(req.query.api_key).then(async (dbCliente) => {
         let docVenta = await dbCliente.ventas.findOne({_id: req.params.id})
@@ -2056,32 +2043,6 @@ exports.imprimirRecibo = (req, res) => {
             almacen: almacen,
             mostrarDirFiscal: mostrarDirFiscal,
             titulo: `venta_${conf.numero_serie}-${venta.folio}`
-        })
-    })
-    .catch((e) => {
-        logger.log('error', e)
-        return res.json({
-            status: 'error',
-            message: e || 'El token especificado es inválido'
-        })
-    })
-}
-
-exports.imprimirReciboPago = (req, res) => {
-    db._getDB(req.query.api_key).then(async (dbCliente) => {
-        let docPago = await dbCliente.recepciones_pago.findOne({_id: req.params.id})
-        let conf = await dbCliente.conf.findOne({})
-        let pago = Object.assign({}, docPago)
-        let almacen = pago.almacen
-        let mostrarDirFiscal = conf.configuracion.facturacion.mostrar_direccion_fiscal && !almacen.es_sucursal 
-        
-        return res.render('impresiones/recibo_pago.html', {
-            conf: conf.configuracion,
-            impresora: conf.impresora ? conf.impresora : {},
-            pago: pago,
-            almacen: almacen,
-            mostrarDirFiscal: mostrarDirFiscal,
-            titulo: `pago_${pago.uuid}`
         })
     })
     .catch((e) => {

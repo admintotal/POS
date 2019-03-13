@@ -297,3 +297,45 @@ exports.obtenerDatosForm = (req, res) => {
         }
     })
 }
+
+exports.imprimirReciboPago = (req, res) => {
+    db._getDB(req.query.api_key).then(async (dbCliente) => {
+        let docPago = await dbCliente.recepciones_pago.findOne({_id: req.params.id})
+        let conf = await dbCliente.conf.findOne({})
+        let pago = Object.assign({}, docPago)
+        let almacen = pago.almacen
+        let mostrarDirFiscal = conf.configuracion.facturacion.mostrar_direccion_fiscal && !almacen.es_sucursal 
+        
+        return res.render('impresiones/recibo_pago.html', {
+            conf: conf.configuracion,
+            impresora: conf.impresora ? conf.impresora : {},
+            pago: pago,
+            almacen: almacen,
+            mostrarDirFiscal: mostrarDirFiscal,
+            titulo: `pago_${pago.uuid}`
+        })
+    })
+    .catch((e) => {
+        logger.log('error', e)
+        return res.json({
+            status: 'error',
+            message: e || 'El token especificado es inválido'
+        })
+    })
+}
+
+exports.imprimirVoucherPago = (req, res) => {
+    db._getDB(req.query.api_key).then(async (dbCliente) => {
+        let recepcionPago = await dbCliente.recepciones_pago.findOne({_id: req.params.id})
+        let conf = await dbCliente.conf.findOne({})
+        let t = await helpers.voucherToHtml(recepcionPago.cobroTarjeta.getRspVoucher, req.params.tipo, conf.impresora)
+        return res.send(t)
+    })
+    .catch((e) => {
+        logger.log('error', e)
+        return res.json({
+            status: 'error',
+            message: e || 'El token especificado es inválido'
+        })
+    })
+}

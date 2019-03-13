@@ -160,9 +160,7 @@ router.route('/obtener-ultimo-folio/:serie').get(apiKeyMiddleware, api.obtenerUl
 // ventas
 router.route('/imprimir-hoja-prueba').get(apiKeyMiddleware, api.imprimirHojaPrueba)
 router.route('/imprimir/recibo-venta/:id').get(apiKeyMiddleware, api.imprimirRecibo)
-router.route('/imprimir/recibo-pago/:id').get(apiKeyMiddleware, api.imprimirReciboPago)
 router.route('/imprimir/voucher-venta/:id/:tipo').get(apiKeyMiddleware, api.imprimirVoucher)
-router.route('/imprimir/voucher-pago/:id/:tipo').get(apiKeyMiddleware, api.imprimirVoucherPago)
 router.route('/imprimir/voucher-venta/:id/:tipo/:idCobro').get(apiKeyMiddleware, api.imprimirVoucher)
 router.route('/imprimir/voucher-transaccion/:id/:tipo').get(apiKeyMiddleware, api.imprimirVoucherTransaccion)
 router.route('/imprimir/fondo-caja/:tipo/:idSesion').get(apiKeyMiddleware, api.imprimirFondoCaja)
@@ -194,6 +192,8 @@ router.route('/pagos').get(apiKeyMiddleware, pagos.recepcionesPago)
 router.route('/pagos/obtener-datos-form').get(apiKeyMiddleware, pagos.obtenerDatosForm)
 router.route('/pagos/sincronizar-pago/:id').get(apiKeyMiddleware, pagos.sincronizarPago)
 router.route('/pagos/guardar-pago').post(apiKeyMiddleware, pagos.guardarPago)
+router.route('/imprimir/recibo-pago/:id').get(apiKeyMiddleware, pagos.imprimirReciboPago)
+router.route('/imprimir/voucher-pago/:id/:tipo').get(apiKeyMiddleware, pagos.imprimirVoucherPago)
 
 // sincronizaciones
 router.route('/sincronizar/productos').get(apiKeyMiddleware, sincronizar.productos)

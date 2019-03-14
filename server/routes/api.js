@@ -1761,6 +1761,9 @@ exports.ventas = (req, res) => {
 exports.venta = (req, res) => {
     db._getDB(req.query.api_key).then(async (dbCliente) => {
         let venta = await dbCliente.ventas.findOne({_id: req.params.id})
+        
+        venta.cliente = await dbCliente.clientes.findOne({id: venta.cliente.id})
+
         if (venta) {
             return res.json({
                 status: 'success',
@@ -1849,6 +1852,8 @@ exports.pedido = (req, res) => {
             p.producto = producto
             return p
         })
+
+        pedido.cliente = await dbCliente.clientes.findOne({id: pedido.cliente.id})
 
         return Promise.all(proms).then((productos) => {
             pedido.productos = productos

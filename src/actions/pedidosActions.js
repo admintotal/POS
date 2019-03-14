@@ -1,9 +1,10 @@
 import * as actions from '../constants/ActionTypes';
 
 
-export function entregarDomicilio() {
+export function entregarDomicilio(fecha_entrega={}) {
   return {
     type: actions.PEDIDOS_ENTREGAR_DOMICILIO,
+    fecha_entrega: fecha_entrega
   }
 }
 

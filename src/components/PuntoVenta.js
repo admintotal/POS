@@ -9,6 +9,7 @@ import TituloComponent from './TituloComponent';
 import FechaEntregaComponent from './FechaEntregaComponent';
 import CobrosTarjetaComponent from './CobrosTarjetaComponent';
 import PromocionesProductoComponent from './PromocionesProductoComponent';
+import DireccionesEntregaSelectComponent from './DireccionesEntregaSelectComponent';
 import * as Api from '../api';
 import { 
     ClienteAutocompleteView, 
@@ -58,7 +59,8 @@ import {
     precisionDecimales, 
     getClienteObj, 
     getSesionCajaObj, 
-    getProductoObj
+    getProductoObj,
+    getHoraEntrega
 } from '../helpers';
 import Draggable from 'react-draggable';
 import moment from 'moment';
@@ -105,29 +107,8 @@ class PuntoVentaComponent extends React.Component {
         this.timeoutIdCliente = null
     }
 
-    handleSeleccionarDireccionEntrega(ev) {
-        let id = ev.target.value;
+    handleSeleccionarDireccionEntrega(id) {
         this.props.seleccionarDireccionEntrega(id)
-    }
-
-    renderDirecciones(direcciones) {
-        const ds = [];
-        if (direcciones) {
-            direcciones.map(direccion => {
-                return ds.push(
-                    <option value={direccion.id} key={`direccion-${direccion.id}`}>
-                        {direccion.direccion_completa}
-                    </option>
-                );
-            });
-        }
-
-        return (
-            <select className="form-control" onChange={this.handleSeleccionarDireccionEntrega.bind(this)}>
-                <option value="">Mismo Lugar</option>
-                {ds}
-            </select>
-        );
     }
 
     onChangeCliente(ev) {
@@ -1651,48 +1632,49 @@ class PuntoVentaComponent extends React.Component {
                                 <fieldset>
                                     <div className="row mb-1">
                                         <div className="col-12">
-                                            <ul className="list-inline mb-0">
-                                                <li className="d-inline-block mr-3">
-                                                    <div className="form-group">
-                                                        <label className="control control-checkbox">
-                                                            Requiere factura
-                                                            <input 
-                                                                type="checkbox"
-                                                                checked={this.props.requiereFactura}
-                                                                onChange={(ev) => {
-                                                                    this.props.requerirFactura()
-                                                                }}
-                                                            />
-                                                            <div className="control_indicator"></div>
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                                <li className="d-inline-block mr-3">
-                                                    <div className="form-group">
-                                                        <label className="control control-checkbox">
-                                                            Entregar a domicilio
-                                                            <input 
-                                                                type="checkbox"
-                                                                checked={this.props.entregaDomicilio}
-                                                                onChange={(ev) => {
-                                                                    if (this.props.entregaDomicilio) {
-                                                                        this.props.entregarDomicilio()
-                                                                    } else {
-                                                                        this.setState({
-                                                                            modalFechaEntrega: {
-                                                                                ...this.state.modalFechaEntrega,
-                                                                                visible: true
-                                                                            }
-                                                                        })
-                                                                    }
-                                                                    // this.props.entregarDomicilio()
-                                                                }}
-                                                            />
-                                                            <div className="control_indicator"></div>
-                                                        </label>
-                                                    </div>
-                                                </li>
-                                            </ul>
+                                            <div className="d-flex align-items-top">
+                                                <div className="form-group mr-2">
+                                                    <label className="control control-checkbox">
+                                                        Requiere factura
+                                                        <input 
+                                                            type="checkbox"
+                                                            checked={this.props.requiereFactura}
+                                                            onChange={(ev) => {
+                                                                this.props.requerirFactura()
+                                                            }}
+                                                        />
+                                                        <div className="control_indicator"></div>
+                                                    </label>
+                                                </div>
+                                                <div className="form-group mr-2">
+                                                    <label className="control control-checkbox">
+                                                        Entregar a domicilio
+                                                        <input 
+                                                            type="checkbox"
+                                                            checked={this.props.entregaDomicilio}
+                                                            onChange={(ev) => {
+                                                                if (this.props.entregaDomicilio) {
+                                                                    this.props.entregarDomicilio()
+                                                                } else {
+                                                                    this.setState({
+                                                                        modalFechaEntrega: {
+                                                                            ...this.state.modalFechaEntrega,
+                                                                            visible: true
+                                                                        }
+                                                                    })
+                                                                }
+                                                                // this.props.entregarDomicilio()
+                                                            }}
+                                                        />
+                                                        <div className="control_indicator"></div>
+                                                    </label>
+                                                    { Boolean(this.props.fechaEntregaDomicilio && this.props.fechaEntregaDomicilio.fecha) &&
+                                                    <small class="d-block text-info py-1 border-bottom">
+                                                        <i className="ion-android-car"></i> {this.props.fechaEntregaDomicilio.fecha} de {getHoraEntrega(this.props.fechaEntregaDomicilio.horaA)} a {getHoraEntrega(this.props.fechaEntregaDomicilio.horaB)}
+                                                    </small>
+                                                    }
+                                                </div>
+                                            </div>
                                         </div>
                                         <div className="col-7">
                                             <div className="form-group">
@@ -1752,7 +1734,12 @@ class PuntoVentaComponent extends React.Component {
                                         <div className="col">
                                             <div className="form-group">
                                                 <label htmlFor="">Dirección Entrega:</label>
-                                                {this.renderDirecciones(cliente.direcciones_entrega)}
+                                                <DireccionesEntregaSelectComponent
+                                                    direcciones={cliente.direcciones_entrega}
+                                                    value={this.props.direccionEntrega ? this.props.direccionEntrega.id : null}
+                                                    onChange={this.handleSeleccionarDireccionEntrega.bind(this)}
+                                                >
+                                                </DireccionesEntregaSelectComponent>
                                             </div>
                                         </div>
                                     </div>
@@ -1764,7 +1751,7 @@ class PuntoVentaComponent extends React.Component {
                                                 <select 
                                                     onChange={(e) => { this.props.seleccionarUsoCFDI(e.target.value) }} 
                                                     className="form-control" 
-                                                    defaultValue={this.props.uso_cfdi}>
+                                                    value={this.props.uso_cfdi}>
                                                     { this.props.configuracion.facturacion.uso_cfdi.map((elem) => {
                                                         return <option value={elem.id} key={`usocfdi-${elem.id}`}>{elem.value}</option>
                                                       })
@@ -2575,7 +2562,6 @@ class PuntoVentaComponent extends React.Component {
                             horaA={this.props.fechaEntregaDomicilio.horaA}
                             horaB={this.props.fechaEntregaDomicilio.horaB}
                             handleAceptar={(fecha_entrega) => {
-                                debugger
                                 this.props.entregarDomicilio(fecha_entrega)
                                 this.setState({
                                     modalFechaEntrega: {

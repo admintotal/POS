@@ -13,6 +13,7 @@ const defaultState = () => {
 
         entregaDomicilio: false,
         direccionEntrega: null,
+        fechaEntregaDomicilio: {},
 
         productos: [],
         extra_fields: {},
@@ -37,7 +38,12 @@ export default function pedidos(state={...defaultState()}, action: actionType) {
             return { ...state, cliente: action.cliente, ac_cliente: action.cliente.razon_social }
 
     	case actions.PEDIDOS_ENTREGAR_DOMICILIO:
-            return { ...state, entregaDomicilio: !state.entregaDomicilio }
+            let entregaDomicilio = Boolean(action.fecha_entrega.fecha)
+            return { 
+                ...state, 
+                entregaDomicilio: entregaDomicilio, 
+                fechaEntregaDomicilio: {...action.fecha_entrega}
+            }
     	
     	case actions.PEDIDOS_SELECCIONAR_DIRECCION_ENTREGA:
             let direccionEntrega = null;

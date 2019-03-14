@@ -5,7 +5,9 @@ import Autocomplete from 'react-autocomplete';
 import TituloComponent from './TituloComponent';
 import TotalesComponent from './TotalesComponent';
 import InlineProductoComponent from './InlineProductoComponent';
+import DireccionesEntregaSelectComponent from './DireccionesEntregaSelectComponent';
 import PromocionesProductoComponent from './PromocionesProductoComponent';
+import FechaEntregaComponent from './FechaEntregaComponent';
 import * as Api from '../api';
 import { 
 	ClienteAutocompleteView, 
@@ -37,7 +39,8 @@ import {
 import {
     getClienteObj, 
     getAlmacenObj, 
-    getProductoObj
+    getProductoObj,
+    getHoraEntrega
 } from '../helpers';
 
 import InputNumber from 'rc-input-number';
@@ -53,6 +56,7 @@ class PedidoFormComponent extends React.Component {
 			...props,
 			cantidad: 1,
 			modalUmProducto: null,
+			modalFechaEntrega: {},
 			guardar: {
 				habilitado: true,
 				texto: 'Guardar'
@@ -62,29 +66,8 @@ class PedidoFormComponent extends React.Component {
 		this.timeoutId = null
 	}
 
-	handleSeleccionarDireccionEntrega(ev) {
-		let id = ev.target.value;
+	handleSeleccionarDireccionEntrega(id) {
 		this.props.seleccionarDireccionEntrega(id)
-	}
-
-	renderDirecciones(direcciones) {
-		const ds = [];
-		if (direcciones) {
-			direcciones.map(direccion => {
-				return ds.push(
-					<option value={direccion.id} key={`direccion-${direccion.id}`}>
-						{direccion.direccion_completa}
-					</option>
-				);
-			});
-		}
-
-		return (
-			<select className="form-control" onChange={this.handleSeleccionarDireccionEntrega.bind(this)}>
-				<option value="">Mismo Lugar</option>
-				{ds}
-			</select>
-		);
 	}
 
 	onChangeCliente(ev) {
@@ -181,7 +164,7 @@ class PedidoFormComponent extends React.Component {
 		const state = this.props
 		const infoValida = [
 			'_id', 'cliente', 'productos', 'uso_cfdi', 'direccionEntrega', 'extra_fields',
-			'total', 'totalDescuento', 'totalArticulos', 'entregaDomicilio', 'usuario'
+			'total', 'totalDescuento', 'totalArticulos', 'entregaDomicilio', 'usuario', 'fechaEntregaDomicilio'
 		]
 
 		for(let k in state) {
@@ -202,6 +185,11 @@ class PedidoFormComponent extends React.Component {
 
             p.producto = getProductoObj(p.producto)
         })
+
+        if (!data.entregaDomicilio) {
+            delete data.fechaEntregaDomicilio
+        }
+
 		return data
 	}
 
@@ -319,6 +307,7 @@ class PedidoFormComponent extends React.Component {
         let productos = this.props.productos //this.props.productos.slice().reverse()
         let modalPromocionesProducto = this.state.modalPromocionesProducto
         let modalUmProducto = this.state.modalUmProducto
+        let modalFechaEntrega = this.state.modalFechaEntrega.visible
 
         return (
         	<div className="container-fluid mt-2">
@@ -335,14 +324,30 @@ class PedidoFormComponent extends React.Component {
 													<label className="control control-checkbox">
 														Entregar a domicilio
 														<input 
-															type="checkbox"
-															checked={this.props.entregaDomicilio}
-															onChange={(ev) => {
-																this.props.entregarDomicilio()
-															}}
-														/>
+                                                            type="checkbox"
+                                                            checked={this.props.entregaDomicilio}
+                                                            onChange={(ev) => {
+                                                                if (this.props.entregaDomicilio) {
+                                                                    this.props.entregarDomicilio()
+                                                                } else {
+                                                                    this.setState({
+                                                                        modalFechaEntrega: {
+                                                                            ...this.state.modalFechaEntrega,
+                                                                            visible: true
+                                                                        }
+                                                                    })
+                                                                }
+                                                                // this.props.entregarDomicilio()
+                                                            }}
+                                                        />
 														<div className="control_indicator"></div>
 													</label>
+
+													{ Boolean(this.props.fechaEntregaDomicilio && this.props.fechaEntregaDomicilio.fecha) &&
+													<small class="d-block text-info py-1 border-bottom">
+														<i className="ion-android-car"></i> {this.props.fechaEntregaDomicilio.fecha} de {getHoraEntrega(this.props.fechaEntregaDomicilio.horaA)} a {getHoraEntrega(this.props.fechaEntregaDomicilio.horaB)}
+													</small>
+													}
 												</div>
 											</li>
 										</ul>
@@ -367,7 +372,12 @@ class PedidoFormComponent extends React.Component {
 									<div className="col">
 										<div className="form-group">
 											<label htmlFor="">Dirección Entrega:</label>
-											{this.renderDirecciones(cliente.direcciones_entrega)}
+											<DireccionesEntregaSelectComponent
+												direcciones={cliente.direcciones_entrega}
+												value={this.props.direccionEntrega ? this.props.direccionEntrega.id : null}
+												onChange={this.handleSeleccionarDireccionEntrega.bind(this)}
+											>
+											</DireccionesEntregaSelectComponent>
 										</div>
 									</div>
 								</div>
@@ -379,7 +389,7 @@ class PedidoFormComponent extends React.Component {
 											<select 
 												onChange={(e) => { this.props.seleccionarUsoCFDI(e.target.value) }} 
 												className="form-control" 
-												defaultValue={this.props.uso_cfdi}>
+												value={this.props.uso_cfdi}>
 												{ this.props.configuracion.facturacion.uso_cfdi.map((elem) => {
 													return <option value={elem.id} key={`usocfdi-${elem.id}`}>{elem.value}</option>
 												  })
@@ -527,6 +537,31 @@ class PedidoFormComponent extends React.Component {
 						</div>
 					</div>
 					}
+
+					{ modalFechaEntrega &&
+                        <FechaEntregaComponent
+                        fecha={this.props.fechaEntregaDomicilio.fecha}
+                        horaA={this.props.fechaEntregaDomicilio.horaA}
+                        horaB={this.props.fechaEntregaDomicilio.horaB}
+                        handleAceptar={(fecha_entrega) => {
+                            this.props.entregarDomicilio(fecha_entrega)
+                            this.setState({
+                                modalFechaEntrega: {
+                                    ...this.state.modalFechaEntrega,
+                                    visible: false
+                                }
+                            })
+                        }}
+                        handleCancelar={() => {
+                            this.setState({
+                                modalFechaEntrega: {
+                                    ...this.state.modalFechaEntrega,
+                                    visible: false
+                                }
+                            })
+                        }}
+                        ></FechaEntregaComponent>
+                    }
 				</div>
 			</div>
         )

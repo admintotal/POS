@@ -44,7 +44,7 @@ export function* loginAsync(action) {
 						)
 
 						if (folioStatus.status === 'success') {
-							loginData.siguienteFolio = folioStatus.ultimo_folio
+							loginData.siguienteFolio = folioStatus.ultimo_folio + 1
 						} else {
 							yield put({
 								type: actions.MOSTRAR_ALERTA, 
@@ -400,15 +400,24 @@ export function* guardarVentaAsync(action) {
 			})
 		}
 
-		// siguiente folio 
-		yield put({type: actions.PV_SIGUIENTE_FOLIO, siguienteFolio: data.venta.folio + 1})
+		// siguiente folio solo si la venta guardada no es factura
+		if ( !data.venta.requiereFactura ) {
+			yield put({
+				type: actions.PV_SIGUIENTE_FOLIO, 
+				siguienteFolio: data.venta.folio + 1
+			})
+		}
 
 	} catch(err) {
-		console.error(err)
 		yield put({type: actions.CARGANDO, mostrar: false});
+		
 		if (err.cobrosPinpad) {
-			yield put({type: actions.PV_SET_COBROS_PINPAD, cobrosPinpad: err.cobrosPinpad});
+			yield put({
+				type: actions.PV_SET_COBROS_PINPAD, 
+				cobrosPinpad: err.cobrosPinpad
+			})
 		}
+
 		let mensaje = err.message || JSON.stringify(err)
 		try {
 			if (('cobroPinpad' in err) && err.cobroPinpad) {

@@ -123,8 +123,8 @@
     }
   },
   "window": {
-    "title": "Admintotal v1.1.33",
-    "icon": "./public/logo.png",
+    "title": "Admintotal v1.1.32",
+    "icon": "./logo.png",
     "width": 1133,
     "min_width": 1000,
     "position": "center",

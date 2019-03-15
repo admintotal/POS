@@ -1025,7 +1025,9 @@ exports.guardarVenta = (req, res) => {
             d = await dbCliente.ventas.findOne({_id: venta_id})
         } else {
             d = await dbCliente.ventas.insert(venta)
-            await dbCliente.conf.update({}, {$set: {folio_inicial: venta.folio + 1}})
+            if (!venta.requiereFactura) {
+                await dbCliente.conf.update({}, {$set: {folio_inicial: venta.folio + 1}})
+            }
         }
 
         let clienteDefault = conf.configuracion.facturacion.cliente_mostrador_default;
@@ -1166,7 +1168,7 @@ exports.guardarVenta = (req, res) => {
 
                 await dbCliente.ventas.update({_id: d._id}, {$set: d})
                 
-                if (!d.timbrada) {
+                if ( !d.timbrada ) {
                     let msg = d.motivoError
                     logger.log('error', msg)
                     return res.json({
@@ -1176,6 +1178,7 @@ exports.guardarVenta = (req, res) => {
                         ventaGuardada: true
                     })
                 }
+                
             } catch(e) {
                 logger.log('error', e)
                 
@@ -1441,7 +1444,9 @@ exports.cobrarVentaTarjeta = (req, res) => {
             borrador.tarjeta.cobros = []
             borrador.app_version = process.env.APP_VERSION
             venta = await dbCliente.ventas.insert(borrador)
-            await dbCliente.conf.update({}, {$set: {folio_inicial: venta.folio + 1}})
+            if ( !venta.requiereFactura ) {
+                await dbCliente.conf.update({}, {$set: {folio_inicial: venta.folio + 1}})
+            }
         }
 
         let servicioCobro = null
@@ -1535,7 +1540,8 @@ exports.cobrarVentaTarjeta = (req, res) => {
                     numero_serie: ventaObj.numero_serie, 
                     fecha: venta.fecha
                 })
-                if (insert) {
+
+                if (insert && !venta.requiereFactura) {
                     await dbCliente.conf.update({}, {$set: {folio_inicial: venta.folio + 1}})
                 }
            }

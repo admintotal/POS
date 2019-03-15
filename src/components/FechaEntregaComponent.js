@@ -11,9 +11,9 @@ class FechaEntregaComponent extends React.Component {
 	constructor(props) {
 		super(props)
 		this.state = {
-			fecha: null,
-			horaA: null,
-			horaB: null
+			fecha: props.fecha,
+			horaA: props.horaA,
+			horaB: props.horaB
 		}
 	}
 
@@ -32,7 +32,10 @@ class FechaEntregaComponent extends React.Component {
 			return this.props.mensajeFlash('error', 'Especifique el horario de entrega.')
 		}
 
-		this.props.handleAceptar(this.state)
+		this.props.handleAceptar({
+			...this.state,
+			fecha: this.state.fecha
+		})
 	}
 
     render() {
@@ -44,25 +47,25 @@ class FechaEntregaComponent extends React.Component {
 	            <div className="form-group">
 	                <label htmlFor="">Fecha:</label>
 	                <ReactDatetime
-	                	value={this.props.fecha}
+	                	value={this.state.fecha}
 	                    ref={(picker) => {this.pickerFecha = picker }}
 	                    isValidDate={(current) => {
-	                        let valid = current.isAfter(moment())
-	                        return valid
+	                        return current.isAfter(moment())
 	                    }}
+	                    timeFormat={false}
 	                    inputProps={{
 	                        className:"form-control",
 	                        onBlur: () => {
 	                            setTimeout(() => this.pickerFecha.closeCalendar(), 550)
 	                        }
 	                    }}
-	                    onChange={(d) => {
-	                    	if (typeof d === "string" && d !== "") {
+	                    onChange={(date) => {
+	                    	if (!date || (typeof date === "string" && date !== "")) {
 				                return 
 				            }
 
 	                    	this.setState({
-	                    		fecha: d.format("YYYY-MM-YY")
+	                    		fecha: date.format("YYYY-MM-DD")
 	                    	})
 	                    }}
 	                 />
@@ -75,7 +78,7 @@ class FechaEntregaComponent extends React.Component {
 	            			<select 
 		            			className="form-control"
 		            			ref={(input) => {this.horaA = input }}
-		            			value={this.props.horaA}
+		            			value={this.state.horaA}
 		            			onChange={(ev) => {
 			                    	this.setState({
 			                    		horaA: ev.target.value
@@ -93,7 +96,7 @@ class FechaEntregaComponent extends React.Component {
 	            		<div className="form-group">
 	            			<label htmlFor="">A:</label>
 	            			<select 
-	            				value={this.props.horaB}
+	            				value={this.state.horaB}
 	            				ref={(input) => {this.horaB = input }}
 	            				className="form-control"
 	            				onChange={(ev) => {

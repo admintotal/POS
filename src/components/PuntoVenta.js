@@ -18,8 +18,6 @@ import {
 } from '../constants/AutocompleteTemplates';
 import { 
     seleccionarDireccionEntrega, 
-    //autocompleteProducto, 
-    //autocompleteCliente, 
     seleccionarCliente, 
     seleccionarProducto,
     seleccionarMetodoPago,
@@ -1553,6 +1551,7 @@ class PuntoVentaComponent extends React.Component {
         let habilitarDescuentosAutorizados = Boolean((facturacion.descuentos_autorizados_venta || []).length)
         let porPagar = this.props.cambio > 0 ? 0 : Math.abs(this.props.cambio)
         let modalFechaEntrega = this.state.modalFechaEntrega.visible
+        let fechaEntregaDomicilio = this.props.fechaEntregaDomicilio || {}
 
         if (habilitarPinpad) {
             pinpadModoPruebas = pinpad.modoPruebas
@@ -1668,9 +1667,9 @@ class PuntoVentaComponent extends React.Component {
                                                         />
                                                         <div className="control_indicator"></div>
                                                     </label>
-                                                    { Boolean(this.props.fechaEntregaDomicilio && this.props.fechaEntregaDomicilio.fecha) &&
+                                                    { Boolean(fechaEntregaDomicilio && fechaEntregaDomicilio.fecha) &&
                                                     <small class="d-block text-info py-1 border-bottom">
-                                                        <i className="ion-android-car"></i> {this.props.fechaEntregaDomicilio.fecha} de {getHoraEntrega(this.props.fechaEntregaDomicilio.horaA)} a {getHoraEntrega(this.props.fechaEntregaDomicilio.horaB)}
+                                                        <i className="ion-android-car"></i> {fechaEntregaDomicilio.fecha} de {getHoraEntrega(fechaEntregaDomicilio.horaA)} a {getHoraEntrega(fechaEntregaDomicilio.horaB)}
                                                     </small>
                                                     }
                                                 </div>
@@ -2558,9 +2557,9 @@ class PuntoVentaComponent extends React.Component {
 
                         { modalFechaEntrega &&
                             <FechaEntregaComponent
-                            fecha={this.props.fechaEntregaDomicilio.fecha}
-                            horaA={this.props.fechaEntregaDomicilio.horaA}
-                            horaB={this.props.fechaEntregaDomicilio.horaB}
+                            fecha={fechaEntregaDomicilio.fecha}
+                            horaA={fechaEntregaDomicilio.horaA}
+                            horaB={fechaEntregaDomicilio.horaB}
                             handleAceptar={(fecha_entrega) => {
                                 this.props.entregarDomicilio(fecha_entrega)
                                 this.setState({

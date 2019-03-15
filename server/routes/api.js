@@ -927,6 +927,10 @@ exports.guardarVenta = (req, res) => {
         if (venta.total == 0 && !conf.permitir_vender_en_cero) {
             return res.json({status: 'error', message: 'No es posible vender en cero'})
         }
+
+        if (!venta.entregaDomicilio) {
+            delete venta.fechaEntregaDomicilio
+        }
         
         delete venta['sesionCaja']['cajero']['autorizaciones']
         delete venta['sesionCaja']['denominaciones']
@@ -1559,6 +1563,10 @@ exports.guardarPedido = (req, res) => {
         let pedido = req.body
         let conf = await dbCliente.conf.findOne({})
         let d = {}
+
+        if (!pedido.entregaDomicilio) {
+            delete pedido.fechaEntregaDomicilio
+        }
         
         if (! pedido._id ) {
             delete pedido._id

@@ -565,14 +565,6 @@ module.exports.banorte = {
             }
         }
     },
-
-    validarComunicacionPinpad: () => {
-        module.exports.banorte.logger.log('info', `Validando comunicacion con la pinpad...`)
-        let info = java.newInstanceSync('java.util.HashMap', 5);
-        process.pinpadInstance.obtenerInformacionSync(info)
-        let serie = info.getSync('NUMERO_SERIE')
-        return serie && serie !== ''
-    },
     
     cobrarVenta: (venta) => {
         if (!java) {
@@ -613,13 +605,6 @@ module.exports.banorte = {
         parametrosEntrada.putSync("IDIOMA_RESPUESTA", "ES");
         parametrosEntrada.putSync("URL_BANORTE", "https://via.pagosbanorte.com/InterredesSeguro");
 
-        if (!module.exports.banorte.validarComunicacionPinpad()) {
-            return {
-                'status': 'error',
-                'mensaje': 'No se pudo obtener el número de serie de la pinpad.',
-            }
-        }
-        
         try {
             let resultado = {}
             module.exports.banorte.logger.log('info', `[${module.exports.banorte.banco}] ENV: ${pinpadEnv}`)

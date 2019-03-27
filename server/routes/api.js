@@ -1466,11 +1466,12 @@ exports.cobrarVentaTarjeta = (req, res) => {
             switch(servicioCobro) {
                 case conf.pinpad.banco:
                     logger.log('info', `Iniciando el cobro con pinpad de la venta ${venta.numero_serie}-${venta.folio} por el monto de $${venta.tarjeta.monto}`)
-                    try{
+                    try {
                         let statusCobro = await helpers.cobrarVentaPinpad(venta, conf)
 
                         try {
-                            if (statusCobro.cobroPinpad.datos && statusCobro.cobroPinpad.datos.referencia) {
+                            // se guarda el registro de la transacción en caso de tener los datos
+                            if (statusCobro.cobroPinpad && statusCobro.cobroPinpad.datos && statusCobro.cobroPinpad.datos.referencia) {
                                 docTrans = await dbCliente.transacciones_pp.insert({
                                     tipoTransaccion: 'venta',
                                     fecha: moment().toISOString(),
@@ -1482,7 +1483,6 @@ exports.cobrarVentaTarjeta = (req, res) => {
                                     }
                                 })
                             }
-
                         } catch(e) {
                             logger.log('error', e)
                         }
@@ -1496,7 +1496,6 @@ exports.cobrarVentaTarjeta = (req, res) => {
                             await setMontoTarjetaCobrado({venta, dbCliente})
                             return res.json(statusCobro)
                         }
-
                     } catch(e) {
                         logger.log('error', e.message || 'Error al realizar el cobro')
 

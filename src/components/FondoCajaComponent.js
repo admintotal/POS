@@ -110,6 +110,11 @@ class FondoCajaComponent extends React.Component {
 
 	handleSubmit() {
 		let data = this.getFondoData()
+		let maxTotal = 9999999999
+		if (data.totalFondo > maxTotal) {
+			this.props.mostrarAlerta({mensaje: `El total no puede ser mayor a ${formatCurrency(maxTotal)}.`})
+			return false
+		}
 
 		switch(this.props.tipo) {
 			case "abrirCaja":

@@ -2828,14 +2828,17 @@ exports.solicitudTransaccionPinpad = async (req, res) =>  {
 
 exports.eliminarDatos = async (req, res) => {
     db._getDB(req.query.api_key).then(async (dbCliente) => {
-        let hasta = moment().subtract(6, 'day').endOf('day').toISOString()
+        let hasta = moment().subtract(6, 'day').endOf('day')
         
         let ultimaVenta = await dbCliente.ventas.cfind({}).sort({fecha: -1}).limit(1).exec()
+        let backupsBasePath = `${db.storagePath('backups')}/${hasta.format('DD-MM-YY')}`
         let ventasEliminadas = []
+        
+        hasta = hasta.toISOString()
 
         if (ultimaVenta.length) {
             ventasEliminadas = await helpers.respaldarDatos({
-                dirBase: db.storagePath('backups'),
+                dirBase: backupsBasePath,
                 nombreArchivo: 'ventas.json',
                 coleccion: dbCliente.ventas,
                 filtro: {
@@ -2851,7 +2854,7 @@ exports.eliminarDatos = async (req, res) => {
 
         // retiros
         let retirosEliminados = await helpers.respaldarDatos({
-            dirBase: db.storagePath('backups'),
+            dirBase: backupsBasePath,
             nombreArchivo: 'retiros.json',
             coleccion: dbCliente.retiros,
             filtro: {
@@ -2864,7 +2867,7 @@ exports.eliminarDatos = async (req, res) => {
 
         // transacciones pinpad
         let transaccionesPPEliminados = await helpers.respaldarDatos({
-            dirBase: db.storagePath('backups'),
+            dirBase: backupsBasePath,
             nombreArchivo: '_tpp.json',
             coleccion: dbCliente.transacciones_pp,
             filtro: {
@@ -2875,7 +2878,7 @@ exports.eliminarDatos = async (req, res) => {
 
         // sesiones_caja
         let sesionesCajaEliminados = await helpers.respaldarDatos({
-            dirBase: db.storagePath('backups'),
+            dirBase: backupsBasePath,
             nombreArchivo: 'sesiones_caja.json',
             coleccion: dbCliente.sesiones_caja,
             filtro: {
@@ -2886,7 +2889,7 @@ exports.eliminarDatos = async (req, res) => {
 
         // pedidos
         let pedidosEliminados = await helpers.respaldarDatos({
-            dirBase: db.storagePath('backups'),
+            dirBase: backupsBasePath,
             nombreArchivo: 'pedidos.json',
             coleccion: dbCliente.pedidos,
             filtro: {

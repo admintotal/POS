@@ -3,7 +3,7 @@ const moment = require('moment')
 const pjson = require('../package.json')
 const cryptoNw = require('crypto')
 const integracionesPinpad = require(`./lib/pinpad`).integraciones
-const fs = require('fs')
+const fs = require('fs-extra')
 
 let openedPorts = {};
 
@@ -779,22 +779,16 @@ exports.respaldarDatos = async (opts) => {
                 return false
             }
 
-            let backupDayPath = `${dirBase}/${moment().format('DD-MM-YY')}/`
             let datos = await coleccion.find(filtro)
             let eliminados = 0
                 
             // crea el directorio base de backups en caso de no existir
             if (! fs.existsSync(dirBase) ){
-                fs.mkdirSync(dirBase)
-            }
-
-            // crea el directorio para los respaldos por dia
-            if (! fs.existsSync(backupDayPath) ){
-                fs.mkdirSync(backupDayPath)
+                fs.ensureDirSync(dirBase)
             }
             
             if (datos.length) {
-                fs.appendFileSync(`${backupDayPath}/${nombreArchivo}`, JSON.stringify(datos, null, 0) , 'utf-8')
+                fs.appendFileSync(`${dirBase}/${nombreArchivo}`, JSON.stringify(datos, null, 0) , 'utf-8')
                 eliminados = await coleccion.remove(filtro, {multi: true})
             }
 

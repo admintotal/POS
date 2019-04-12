@@ -3,6 +3,7 @@ const moment = require('moment')
 const pjson = require('../package.json')
 const cryptoNw = require('crypto')
 const integracionesPinpad = require(`./lib/pinpad`).integraciones
+const fs = require('fs')
 
 let openedPorts = {};
 
@@ -766,4 +767,40 @@ exports.getVentasError = async (opts) => {
 
     let ventas = await db.ventas.find({error: true}, proj || {})
     return ventas
+}
+
+exports.respaldarDatos = async (opts) => {
+    const logger = require('./logger').logger
+    return new Promise(async (resolve, reject) => {
+        try {
+            let {dirBase, nombreArchivo, coleccion, filtro} = opts
+            
+            if (!coleccion || !filtro) {
+                return false
+            }
+
+            let backupDayPath = `${dirBase}/${moment().format('DD-MM-YY')}/`
+            let datos = await coleccion.find(filtro)
+            let eliminados = 0
+                
+            // crea el directorio base de backups en caso de no existir
+            if (! fs.existsSync(dirBase) ){
+                fs.mkdirSync(dirBase)
+            }
+
+            // crea el directorio para los respaldos por dia
+            if (! fs.existsSync(backupDayPath) ){
+                fs.mkdirSync(backupDayPath)
+            }
+            
+            if (datos.length) {
+                fs.appendFileSync(`${backupDayPath}/${nombreArchivo}`, JSON.stringify(datos, null, 0) , 'utf-8')
+                eliminados = await coleccion.remove(filtro, {multi: true})
+            }
+
+            resolve(eliminados)
+        } catch(e) {
+            reject(e)
+        }
+    })
 }

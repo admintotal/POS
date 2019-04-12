@@ -2834,26 +2834,74 @@ exports.eliminarDatos = async (req, res) => {
         let ventasEliminadas = []
 
         if (ultimaVenta.length) {
-            ventasEliminadas = await dbCliente.ventas.remove({
-                _id: {$ne: ultimaVenta[0]._id},
-                fecha: {$lt: hasta},
-                sincronizada: true, 
-                error: {$exists: false}
-            }, {multi: true})
+            ventasEliminadas = await helpers.respaldarDatos({
+                dirBase: db.storagePath('backups'),
+                nombreArchivo: 'ventas.json',
+                coleccion: dbCliente.ventas,
+                filtro: {
+                    _id: {$ne: ultimaVenta[0]._id},
+                    fecha: {$lt: hasta},
+                    sincronizada: true, 
+                    error: {$exists: false}
+                },
+            })
 
             logger.log('info', `${ventasEliminadas} ventas han sido eliminadas.`)
         }
 
-        let retirosEliminados = await dbCliente.retiros.remove({
-            fecha: {$lt: hasta},
-            sincronizado: true, 
-            error: {$exists: false}
-        }, {multi: true})
+        // retiros
+        let retirosEliminados = await helpers.respaldarDatos({
+            dirBase: db.storagePath('backups'),
+            nombreArchivo: 'retiros.json',
+            coleccion: dbCliente.retiros,
+            filtro: {
+                fecha: {$lt: hasta},
+                sincronizado: true, 
+                error: {$exists: false}
+            },
+        })
+        logger.log('info', `${retirosEliminados} retiros han sido eliminados.`)
+
+        // transacciones pinpad
+        let transaccionesPPEliminados = await helpers.respaldarDatos({
+            dirBase: db.storagePath('backups'),
+            nombreArchivo: '_tpp.json',
+            coleccion: dbCliente.transacciones_pp,
+            filtro: {
+                fecha: {$lt: hasta}
+            },
+        })
+        logger.log('info', `${transaccionesPPEliminados} transaccioens han sido eliminados.`)
+
+        // sesiones_caja
+        let sesionesCajaEliminados = await helpers.respaldarDatos({
+            dirBase: db.storagePath('backups'),
+            nombreArchivo: 'sesiones_caja.json',
+            coleccion: dbCliente.sesiones_caja,
+            filtro: {
+                'inicio.fecha': {$lt: hasta}
+            },
+        })
+        logger.log('info', `${sesionesCajaEliminados} sesiones de caja han sido eliminados.`)
+
+        // pedidos
+        let pedidosEliminados = await helpers.respaldarDatos({
+            dirBase: db.storagePath('backups'),
+            nombreArchivo: 'pedidos.json',
+            coleccion: dbCliente.pedidos,
+            filtro: {
+                'fecha': {$lt: hasta}
+            },
+        })
+        logger.log('info', `${pedidosEliminados} pedidos han sido eliminados.`)
 
         return res.json({
             status: 'success',
             ventasEliminadas: ventasEliminadas,
             retirosEliminados: retirosEliminados,
+            transaccionesPPEliminados: transaccionesPPEliminados,
+            sesionesCajaEliminados: sesionesCajaEliminados,
+            pedidosEliminados: pedidosEliminados,
         })
 
     }).catch((e) => {

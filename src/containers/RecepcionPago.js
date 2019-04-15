@@ -316,6 +316,11 @@ class RecepcionPago extends React.Component {
         }
     }
 
+    async limpiarForm() {
+        await this.props.limpiarForm()
+        this.consultarDatos()
+    }
+
     render() {
     	let cliente = this.props.form.cliente
         let cuentas = this.props.form.cuentas
@@ -349,12 +354,12 @@ class RecepcionPago extends React.Component {
             	<div className="container-fluid">
                     <div className="row">
                         <div className="col-md-6">
-                            <button onClick={(e) => {this.props.limpiarForm(); this.props.history.push('/recepciones-pago')}} className="btn btn-link text-muted font-weight-bold">
+                            <button onClick={(e) => {this.limpiarForm(); this.props.history.push('/recepciones-pago')}} className="btn btn-link text-muted font-weight-bold">
                                 Cancelar
                             </button>
                         </div>
                         <div className="col-md-6 text-right">
-                            <button className="btn btn-link text-danger font-weight-bold" onClick={(e) => {this.props.limpiarForm()}}>
+                            <button className="btn btn-link text-danger font-weight-bold" onClick={(e) => {this.limpiarForm()}}>
                                 Limpiar Formulario
                             </button>
                         </div>

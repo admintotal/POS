@@ -113,6 +113,7 @@ exports.guardarPago = (req, res) => {
             pago.cajero = pago.usuario
             pago.almacen = conf.almacen
             pago.app_version = process.env.APP_VERSION
+            tipo_pago_seleccionado = pago.tipo_pago
 
             if (!Array.isArray(pago.tarjeta.cobros)) {
                 pago.tarjeta.cobros = []
@@ -206,7 +207,9 @@ exports.guardarPago = (req, res) => {
             }
             
             if (('tipos_pago_tarjeta' in pago) && pago.tarjeta.tipo_tarjeta) {
-                pago.tipo_pago = pago.tipos_pago_tarjeta[pago.tarjeta.tipo_tarjeta]
+                if (pago.tipos_pago_tarjeta[pago.tarjeta.tipo_tarjeta]) {
+                    pago.tipo_pago = pago.tipos_pago_tarjeta[pago.tarjeta.tipo_tarjeta]
+                }
                 delete pago.tipos_pago_tarjeta
             }
 

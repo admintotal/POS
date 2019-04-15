@@ -2898,6 +2898,17 @@ exports.eliminarDatos = async (req, res) => {
         })
         logger.log('info', `${pedidosEliminados} pedidos han sido eliminados.`)
 
+        // recepciones_pago
+        let recepcionesPagoEliminados = await helpers.respaldarDatos({
+            dirBase: backupsBasePath,
+            nombreArchivo: 'recepciones_pago.json',
+            coleccion: dbCliente.recepciones_pago,
+            filtro: {
+                'fecha': {$lt: hasta}
+            },
+        })
+        logger.log('info', `${recepcionesPagoEliminados} recepciones de pago han sido eliminados.`)
+
         return res.json({
             status: 'success',
             ventasEliminadas: ventasEliminadas,

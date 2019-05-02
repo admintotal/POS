@@ -155,7 +155,6 @@ async function descargar(api_key, coleccion, options) {
 
 			        if (!forzarDescarga && conf.sincronizaciones[coleccion].error) {
 			        	// error guarda los parametros de la peticion en la que ocurrió el error
-			        	console.log("Error detectado !!!!")
 			        	let error_params = conf.sincronizaciones[coleccion].error
 			        	error_params.data.api_key = opts.data.api_key
 			        	opts = error_params

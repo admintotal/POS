@@ -84,20 +84,20 @@ exports.login = (req, res) => {
 					
 					// consultamos y guardamos los almacenes
 					// TODO: cambiar por un método
-					api._get({path: '/almacenes', data: {api_key: session.api_token, limit: 100}}).then((response) => {
-						response.objects.map((almacen) => {
-							DB.almacenes.update({id: almacen.id}, {$set: almacen}, {upsert: true})
+					try {
+						response = await api._get({path: '/almacenes', data: {api_key: session.api_token, limit: 100}})
+						response.objects.forEach(async (almacen) => {
+							await DB.almacenes.update({id: almacen.id}, {$set: almacen}, {upsert: true})
 						})
-					})
-					.catch((error) => {
+					} catch(err) {
 
-					})
-
+					}
+					
 					let usuario = await DB.usuarios.findOne({id: session.id})
 					if (usuario.sesion_caja) {
 						if (!moment(usuario.sesion_caja.fecha).isSame(moment(), "day")) {
 							usuario.sesion_caja = null
-							DB.usuarios.update({id: session.id}, {$set: {sesion_caja: null}})
+							await DB.usuarios.update({id: session.id}, {$set: {sesion_caja: null}})
 						}
 					}
 					
@@ -120,7 +120,6 @@ exports.login = (req, res) => {
 					return res.json(result)
 					break;
 			}
-
 		}).catch(async (err) => {
 			// intento de login con los datos almacenados
 			let usuario = await DB.usuarios.findOne({username: req.body.usuario})
@@ -151,7 +150,16 @@ exports.login = (req, res) => {
 				process.env._AK = usuario.api_token
 				process.env.NUMERO_SERIE = conf.numero_serie
 				
-				conf['sesion_caja'] = usuario.sesion_caja
+				if (usuario.sesion_caja) {
+					logger.log('info', `Sesión de caja activa: ${usuario.sesion_caja.cajero.username}`)
+					
+					if (!moment(usuario.sesion_caja.fecha).isSame(moment(), "day")) {
+						logger.log('info', `Ignorando sesión activa.`)
+						usuario.sesion_caja = null
+						await DB.usuarios.update({_id: usuario._id}, {$set: {sesion_caja: null}})
+					}
+					
+				}
 
 				return res.json({
 					status: 'success', 

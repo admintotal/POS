@@ -826,15 +826,16 @@ exports.cerrarSesionCaja = (req, res) => {
 
         await dbCliente.usuarios.update({'id':cierre.cajero.id}, {$set: {sesion_caja: null}})
         await dbCliente.sesiones_caja.update({'inicio.fecha':cierre.inicio.fecha}, {$set: cierre})
-        await dbCliente.ventas.update({'sesionCaja.fecha':cierre['inicio'].fecha}, {$set: {'sesionCaja.cierre': cierre['fin']}})
-        let conf = await dbCliente.conf.findOne({})
         
+        // await dbCliente.ventas.update({'sesionCaja.fecha':cierre['inicio'].fecha}, {$set: {'sesionCaja.cierre': cierre['fin']}})
+        let conf = await dbCliente.conf.findOne({}, {impresora: 1})
         let imprimir = conf.impresora ? true : false
+        
         return res.json({
             status: 'success',
             sesion_caja: cierre['fin'],
             imprimir: imprimir,
-            impresora: conf.impresora
+            // impresora: conf.impresora
         })
     })
     .catch((e) => {

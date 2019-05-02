@@ -2832,7 +2832,7 @@ exports.eliminarDatos = async (req, res) => {
         let hasta = moment().subtract(6, 'day').endOf('day')
         
         let ultimaVenta = await dbCliente.ventas.cfind({}).sort({fecha: -1}).limit(1).exec()
-        let backupsBasePath = `${db.storagePath('backups')}/${hasta.format('DD-MM-YY')}`
+        let backupsBasePath = `${db.storagePath('backups')}/${dbCliente.claveCliente}/${hasta.format('DD-MM-YY')}`
         let ventasEliminadas = []
         
         hasta = hasta.toISOString()

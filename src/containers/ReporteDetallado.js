@@ -119,6 +119,17 @@ class ReporteDetallado extends React.Component {
 
 	}
 
+	imprimirCortePinpad() {
+		Impresora.imprimirCortePinPad(this.props.api_key, this.state.datos.fin._id)
+        .then(() => {
+
+        })
+        .catch((err) => {
+            this.props.mensajeFlash('error', 'Hubo un error al imprmir el voucher.')
+
+        })
+	}
+
 	imprimirRetiro(retiro) {
         Impresora.imprimirRetiroEfectivo(this.props.api_key, retiro._id)
         .then(() => {
@@ -152,6 +163,11 @@ class ReporteDetallado extends React.Component {
 					</fieldset>
 				</div>
 				<div className="col-md-5">
+					{ Boolean(this.state.datos.fin && this.state.datos.fin.corte_pinpad && this.state.datos.fin.corte_pinpad.transacciones) &&
+						<button ref={button => this.btnImprimirCortePinpad = button } onClick={this.imprimirCortePinpad.bind(this)} className="btn btn-light btn-block">
+							<i className="ion-printer"></i> Imprimir Corte Pinpad
+						</button>
+					}
 					<button ref={button => this.btnValidarVentas = button } onClick={this.validarVentasAt.bind(this)} className="btn btn-primary btn-block">
 						Validar ventas con admintotal
 					</button>

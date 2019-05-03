@@ -2121,23 +2121,22 @@ exports.imprimirCortePinPad = (req, res) => {
     db._getDB(req.query.api_key).then(async (dbCliente) => {
         let f = {}
         let conf = await dbCliente.conf.findOne({})
-        let titulo = 'Corte pinpad'
+        let titulo = 'Corte Pinpad'
         let sesion = await dbCliente.sesiones_caja.findOne({
-            _id: req.params.idSesion
+            'fin._id': req.params.idSesion
         })
+
         if (!sesion) {
             throw new Error('La sesión solicitada no existe.')
         }
-        
         
         return res.render('impresiones/corte_pinpad.html', {
             general: conf.configuracion.general,
             inventario: conf.configuracion.inventario,
             sesion: sesion,
-            tipo: tipo,
             titulo: titulo,
             impresora: conf.impresora ? conf.impresora : {},
-            tituloPagina: `${titulo} - ${sesion.fecha}`
+            tituloPagina: `${titulo} ${moment(sesion.inicio.fecha).format('DD/MM/YY HH:mm')} - ${moment(sesion.fin.fecha).format('DD/MM/YY HH:mm')}`
         })
     })
     .catch((e) => {

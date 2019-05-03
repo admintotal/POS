@@ -808,7 +808,7 @@ exports.cerrarSesionCaja = (req, res) => {
         
         cierre.almacen = cierre['inicio']['almacen']        
         cierre['fin']._id = uniqid()
-
+        
         let apiData = {api_key: req.query.api_key}
         apiData.sessionCaja = cierre['inicio']
         apiData.sessionCaja.cierre = cierre['fin']
@@ -2099,6 +2099,38 @@ exports.imprimirFondoCaja = (req, res) => {
         }
         
         return res.render('impresiones/fondo_caja.html', {
+            general: conf.configuracion.general,
+            inventario: conf.configuracion.inventario,
+            sesion: sesion,
+            tipo: tipo,
+            titulo: titulo,
+            impresora: conf.impresora ? conf.impresora : {},
+            tituloPagina: `${titulo} - ${sesion.fecha}`
+        })
+    })
+    .catch((e) => {
+        logger.log('error', e)
+        return res.json({
+            status: 'error',
+            message: e || 'El token especificado es inválido'
+        })
+    })
+}
+
+exports.imprimirCortePinPad = (req, res) => {
+    db._getDB(req.query.api_key).then(async (dbCliente) => {
+        let f = {}
+        let conf = await dbCliente.conf.findOne({})
+        let titulo = 'Corte pinpad'
+        let sesion = await dbCliente.sesiones_caja.findOne({
+            _id: req.params.idSesion
+        })
+        if (!sesion) {
+            throw new Error('La sesión solicitada no existe.')
+        }
+        
+        
+        return res.render('impresiones/corte_pinpad.html', {
             general: conf.configuracion.general,
             inventario: conf.configuracion.inventario,
             sesion: sesion,

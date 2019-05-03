@@ -164,6 +164,7 @@ router.route('/imprimir/voucher-venta/:id/:tipo').get(apiKeyMiddleware, api.impr
 router.route('/imprimir/voucher-venta/:id/:tipo/:idCobro').get(apiKeyMiddleware, api.imprimirVoucher)
 router.route('/imprimir/voucher-transaccion/:id/:tipo').get(apiKeyMiddleware, api.imprimirVoucherTransaccion)
 router.route('/imprimir/fondo-caja/:tipo/:idSesion').get(apiKeyMiddleware, api.imprimirFondoCaja)
+router.route('/imprimir/corte-pinpad/:idSesion').get(apiKeyMiddleware, api.imprimirCortePinPad)
 router.route('/imprimir/retiro-efectivo/:idRetiro').get(apiKeyMiddleware, api.imprimirRetiroEfectivo)
 router.route('/cobrar-venta-tarjeta').post(apiKeyMiddleware, api.cobrarVentaTarjeta)
 router.route('/cancelar-operacion-tarjeta').get(apiKeyMiddleware, api.cancelarOperacionTarjeta)

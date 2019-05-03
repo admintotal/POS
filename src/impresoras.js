@@ -115,6 +115,13 @@ export const imprimirFondoCaja = (tipo, api_key, id) => {
 	})
 }
 
+export const imprimirCortePinPad = (api_key, id) => {
+	return new Promise((resolve, reject) => {
+		let url = `http://localhost:3131/api/imprimir/corte-pinpad/${id}?api_key=${api_key}`
+		imprimirUrl(url)
+	})
+}
+
 export const imprimirRetiroEfectivo = (api_key, id) => {
 	return new Promise((resolve, reject) => {
 		let url = `http://localhost:3131/api/imprimir/retiro-efectivo/${id}?api_key=${api_key}`

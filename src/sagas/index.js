@@ -461,9 +461,11 @@ export function* cerrarSesionCajaAsync(action) {
 		} else {
 			let data = yield call(Api.cerrarSesionCaja, action.api_key, action.data)
 			yield put({type: actions.PV_LIMPIAR_SESION_CAJA})
-			
 			if (data.imprimir) {
 				Impresora.imprimirFondoCaja('fin', action.api_key, data.sesion_caja._id)
+				if (data.sesion_caja.corte_pinpad && data.sesion_caja.corte_pinpad.transacciones.length) {
+					Impresora.imprimirCortePinPad(action.api_key, data.sesion_caja._id)
+				}
 			}
 			yield put({type: actions.PV_NUEVA_VENTA})
 		}

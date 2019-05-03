@@ -1,0 +1,34 @@
+{% extends "./layout.html" %}
+
+{% block contenido %}
+<div class="ticket">
+	<h3 class="titulo">{{ titulo }}</h3>
+
+	<div>Fecha: {{ sesion.fecha|dateFormat('DD/MM/YYYY HH:mm') }}</div>
+	<div>Cajero: {{ sesion.cajero.username }}</div>
+	<div>{{ inventario.palabra_almacen }}: {{ sesion.almacen.nombre }}</div>
+	<br>
+	<table>
+		<thead>
+			<tr>
+				<th class="righttext">Ref</th>
+				<th class="righttext">Fecha</th>
+				<th class="righttext">Importe</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for d in sesion.corte_pinpad.transacciones %}
+				<tr>
+					<td class="righttext">{{ d.referencia }}</td>
+					<td class="righttext">{{ d.fecha }}</td>
+					<td class="righttext">${{ d.importe|cur }}</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	<hr>
+	<div>
+		Total PinPad: <b style="float:right">${{ sesion.corte_pinpad.total|cur }}</b>
+	</div>	
+</div>
+{% endblock contenido %}

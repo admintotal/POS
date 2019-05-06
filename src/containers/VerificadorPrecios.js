@@ -32,7 +32,6 @@ class VerificadorPrecios extends React.Component {
 
 		Api.getProducto(this.props.api_key, obj.id || value, porCodigo).then((res) => {
 			let producto = res.producto
-			console.log(producto)
 			this.setState({producto: producto, existenciaAt: res.existenciaAt})
 		})
 		.catch((err) => {

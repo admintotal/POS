@@ -32,6 +32,7 @@ class VerificadorPrecios extends React.Component {
 
 		Api.getProducto(this.props.api_key, obj.id || value, porCodigo).then((res) => {
 			let producto = res.producto
+			console.log(producto)
 			this.setState({producto: producto, existenciaAt: res.existenciaAt})
 		})
 		.catch((err) => {
@@ -74,6 +75,18 @@ class VerificadorPrecios extends React.Component {
 		if (e.target.value !== "") {
 			this._obtenerSeleccionarProducto(e.target.value)
 		}
+	}
+
+	changeUm(e) {
+		let um = this.state.producto.ums.find(u => {
+			return +u.id === +e.target.value
+		})
+		this.setState({
+			producto: {
+				...this.state.producto,
+				um: um
+			}
+		})
 	}
 
 	componentDidMount() {
@@ -129,22 +142,26 @@ class VerificadorPrecios extends React.Component {
 		            		<fieldset>
 			            		<div>
 			            			<div className="row">
+			            				{(Boolean(this.state.producto.imagen)) &&
 			            				<div className="col-md-4">
-			            					{(Boolean(this.state.producto.imagen)) &&
 					            			<div style={{width: '200px'}}>
 					            				<img src={this.state.producto.imagen} className="img-fluid" alt={this.state.producto.codigo} />
 					            			</div>
-					            			}
 			            				</div>
-			            				<div className="col-md-8">
-			            					<h4 className="text-muted text-right">
-				            					<span className="text-primary">{this.state.producto.codigo}</span> - 
+					            		}
+			            				<div className="col">
+			            					<div className="text-primary">{this.state.producto.codigo}</div>
+			            					<h4 className="text-muted">
 				            					{this.state.producto.descripcion}
 				            				</h4>
-			            					<h2 className="text-success text-right mb-0">
-				            					${formatCurrency(this.state.producto.precio_neto)}
+			            					<h2 className="text-success mb-0">
+				            					${formatCurrency(this.state.producto.precio_neto * this.state.producto.um.factor)}
 				            				</h2>
-				            				{this.state.producto.um && <div className="text-right text-muted">{this.state.producto.um.nombre}</div>}
+				            				<select  onChange={this.changeUm.bind(this)} className="form-control" value={this.state.producto.um.id}>
+				            					{ this.state.producto.ums.map(um => {
+				            						return (<option value={um.id} key={um.id}>{um.nombre}</option>)
+				            					})}
+				            				</select>
 			            				</div>
 			            			</div>
 		            			</div>

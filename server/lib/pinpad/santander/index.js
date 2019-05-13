@@ -123,7 +123,9 @@ module.exports.santander = {
                     tarjeta: datos.chkCc_Number,
                     mesExp: datos.chkCc_ExpMonth,
                     anioExp: datos.chkCc_ExpYear,
-                    tipoTarjeta: datos.CardType,
+                    aid: datos.chkCc_AID,
+                    al: datos.chkCc_AIDLabel,
+                    tipoTarjeta: datos.chkCc_AIDLabel,
                     moneda: datos.DescripcionMoneda,
                     importe: datos.importe,
                 }
@@ -189,6 +191,8 @@ module.exports.santander = {
                     terminal: cobroPinpad.chkPp_Serial,
                     getRspVoucher: cobroPinpad.getRspVoucher,
                     getRspCdResponse: cobroPinpad.getRspCdResponse,
+                    aid: cobroPinpad.chkCc_AID,
+                    al: cobroPinpad.chkCc_AIDLabel,
                     codigoError: cobroPinpad.errCode,
                     referencia: cobroPinpad.getTx_Reference
                 }
@@ -230,6 +234,8 @@ module.exports.santander = {
                 tarjetahabiente: cobroPinpad.chkCc_Name.trim(),
                 importe: cobroPinpad.getTx_Amount,
                 terminal: cobroPinpad.chkPp_Serial,
+                aid: cobroPinpad.chkCc_AID,
+                al: cobroPinpad.chkCc_AIDLabel,
                 getRspVoucher: cobroPinpad.getRspVoucher,
                 referencia: cobroPinpad.getTx_Reference
             }

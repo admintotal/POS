@@ -104,11 +104,12 @@ class CobrosTarjetaComponent extends React.Component {
 						</thead>
 						<tbody>
 						{ cobros.map((c, i) => {
+							console.log(c)
 							return (
 							<tr key={`ct-${i}`}>
 								<td>{c.datos.autorizacion}</td>
 								<td>
-									#{getNumeroTarjeta(c.datos.noTarjeta)}
+									#{getNumeroTarjeta(c.datos.noTarjeta)} {Boolean(c.datos.al) && <small class="text-muted text-lowercase">({c.datos.al})</small>}
 								</td>
 								<td>{c.datos.tarjetahabiente}</td>
 								<td className="text-right">

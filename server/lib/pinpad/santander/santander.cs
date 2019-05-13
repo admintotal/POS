@@ -185,12 +185,16 @@ public class Startup {
                     cpIntegraEMV.dbgSetCurrency("MXN");
                     cpIntegraEMV.dbgStartTxEMV(total);
 
+
+
                     if (cpIntegraEMV.chkPp_CdError() == "")
                     {
                         string chkCc_Number = cpIntegraEMV.chkCc_Number();
                         string chkCc_Name = cpIntegraEMV.chkCc_Name();
                         string chkCc_ExpMonth = cpIntegraEMV.chkCc_ExpMonth();
                         string chkCc_ExpYear = cpIntegraEMV.chkCc_ExpYear();
+                        string chkCc_AID = cpIntegraEMV.chkCc_AID();
+                        string chkCc_AIDLabel = cpIntegraEMV.chkCc_AIDLabel();
                         string errMsg = "";
 
                         string CardType = "V/MC";
@@ -206,6 +210,8 @@ public class Startup {
                         resultado.Add("chkCc_Name", chkCc_Name);
                         resultado.Add("chkCc_ExpMonth", chkCc_ExpMonth);
                         resultado.Add("chkCc_ExpYear", chkCc_ExpYear);
+                        resultado.Add("chkCc_AID", chkCc_AID);
+                        resultado.Add("chkCc_AIDLabel", chkCc_AIDLabel);
                         resultado.Add("CardType", CardType);
                         resultado.Add("DescripcionMoneda", DescripcionMoneda);
                         resultado.Add("importe", total);
@@ -298,6 +304,8 @@ public class Startup {
                         string chkCc_Name = cpIntegraEMV.chkCc_Name();
                         string chkCc_ExpMonth = cpIntegraEMV.chkCc_ExpMonth();
                         string chkCc_ExpYear = cpIntegraEMV.chkCc_ExpYear();
+                        string chkCc_AID = cpIntegraEMV.chkCc_AID();
+                        string chkCc_AIDLabel = cpIntegraEMV.chkCc_AIDLabel();
                         string errMsg = "";
 
                         /* Ocultar popup MSI, Contado, etc */
@@ -351,6 +359,8 @@ public class Startup {
                                 resultadoCobro.Add("chkCc_Name", chkCc_Name);
                                 resultadoCobro.Add("chkCc_ExpMonth", chkCc_ExpMonth);
                                 resultadoCobro.Add("chkCc_ExpYear", chkCc_ExpYear);
+                                resultadoCobro.Add("chkCc_AID", chkCc_AID);
+                                resultadoCobro.Add("chkCc_AIDLabel", chkCc_AIDLabel);
                                 resultadoCobro.Add("getTx_Amount", cpIntegraEMV.getTx_Amount());
                                 resultadoCobro.Add("getRspOperationNumber", cpIntegraEMV.getRspOperationNumber());
                                 resultadoCobro.Add("getRspAuth", cpIntegraEMV.getRspAuth());

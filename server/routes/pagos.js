@@ -112,6 +112,12 @@ exports.guardarPago = (req, res) => {
             }
             pago.cajero = pago.usuario
             pago.almacen = conf.almacen
+
+            if (usuario.sesion_caja) {
+                pago.sesion_caja = helpers.cloneObject(usuario.sesion_caja)
+                delete pago.sesion_caja.cajero
+            }
+            
             pago.app_version = process.env.APP_VERSION
             tipo_pago_seleccionado = pago.tipo_pago
 

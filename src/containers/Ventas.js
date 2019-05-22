@@ -119,15 +119,41 @@ class Ventas extends React.Component {
 
     handleImprimirVenta(v) {
         let conf = {}
-        if (this.props.configuracion.impresora) {
-            conf.marginLeft = this.props.configuracion.impresora.marginLeft;
-            conf.paperWidth = this.props.configuracion.impresora.paperWidth;
+        let permiso = 'reimprimir_recibo_nota_venta'
+        let usuario = this.props.usuario
+
+        let imprimir = () => {
+            if (this.props.configuracion.impresora) {
+                conf.marginLeft = this.props.configuracion.impresora.marginLeft;
+                conf.paperWidth = this.props.configuracion.impresora.paperWidth;
+            }
+
+            Impresora.imprimirReciboVenta(v._id, this.props.api_key, {
+                url: v.urlReciboVenta,
+                conf: conf
+            })
         }
 
-        Impresora.imprimirReciboVenta(v._id, this.props.api_key, {
-            url: v.urlReciboVenta,
-            conf: conf
-        })
+        if (!usuario.superuser && !usuario.permisos[permiso]) {
+            return this.setState({
+                solicitarAutorizacion: {
+                    autorizacion: permiso,
+                    onCancelar: () => {
+                        this.setState({solicitarAutorizacion: null})
+                    },
+                    onValidate: (autorizado) => {
+                        if (autorizado) {
+                            this.setState({solicitarAutorizacion: null})
+                            return imprimir()
+                        }
+
+                        this.props.mensajeFlash('error', 'Autorización incorrecta.')
+                    } 
+                }
+            })
+        }
+
+        imprimir()
     }
 
     exportarVentasConError() {
@@ -265,6 +291,7 @@ class Ventas extends React.Component {
         let retiros = this.state.retiros || {}
         let usuario = this.props.usuario
         let autorizadoListadoVentas = this.state.autorizadoListadoVentas
+        let solicitarAutorizacion = this.state.solicitarAutorizacion
         let modalEditarSerie = this.state.modalEditarSerie
 
         if (! autorizadoListadoVentas) {
@@ -273,6 +300,17 @@ class Ventas extends React.Component {
                     nombreAutorizacion='movimientos_notas_venta'
                     api_key={this.props.api_key} 
                     onValidar={this.onValidarAutorizacion.bind(this)}>
+                </IngresoAutorizacionComponent>
+            )
+        }
+
+        if (solicitarAutorizacion) {
+            return (
+                <IngresoAutorizacionComponent 
+                    nombreAutorizacion={solicitarAutorizacion.autorizacion}
+                    api_key={this.props.api_key} 
+                    onCancelar={this.state.solicitarAutorizacion.onCancelar.bind(this)}
+                    onValidar={this.state.solicitarAutorizacion.onValidate.bind(this)}>
                 </IngresoAutorizacionComponent>
             )
         }

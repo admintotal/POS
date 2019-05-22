@@ -1,5 +1,5 @@
 const helpers = require(`../../../helpers`);
-const moment = require('moment');
+const moment = require('moment-timezone');
 
 module.exports.santander = {
     instanciada: false,
@@ -217,7 +217,7 @@ module.exports.santander = {
 
         let finTransaccion = moment(cobroPinpad.getRspDate, 'DD/MM/YYYY').toISOString()
         if (fecha) {
-            finTransaccion = moment(fecha, 'DD/MM/YYYY HH:mm:ss').toISOString()
+            finTransaccion = moment(fecha, 'DD/MM/YYYY HH:mm:ss').tz("America/Mexico_City").toISOString()
         }
 
         return {

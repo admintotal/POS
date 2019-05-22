@@ -798,3 +798,21 @@ exports.respaldarDatos = async (opts) => {
         }
     })
 }
+
+exports.validarAutorizacion = async (nombreAutorizacion, usuario, autorizacion) => {
+    const logger = require('./logger').logger
+    logger.log('info', `Validando autorización a ${usuario.username}: ${nombreAutorizacion}`)
+    let permisos = Object.assign(usuario.permisos, usuario.autorizaciones)
+
+    if (usuario.superuser || permisos[nombreAutorizacion]) {
+        logger.log('info', `Autorizado: ${nombreAutorizacion}`)
+        return true
+    }
+
+    if (autorizacion) {
+
+    }
+
+    logger.log('info', `${usuario.username} no autorizado: ${nombreAutorizacion}`)
+    return false
+}

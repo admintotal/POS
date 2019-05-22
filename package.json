@@ -1,7 +1,7 @@
 {
   "name": "Admintotal",
   "env": "development",
-  "version": "1.1.36",
+  "version": "1.1.38",
   "description": "Admintotal Desktop",
   "main": "index.html",
   "keywords": [],
@@ -26,6 +26,7 @@
     "leveldown": "^3.0.0",
     "levelup": "^2.0.2",
     "moment": "^2.21.0",
+    "moment-timezone": "^0.5.25",
     "nedb": "^1.8.0",
     "nedb-promise": "^2.0.1",
     "node-emv": "^1.0.22",
@@ -123,7 +124,7 @@
     }
   },
   "window": {
-    "title": "Admintotal v1.1.36",
+    "title": "Admintotal v1.1.38",
     "icon": "./logo.png",
     "width": 1133,
     "min_width": 1000,

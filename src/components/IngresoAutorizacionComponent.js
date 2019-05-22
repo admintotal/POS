@@ -55,6 +55,9 @@ class IngresoAutorizacionComponent extends React.Component {
 	                        }
 	                        
 	                        <div className="form-group text-right">
+	                        	{Boolean(this.props.onCancelar) &&
+	                            <button className="btn btn-default" onClick={this.props.onCancelar}>Cancelar</button>
+	                        	}
 	                            <button className="btn btn-primary" onClick={this.validarAutorizacion.bind(this)}>Autorizar</button>
 	                        </div>
 	                    </fieldset>

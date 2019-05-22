@@ -8,8 +8,14 @@ import {cerrarVenta, mensajeFlash, mostrarAlerta} from '../actions';
 import { truncate, getNumeroTarjeta, getHoraEntrega } from '../helpers';
 import * as Api from '../api';
 import * as Impresora from '../impresoras';
+import IngresoAutorizacionComponent from '../components/IngresoAutorizacionComponent';
 
 class VentaComponent extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = {}
+    }
+
     reenviarVenta() {
         let btnText = ''
 
@@ -37,14 +43,38 @@ class VentaComponent extends React.Component {
     }
 
     reimprimirVoucher(tipo, cobroId=null) {
-        Impresora.imprimirVoucher(this.props._id, this.props.api_key, {tipo: tipo, cobroId: cobroId, re: 1})
-        .then(() => {
+        let usuario = this.props.usuario
+        let permiso = 'reimprimir_voucher_pinpad'
+        let imprimir = () => {
+            Impresora.imprimirVoucher(this.props._id, this.props.api_key, {tipo: tipo, cobroId: cobroId, re: 1})
+            .then(() => {
 
-        })
-        .catch((err) => {
-            this.props.mensajeFlash('error', 'Hubo un error al imprmir el voucher.')
+            })
+            .catch((err) => {
+                this.props.mensajeFlash('error', 'Hubo un error al imprmir el voucher.')
 
-        })
+            })
+        }
+
+        if (!usuario.superuser && !usuario.permisos[permiso]) {
+            return this.setState({
+                solicitarAutorizacion: {
+                    autorizacion: permiso,
+                    onCancelar: () => {
+                        this.setState({solicitarAutorizacion: null})
+                    },
+                    onValidate: (autorizado) => {
+                        if (autorizado) {
+                            this.setState({solicitarAutorizacion: null})
+                            return imprimir()
+                        }
+
+                        this.props.mensajeFlash('error', 'Autorización incorrecta.')
+                    } 
+                }
+            })
+        }
+
     }
 
     sincronizarVenta() {
@@ -64,6 +94,18 @@ class VentaComponent extends React.Component {
 
     render() {
         const venta = this.props
+        const solicitarAutorizacion = this.state.solicitarAutorizacion
+
+        if (solicitarAutorizacion) {
+            return (
+                <IngresoAutorizacionComponent 
+                    nombreAutorizacion={solicitarAutorizacion.autorizacion}
+                    api_key={this.props.api_key} 
+                    onCancelar={this.state.solicitarAutorizacion.onCancelar.bind(this)}
+                    onValidar={this.state.solicitarAutorizacion.onValidate.bind(this)}>
+                </IngresoAutorizacionComponent>
+            )
+        }
 
         return (
             <div className="QuickView VentaComponent">

@@ -1,5 +1,5 @@
 const api = require('../services')
-const moment = require('moment')
+const moment = require('moment-timezone')
 const db = require('../db')
 const logger = require('../logger').logger
 const uniqid = require('uniqid')

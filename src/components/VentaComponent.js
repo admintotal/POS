@@ -98,12 +98,18 @@ class VentaComponent extends React.Component {
 
         if (solicitarAutorizacion) {
             return (
-                <IngresoAutorizacionComponent 
-                    nombreAutorizacion={solicitarAutorizacion.autorizacion}
-                    api_key={this.props.api_key} 
-                    onCancelar={this.state.solicitarAutorizacion.onCancelar.bind(this)}
-                    onValidar={this.state.solicitarAutorizacion.onValidate.bind(this)}>
-                </IngresoAutorizacionComponent>
+                <div className="QuickView VentaComponent">
+                    <div className="overlay" onClick={e => this.props.cerrarVenta()}></div>
+                    <div className="box">
+                        <IngresoAutorizacionComponent 
+                            colCssClass='col-md-12'
+                            nombreAutorizacion={solicitarAutorizacion.autorizacion}
+                            api_key={this.props.api_key} 
+                            onCancelar={this.state.solicitarAutorizacion.onCancelar.bind(this)}
+                            onValidar={this.state.solicitarAutorizacion.onValidate.bind(this)}>
+                        </IngresoAutorizacionComponent>
+                    </div>
+                </div>
             )
         }
 
@@ -349,7 +355,8 @@ class VentaComponent extends React.Component {
 }
 
 const mapStateToProps = state => ({
-    api_key: state.app.api_key
+    api_key: state.app.api_key,
+    usuario: state.app.usuario
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({cerrarVenta, mensajeFlash, mostrarAlerta }, dispatch);

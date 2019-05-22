@@ -30,7 +30,7 @@ class IngresoAutorizacionComponent extends React.Component {
         return (
 	        <div className="container-fluid">
 	            <div className="row justify-content-center mt-5">
-	                <div className="col-md-6">
+	                <div className={this.props.colCssClass === undefined ? "col-md-6" : this.props.colCssClass}>
 	                    <h4 class="text-center text-primary">{this.props.titulo || 'Para continuar ingrese una clave de autorización.'}</h4>
 	                    <fieldset>
 	                        <div className="form-group">

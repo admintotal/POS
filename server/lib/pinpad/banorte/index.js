@@ -1,5 +1,5 @@
 const helpers = require(`../../../helpers`);
-const moment = require('moment');
+const moment = require('moment-timezone');
 let java = null;
 
 try{
@@ -358,8 +358,8 @@ module.exports.banorte = {
             let resultado = {}
             process.pinpadInstance.procesarTransaccionSync(parametrosEntrada, parametrosSalida)
             
-            let inicioTransaccion = moment(parametrosSalida.getSync('FECHA_REQ_CTE'), 'YYYY/MM/DD HH:mm:SS').toISOString()
-            let finTransaccion = moment(parametrosSalida.getSync('FECHA_RSP_CTE'), 'YYYY/MM/DD HH:mm:SS').toISOString()
+            let inicioTransaccion = moment.tz(parametrosSalida.getSync('FECHA_REQ_CTE'), 'YYYY/MM/DD HH:mm:SS', 'America/Mexico_City').tz('America/Hermosillo').toISOString()
+            let finTransaccion = moment.tz(parametrosSalida.getSync('FECHA_RSP_CTE'), 'YYYY/MM/DD HH:mm:SS', 'America/Mexico_City').tz('America/Hermosillo').toISOString()
 
             switch(parametrosSalida.getSync('RESULTADO_PAYW')) {
                 // APROBADA
@@ -474,8 +474,8 @@ module.exports.banorte = {
             let resultado = {}
             process.pinpadInstance.procesarTransaccionSync(parametrosEntrada, parametrosSalida)
             
-            let inicioTransaccion = moment(parametrosSalida.getSync('FECHA_REQ_CTE'), 'YYYY/MM/DD HH:mm:SS').toISOString()
-            let finTransaccion = moment(parametrosSalida.getSync('FECHA_RSP_CTE'), 'YYYY/MM/DD HH:mm:SS').toISOString()
+            let inicioTransaccion = moment.tz(parametrosSalida.getSync('FECHA_REQ_CTE'), 'YYYY/MM/DD HH:mm:SS', 'America/Mexico_City').tz('America/Hermosillo').toISOString()
+            let finTransaccion = moment.tz(parametrosSalida.getSync('FECHA_RSP_CTE'), 'YYYY/MM/DD HH:mm:SS', 'America/Mexico_City').tz('America/Hermosillo').toISOString()
 
             switch(parametrosSalida.getSync('RESULTADO_PAYW')) {
                 // APROBADA
@@ -611,8 +611,8 @@ module.exports.banorte = {
             
             process.pinpadInstance.procesarTransaccionSync(parametrosEntrada, parametrosSalida)
 
-            let inicioTransaccion = moment(parametrosSalida.getSync('FECHA_REQ_CTE'), 'YYYY/MM/DD HH:mm:SS').toISOString()
-            let finTransaccion = moment(parametrosSalida.getSync('FECHA_RSP_CTE'), 'YYYY/MM/DD HH:mm:SS').toISOString()
+            let inicioTransaccion = moment.tz(parametrosSalida.getSync('FECHA_REQ_CTE'), 'YYYY/MM/DD HH:mm:SS', 'America/Mexico_City').tz('America/Hermosillo').toISOString()
+            let finTransaccion = moment.tz(parametrosSalida.getSync('FECHA_RSP_CTE'), 'YYYY/MM/DD HH:mm:SS', 'America/Mexico_City').tz('America/Hermosillo').toISOString()
 
             let [anioExp, mesExp] = ['00', '00']
             try {

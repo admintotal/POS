@@ -217,7 +217,9 @@ module.exports.santander = {
 
         let finTransaccion = moment(cobroPinpad.getRspDate, 'DD/MM/YYYY').toISOString()
         if (fecha) {
-            finTransaccion = moment(fecha, 'DD/MM/YYYY HH:mm:ss').tz("America/Mexico_City").toISOString()
+            finTransaccion = moment.tz(fecha, 'DD/MM/YYYY HH:mm:ss', 'America/Mexico_City')
+                .tz('America/Hermosillo')
+                .toISOString()
         }
 
         return {

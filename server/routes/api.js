@@ -1067,17 +1067,12 @@ exports.guardarVenta = (req, res) => {
 
             } catch(e) {
                 logger.log('error', `Error al solicitar recarga ${d.numero_serie + '-' + d.folio}`)
-                await dbCliente.ventas.update({_id: d._id}, {$set: {
-                    sincronizada: true,
-                    timbrada: false,
-                    error: true,
-                    motivoError: e.message,
-                }})
+                await dbCliente.ventas.remove({_id: d._id})
                 return res.json({
                     status: 'error', 
                     clienteDefault: clienteDefault,
                     message: 'Hubo un error al solicitar la recarga',
-                    ventaGuardada: true,
+                    ventaGuardada: false,
                 })
             }
         } else if(pagoServicioLdi) {

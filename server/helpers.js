@@ -779,8 +779,13 @@ exports.respaldarDatos = async (opts) => {
                 return false
             }
 
+            // borramos los registros que fueron cargados para que no se
+            // respalden nuevamente
+            let filtroBorrarBackupsCargados = exports.cloneObject(filtro)
+            filtroBorrarBackupsCargados['__backup'] = true
+            let eliminados = await coleccion.remove(filtroBorrarBackupsCargados, {multi: true})
             let datos = await coleccion.find(filtro)
-            let eliminados = 0
+            eliminados = 0
                 
             // crea el directorio base de backups en caso de no existir
             if (! fs.existsSync(dirBase) ){

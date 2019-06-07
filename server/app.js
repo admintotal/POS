@@ -186,6 +186,8 @@ router.route('/inicializar-pinpad').get(apiKeyMiddleware, api.inicializarPinpad)
 router.route('/enviar-ventas-error').get(api.enviarVentasError)
 router.route('/validar-ventas').post(apiKeyMiddleware, api.validarVentasAt)
 router.route('/reenviar-venta/:id').get(apiKeyMiddleware, api.reenviarVenta)
+router.route('/obtener-respaldos').get(apiKeyMiddleware, api.obtenerRespaldos)
+router.route('/cargar-respaldo').post(apiKeyMiddleware, api.cargarRespaldo)
 
 // recepciones pago
 const pagos = require('./routes/pagos');

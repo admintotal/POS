@@ -807,3 +807,23 @@ export const obtenerDatosFormPago = (api_key, data={}) => {
 		throw error
 	});
 }
+
+export const obtenerRespaldos = (api_key, opts={}) => {
+	return axios.get(`${BASE_API_URL}/obtener-respaldos?api_key=${api_key}`)
+	.then(function (response) {
+		return response.data
+	})
+	.catch(function (error) {
+		throw error
+	});
+}
+
+export const cargarRespaldo = (api_key, data={}) => {
+	return axios.post(`${BASE_API_URL}/cargar-respaldo/?api_key=${api_key}`, data)
+	.then(function (response) {
+		return response.data
+	})
+	.catch(function (error) {
+		throw error
+	});
+}

@@ -915,11 +915,8 @@ class Configuracion extends React.Component {
                         <hr/>
                     </div>
                     <div className="col-md-6">
-                        <Link to="/productos" className="btn btn-info mr-2">
-                            Administrar Productos
-                        </Link>
-                        <Link to="/clientes" className="btn btn-info">
-                            Administrar Clientes
+                        <Link to="/cargar-respaldo" className="btn btn-info mr-2">
+                            Cargar Respaldo
                         </Link>
                     </div>
                     <div className="col-md-12 text-right">

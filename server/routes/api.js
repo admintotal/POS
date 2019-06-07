@@ -10,7 +10,7 @@ const enviarVentas = (require('./sincronizar').enviarVentas)
 const enviarRetiros = (require('./sincronizar').enviarRetiros)
 const enviarPedidos = (require('./sincronizar').enviarPedidos)
 const habilitarSinc = (require('./sincronizar').habilitarSinc)
-
+const fs = require('fs');
 const cloneObject = (helpers.cloneObject)
 const serializeUri = (helpers.serializeUri)
 const {NodeVM} = require('vm2');
@@ -2943,6 +2943,71 @@ exports.eliminarDatos = async (req, res) => {
             transaccionesPPEliminados: transaccionesPPEliminados,
             sesionesCajaEliminados: sesionesCajaEliminados,
             pedidosEliminados: pedidosEliminados,
+        })
+
+    }).catch((e) => {
+        logger.log('error', e)
+        return res.json({
+            status: 'error',
+            message: String(e)
+        })
+    })
+}
+
+exports.obtenerRespaldos = async (req, res) => {
+    db._getDB(req.query.api_key).then(async (dbCliente) => {
+        const {join} = require('path');
+        const isDirectory = source => fs.lstatSync(source).isDirectory()
+        const getDirectories = source =>
+          fs.readdirSync(source).map(name => join(source, name)).filter(isDirectory)
+
+        let backupsBasePath = `${db.storagePath('backups')}/${dbCliente.claveCliente}/`
+        let respaldos = {}
+
+        getDirectories(backupsBasePath).forEach(p => {
+            let respaldo = {}
+            let fecha = p.replace(backupsBasePath, '')
+            respaldo.path = p
+            respaldo.fecha = moment(fecha, 'DD-MM-YY')
+            respaldo.archivos = fs.readdirSync(p)
+            respaldos[fecha] = respaldo
+        })
+
+        return res.json({
+            status: 'success',
+            respaldos: respaldos
+        })
+
+    }).catch((e) => {
+        logger.log('error', e)
+        return res.json({
+            status: 'error',
+            message: String(e)
+        })
+    })
+}
+
+exports.cargarRespaldo = async (req, res) => {
+    db._getDB(req.query.api_key).then(async (dbCliente) => {
+        let coleccion = req.body.archivo.replace('.json', '')
+        let archivo = req.body.archivo
+        let fecha = moment(req.body.fecha).format('DD-MM-YY')
+
+        let jsonFile = `${db.storagePath('backups')}/${dbCliente.claveCliente}/${fecha}/${archivo}`
+        let data = JSON.parse(fs.readFileSync(jsonFile)) 
+        let ids = []
+        
+        data.forEach(async (registro, index) => {
+            ids.push(registro._id)
+            data[index].__backup = true
+        })
+
+        await dbCliente[coleccion].remove({_id: {$in: ids}}, {multi: true})
+        await dbCliente[coleccion].insert(data)
+
+        return res.json({
+            status: 'success',
+            message: `${data.length} registros han sido cargados.`
         })
 
     }).catch((e) => {

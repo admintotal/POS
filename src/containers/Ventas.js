@@ -489,6 +489,11 @@ class Ventas extends React.Component {
                                                  }
                                              </span>
                                             }
+                                            { Boolean(venta.__backup) &&
+                                                <span>
+                                                    <i title="Esta venta fué cargada de un respaldo, será borrada en el siguiente inicio de sesión" className="ion-clock text-info"></i>
+                                                </span>
+                                            }
                                         </td>
                                         <td onClick={() => this.props.verVenta(venta, false, {
                                             onSincronizarVenta: (res) => {

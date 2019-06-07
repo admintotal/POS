@@ -57,6 +57,9 @@ class SideBarMenuComponent extends React.Component {
                   }
                   <li><Link onClick={toggleSidebar} className="navItem" to="/sincronizaciones">Sincronizaciones</Link></li>
                   <li><Link onClick={toggleSidebar} className="navItem" to="/actualizaciones">Actualizaciones</Link></li>
+                  { Boolean(usuario.autorizaciones.guardar_configuracion_desktop) &&
+                  <li><Link onClick={toggleSidebar} className="navItem" to="/cargar-respaldo">Cargar Respaldo</Link></li>
+                  }
                   <li><a className="navItem" onClick={(ev) => {logoutUsuario(configuracion.general.clave, usuario.api_token)}}>Salir</a></li>
                 </ul>
                 <VersionComponent></VersionComponent>

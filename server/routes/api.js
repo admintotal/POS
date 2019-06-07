@@ -2963,13 +2963,24 @@ exports.obtenerRespaldos = async (req, res) => {
 
         let backupsBasePath = `${db.storagePath('backups')}/${dbCliente.claveCliente}/`
         let respaldos = {}
+        let getArchivos = archivos => {
+            let labels = {
+                'ventas.json': 'Ventas',
+                'retiros.json': 'Retiros',
+                '_tpp.json': 'Transacciones Pinpad',
+                'sesiones_caja.json': 'Sesiones de caja',
+                'pedidos.json': 'Pedidos',
+                'recepciones_pago.json': 'Recepciones de pago',
+            }
+            return archivos.map(a => {return {'archivo': a, 'label': labels[a]}})
+        }
 
         getDirectories(backupsBasePath).forEach(p => {
             let respaldo = {}
             let fecha = p.replace(backupsBasePath, '')
             respaldo.path = p
             respaldo.fecha = moment(fecha, 'DD-MM-YY')
-            respaldo.archivos = fs.readdirSync(p)
+            respaldo.archivos = getArchivos(fs.readdirSync(p))
             respaldos[fecha] = respaldo
         })
 
@@ -3002,7 +3013,7 @@ exports.cargarRespaldo = async (req, res) => {
             data[index].__backup = true
         })
 
-        await dbCliente[coleccion].remove({_id: {$in: ids}}, {multi: true})
+        await dbCliente[coleccion].remove({_id: {$in: ids}, __backup: true}, {multi: true})
         await dbCliente[coleccion].insert(data)
 
         return res.json({

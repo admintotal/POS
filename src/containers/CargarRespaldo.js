@@ -86,10 +86,10 @@ class CargarRespaldo extends React.Component {
 	                    			{ this.state.respaldo.archivos.map((archivo => {
 	                    				return (
 	                    					<tr>
-	                    						<td>{archivo}</td>
+	                    						<td>{archivo.label || archivo.archivo}</td>
 	                    						<td>{moment(this.state.respaldo.fecha).format('DD/MM/YYYY')}</td>
 	                    						<td className="text-right">
-	                    							<button onClick={this.cargar.bind(this, archivo)} className="btn btn-primary">Cargar</button>
+	                    							<button onClick={this.cargar.bind(this, archivo.archivo)} className="btn btn-primary">Cargar</button>
 	                    						</td>
 	                    					</tr>
 	                    				)

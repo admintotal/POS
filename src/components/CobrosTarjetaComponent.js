@@ -104,7 +104,6 @@ class CobrosTarjetaComponent extends React.Component {
 						</thead>
 						<tbody>
 						{ cobros.map((c, i) => {
-							console.log(c)
 							return (
 							<tr key={`ct-${i}`}>
 								<td>{c.datos.autorizacion}</td>

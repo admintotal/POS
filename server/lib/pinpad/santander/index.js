@@ -5,17 +5,23 @@ module.exports.santander = {
     instanciada: false,
     banco: 'santander',
     liberarDispositivo: () => {
-        module.exports.santander.logger.log('info', `[${module.exports.santander.banco}] Liberando dispositivo.`)
+        module.exports.santander.logger.log(
+            'info', `[${module.exports.santander.banco}] Liberando dispositivo.`
+        )
     },
 
     consultarTransacciones: (params={}) => {
-        let {fecha} = params
+        let {fecha, referencia} = params
         
         if( !fecha ) {
             fecha = moment().format("DD/MM/YYYY")
         }
 
-        let transacciones = process.pinpadInstance.consultarTransacciones({fecha: fecha}, true)
+        referencia = referencia || ""
+        let transacciones = process.pinpadInstance.consultarTransacciones(
+            {fecha: fecha, referencia: referencia}, 
+            true
+        )
         let respuestaXML = transacciones.Result
         let respuesta = []
 
@@ -37,6 +43,7 @@ module.exports.santander = {
                     autorizacion: objNode.nu_auth,
                     importe: objNode.nu_importe,
                     referencia: objNode.nb_referencia,
+                    numeroControl: objNode.nu_operaion, // error
                     status: objNode.nb_response,
                     fecha: objNode.fh_registro,
                     respuesta: `(${objNode.cd_resp}) ${objNode.nb_resp}`,
@@ -142,36 +149,118 @@ module.exports.santander = {
         }
     },
     
-    cobrarPago: (pago) => {
+    cobrarPago: async (pago) => {
         try {
             let total = pago.importe
+            let referencia = `${pago.uuid}`
             let statusCobro = process.pinpadInstance.RealizarCobro({
                 total: `${pago.importe}`, 
-                ref: `${pago.uuid}`,
+                ref: referencia,
                 cajero: pago.usuario.username,
                 // confirmación de tarjeta,
                 // por lo pronto no esta disponible en pagos
                 tarjetaPrecargada: false
-            }, true)
-            return JSON.parse(statusCobro.Result)
+            }, true).Result
+            
+            statusCobro = JSON.parse(statusCobro)
+
+            // cuando la api de centro de pagos retorna un valor inesperado
+            // se realiza la consulta de la referencia para comprobar el status
+            // de la transacción.
+            if (statusCobro.comprobarTransaccion) {
+                module.exports.santander.logger.log(
+                    'error', 
+                    `Comprobando transacción ${referencia} por el monto de $${total}`
+                )
+                statusCobro = await module.exports.santander.comprobarTransaccion(
+                    referencia, 
+                    statusCobro
+                )
+            }
+            
+            return statusCobro
         } catch(e) {
             module.exports.santander.logger.log('error', {status: 'error', 'mensaje': e})
             return {status: 'error', 'mensaje': e};
         }
     },
 
-    cobrarVenta: (venta) => {
+    comprobarTransaccion: async (referencia, statusCobro) => {
+        let comprobacion = await module.exports.santander.consultarTransacciones({
+            referencia: referencia
+        })
+
+        // si no tenemos respuesta de la consulta logeamos el evento
+        // y modificamos el mensaje de error para el cajero.
+        if (!comprobacion.length) {
+            module.exports.santander.logger.log('error', statusCobro)
+            module.exports.santander.logger.log(
+                'error', 
+                `La consulta de la transacción ${referencia} no arrojó respuesta.`
+            )
+            statusCobro.mensaje = "No fué posible realizar el cargo, intente de nuevo más tarde."
+            return statusCobro
+        }
+
+        comprobacion = comprobacion[0]
+        statusCobro.comprobacion = comprobacion
+        if (comprobacion.status == "approved") {
+            delete statusCobro.mensaje
+            statusCobro.status = "success"
+            statusCobro.getTx_Amount = comprobacion.importe
+            statusCobro.getRspOperationNumber = comprobacion.numeroControl
+            statusCobro.getRspAuth = comprobacion.autorizacion
+            statusCobro.getRspCdResponse = comprobacion.respuesta
+            statusCobro.getTx_Reference = comprobacion.referencia
+            statusCobro.getRspDate = comprobacion.fecha
+            statusCobro.getRspArqc = ""
+            statusCobro.getRspAppid = ""
+            statusCobro.getRspAppidlabel = ""
+            // consulta de los vouchers
+            try {
+                statusCobro.getRspVoucher = await module.exports.santander.reimprimirVoucher(
+                    comprobacion.numeroControl
+                ).getRspVoucher
+            } catch(e) {
+                statusCobro.getRspVoucher = ""
+            }
+
+        } else {
+            statusCobro.status = "error"
+            statusCobro.mensaje = "Ocurrió un problema al intentar realizar el cobro."
+        }
+
+        return statusCobro
+    },
+
+    cobrarVenta: async (venta) => {
         try {
             let total = venta.tarjeta.monto
-
+            let referencia = `${venta.numero_serie}-${venta.folio}-${+ new Date()}`
             let statusCobro = process.pinpadInstance.RealizarCobro({
                 total: `${total}`, 
-                ref: `${venta.numero_serie}-${venta.folio}-${+ new Date()}`,
+                ref: referencia,
                 cajero: venta.sesionCaja.cajero.username,
                 tarjetaPrecargada: true
-            }, true)
+            }, true).Result
+
+            statusCobro = JSON.parse(statusCobro)
+
+            // cuando la api de centro de pagos retorna un valor inesperado
+            // se realiza la consulta de la referencia para comprobar el status
+            // de la transacción.
+            if (statusCobro.comprobarTransaccion) {
+                module.exports.santander.logger.log(
+                    'error', 
+                    `Es necesaria la comprobación de la transacción ${referencia} por el monto de $${total}`
+                )
+                statusCobro = await module.exports.santander.comprobarTransaccion(
+                    referencia, 
+                    statusCobro
+                )
+            }
             
-            return JSON.parse(statusCobro.Result)
+            return statusCobro
         } catch(e) {
             module.exports.santander.logger.log('error', {status: 'error', 'mensaje': e})
             return {status: 'error', 'mensaje': e};

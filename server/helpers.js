@@ -501,8 +501,8 @@ exports.cobrarPagoPinpad = async (pago, conf=null) => {
     const logger = require('./logger').logger
     try{
         let pinpad = await exports.getPinpadInstance(conf.pinpad)
-        let cobroPinpad = pinpad.cobrarPago(pago)
-        let infoCobro = pinpad.getInfoCobro(cobroPinpad)
+        let cobroPinpad = await pinpad.cobrarPago(pago)
+        let infoCobro = await pinpad.getInfoCobro(cobroPinpad)
 
         pago.cobrosPinpad.push(infoCobro)
         let mensaje = ((cobroPinpad.datos && cobroPinpad.datos.mensaje) ? cobroPinpad.datos.mensaje : cobroPinpad.mensaje)
@@ -557,9 +557,8 @@ exports.cobrarVentaPinpad = async (venta, conf) => {
     
     try{
         let pinpad = await exports.getPinpadInstance(conf.pinpad)
-        let cobroPinpad = pinpad.cobrarVenta(venta)
-        let infoCobro = pinpad.getInfoCobro(cobroPinpad)
-
+        let cobroPinpad = await pinpad.cobrarVenta(venta)
+        let infoCobro = await pinpad.getInfoCobro(cobroPinpad)
         venta.cobrosPinpad.push(infoCobro)
         let mensaje = ((cobroPinpad.datos && cobroPinpad.datos.mensaje) ? cobroPinpad.datos.mensaje : cobroPinpad.mensaje)
 

@@ -46,8 +46,11 @@ class VentaComponent extends React.Component {
         let usuario = this.props.usuario
         let permiso = 'reimprimir_voucher_pinpad'
         let imprimir = () => {
-            Impresora.imprimirVoucher(this.props._id, this.props.api_key, {tipo: tipo, cobroId: cobroId, re: 1})
-            .then(() => {
+            Impresora.imprimirVoucher(
+                this.props._id, 
+                this.props.api_key, 
+                {tipo: tipo, cobroId: cobroId, re: 1}
+            ).then(() => {
 
             })
             .catch((err) => {
@@ -74,6 +77,8 @@ class VentaComponent extends React.Component {
                 }
             })
         }
+
+        imprimir()
 
     }
 

@@ -7,7 +7,6 @@ import * as Api from '../api';
 import { cargando, mensajeFlash, mostrarAlerta } from '../actions';
 import TituloComponent from '../components/TituloComponent';
 import IngresoAutorizacionComponent from '../components/IngresoAutorizacionComponent';
-import { Link } from 'react-router-dom';
 
 class Configuracion extends React.Component {
     constructor(props) {
@@ -60,20 +59,7 @@ class Configuracion extends React.Component {
                 return this.props.mensajeFlash('error', 'Para guardar complete el formulario de configuración del Pinpad.')
             }
         }
-
-        if (this.state.habilitarProsepago) {
-
-            if (this.terminal_input) {
-                if (!this.terminal_input.value) {
-                    return this.props.mensajeFlash('error', 'Es necesario seleccionar una terminal para habilitar Prosepago')
-                }
-
-                let terminales = this.state.terminales || []
-                let terminal = terminales.find(t => {return t.id === +this.terminal_input.value})
-                data.terminal = terminal
-            }
-        }
-
+        
         if (data.numero_serie === this.props.numero_serie) {
             delete data['numero_serie']
         }
@@ -308,7 +294,6 @@ class Configuracion extends React.Component {
         let usuarioAlmacen = this.state.almacen || {}
         let usuarioImpresora = this.state.impresora || {}
     	let usuarioBascula = this.state.bascula || {}
-        let terminales = this.state.terminales || []
 
         let autorizadoConfiguracion = this.state.autorizadoConfiguracion
 
@@ -875,49 +860,12 @@ class Configuracion extends React.Component {
                             </div>
                             }
                         </fieldset>
-
-                        <fieldset>
-                            <div className="form-group">
-                                <label className="control control-checkbox">
-                                    Habilitar Prosepago 
-                                    <input 
-                                        checked={this.state.habilitarProsepago}
-                                        type="checkbox"
-                                        onChange={(e) => {this.setState({habilitarProsepago: !this.state.habilitarProsepago})}}
-                                        />
-                                    <span className="control_indicator"></span>
-                                </label>
-                            </div>
-
-                            { this.state.habilitarProsepago &&
-                                <div className="form-group">
-                                    <label htmlFor="">Terminal:</label>
-                                    <select 
-                                        value={this.state.terminal ? this.state.terminal.id : ''} 
-                                        ref={input => this.terminal_input = input }
-                                        onChange={(e) => {
-                                            let terminal = terminales.find(t => {return t.id === +e.target.value})
-                                            this.setState({terminal: terminal})
-                                        }}
-                                        className="form-control">
-                                        {terminales.map(terminal => {
-                                            return <option value={terminal.id}>{terminal.numero}</option>
-                                        })}
-                                    </select>
-                                </div>
-                            }
-                        </fieldset>
                     </div>
                 </div>
 
-                <div className="row">
+                <div className="row mb-3">
                     <div className="col-md-12">
                         <hr/>
-                    </div>
-                    <div className="col-md-6">
-                        <Link to="/cargar-respaldo" className="btn btn-info mr-2">
-                            Cargar Respaldo
-                        </Link>
                     </div>
                     <div className="col-md-12 text-right">
                         <button ref={(btn) => this.btnGuardar = btn} className="btn btn-primary" onClick={this.guardar.bind(this)}>Guardar</button>

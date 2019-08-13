@@ -101,7 +101,7 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
-    "server": "nodemon server/app.js -e html,js",
+    "server": "nodemon --inspect server/app.js -e html,js",
     "package": "node scripts/package.js"
   },
   "manifestUrl": "http://localhost:8001/central/api/v1/at-desktop/package.json",

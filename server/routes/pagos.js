@@ -124,26 +124,15 @@ exports.guardarPago = (req, res) => {
             if (!Array.isArray(pago.tarjeta.cobros)) {
                 pago.tarjeta.cobros = []
             }
-            
-            if (pago.tipo_pago[0] == 4) {
-
+               
+            // tarjeta crédito o débito
+            if ([4, 28].indexOf(pago.tipo_pago[0]) > -1) {
                 let servicioCobro = null
-            
-                // prosepago
-                if (conf.habilitarProsepago && !conf.habilitarPinpad) {
-                    servicioCobro = 'prosepago'
-                }
-                
+
                 // pinpad banco
-                if (conf.habilitarPinpad && !conf.habilitarProsepago) {
+                if (conf.habilitarPinpad) {
                     servicioCobro = conf.pinpad.banco
                 }
-
-                // seleccionado por el vendedor
-                if (conf.habilitarProsepago && conf.habilitarPinpad) {
-                    servicioCobro = pago.pinpadSeleccionado
-                }
-
 
                 if (servicioCobro) {
                     switch(servicioCobro) {
@@ -157,7 +146,7 @@ exports.guardarPago = (req, res) => {
                                         message: 'Es necesaria la conexión a internet para continuar.'
                                     })
                                 }
-
+                                logger.log('info', `Iniciando el cobro con pinpad del pago ${pago.uuid} por el monto de $${pago.importe}`)
                                 let statusCobro = await helpers.cobrarPagoPinpad(pago, conf)
                                 try {
                                     docTrans = await dbCliente.transacciones_pp.insert({
@@ -199,13 +188,6 @@ exports.guardarPago = (req, res) => {
                                 })
                             }
 
-                            break
-
-                        case 'prosepago':
-                            return res.json({
-                                status: 'error',
-                                message: 'La integración de prosepago para este módulo no esta disponible.'
-                            })
                             break
                     }
                 }

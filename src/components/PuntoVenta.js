@@ -521,7 +521,6 @@ class PuntoVentaComponent extends React.Component {
                 if (res.status !== 'success') {
                     return this.props.mensajeFlash('error', res.message)
                 }
-                console.log(res.venta)
                 concluirVenta(res.venta)
             })
             .catch((err) => {

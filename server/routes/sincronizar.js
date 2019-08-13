@@ -450,7 +450,7 @@ const enviarVentas = function(api_key, dbCliente, datos={}) {
 			
 			if (cierres.length) {
 				cierres.map((c) => {
-					if (! (c.inicio._id in infoVentas)) {
+					if (c && !(c.inicio._id in infoVentas)) {
 						infoVentas[c.inicio._id] = {
 							sessionCaja: {
 								cierre: c.fin,
@@ -542,9 +542,11 @@ exports.enviarRetiros = async function(api_key, dbCliente, retiros, opciones={})
 		let proms = retiros.map(async (retiro, i) => {
 			retirosIds.push(retiro._id)
 			let s = await dbCliente.sesiones_caja.findOne({'inicio._id': retiro.sesion_caja._id})
-			retiro.sesion_caja = s.inicio
-			retiro.sesion_caja.cajero = retiro.sesion_caja.cajero.id
-			retiro.sesion_caja.almacen = retiro.sesion_caja.almacen.id
+			if (s) {
+				retiro.sesion_caja = s.inicio
+				retiro.sesion_caja.cajero = retiro.sesion_caja.cajero.id
+				retiro.sesion_caja.almacen = retiro.sesion_caja.almacen.id
+			}
 			return retiro
 		})
 

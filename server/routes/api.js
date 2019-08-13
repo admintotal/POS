@@ -940,80 +940,6 @@ exports.guardarVenta = (req, res) => {
         venta.no_referencia = Math.random().toString(36).substring(2, 8).toUpperCase()
         venta.cobrosPinpad = venta.cobrosPinpad || []
 
-        // validación para el uso del pinpad
-        let cobrosTarjeta = venta.tarjeta.cobros || []
-        if (venta.tarjeta.monto) {
-            venta.tarjeta.multiplesTarjetas = Boolean(cobrosTarjeta.length)
-
-            if (!venta.tarjeta.multiplesTarjetas) {
-                let servicioCobro = null
-                                
-                // pinpad banco
-                if (conf.habilitarPinpad && !conf.habilitarProsepago) {
-                    servicioCobro = conf.pinpad.banco
-                }
-
-                // seleccionado por el vendedor
-                if (conf.habilitarProsepago && conf.habilitarPinpad) {
-                    servicioCobro = venta.pinpadSeleccionado
-                }
-
-                if (venta.otraTerminalProsepago) {
-                    servicioCobro = ''
-                }
-
-                if (servicioCobro) {
-                    switch(servicioCobro) {
-                        case conf.pinpad.banco:
-                            logger.log('info', `Iniciando el cobro con pinpad de la venta ${venta.numero_serie}-${venta.folio}`)
-                            try{
-                                let statusCobro = await helpers.cobrarVentaPinpad(venta, conf)
-                                
-                                try {
-                                    docTrans = await dbCliente.transacciones_pp.insert({
-                                        tipoTransaccion: 'venta',
-                                        fecha: moment().toISOString(),
-                                        resultado: statusCobro.cobroPinpad,
-                                        referencia: statusCobro.cobroPinpad.datos.referencia,
-                                        usuario: {
-                                            id: usuario.id,
-                                            username: usuario.username,
-                                        }
-                                    })
-
-                                } catch(e) {
-                                    logger.log('error', e)
-                                }
-
-                                if (statusCobro.status !== 'success') {
-                                    statusCobro.transaccion = docTrans
-                                    return res.json(statusCobro)
-                                }
-
-                                // venta.cobroTarjeta se setea por el método cobrarVentaPinpad
-                                if (venta.cobroTarjeta.status !== 'success') {
-                                    return res.json({
-                                        status: 'error',
-                                        transaccion: docTrans,
-                                        message: venta.cobroTarjeta.mensaje,
-                                        cobrosPinpad: venta.cobrosPinpad
-                                    })
-                                }
-                            } catch(e) {
-                                logger.log('error', e.message || 'Error al realizar el cobro')
-                                return res.json({
-                                    status: 'error',
-                                    message: e.message || 'Error al realizar el cobro'
-                                })
-                            }
-
-                            break
-                    }
-                }
-
-            }
-        }
-
         let d
         let venta_id = venta._id
         venta.pendiente = false
@@ -1313,17 +1239,9 @@ exports.obtenerInfoTarjeta = (req, res) => {
                 message: 'El monto no puede ser 0.'
             })
         }
-            
-        // prosepago
-        if (conf.habilitarProsepago && !conf.habilitarPinpad) {
-            return res.json({
-                status: 'error',
-                message: 'Esta función no esta disponible para la integración de prosepago.'
-            })
-        }
         
         // pinpad banco
-        if (conf.habilitarPinpad && !conf.habilitarProsepago) {
+        if (conf.habilitarPinpad) {
             servicioCobro = conf.pinpad.banco
         }
 
@@ -1450,7 +1368,7 @@ exports.cobrarVentaTarjeta = (req, res) => {
         let upsert = null
                     
         // pinpad banco
-        if (conf.habilitarPinpad && !conf.habilitarProsepago) {
+        if (conf.habilitarPinpad) {
             servicioCobro = conf.pinpad.banco
         }
 
@@ -1893,12 +1811,9 @@ exports.imprimirVoucher = (req, res) => {
             obj = recepcion_pago
         }
 
-
         let idCobro = req.params.idCobro
         let conf = await dbCliente.conf.findOne({})
         let cobro
-
-
 
         if (idCobro) {
             cobro = obj.tarjeta.cobros.find(e => {
@@ -2025,7 +1940,11 @@ exports.imprimirVoucherTransaccion = (req, res) => {
                     return res.send("")
                 }
 
-                let t = await helpers.voucherToHtml(trans.resultado.getRspVoucher, req.params.tipo, conf.impresora)
+                let t = await helpers.voucherToHtml(
+                    trans.resultado.getRspVoucher, 
+                    req.params.tipo, 
+                    conf.impresora
+                )
                 return res.send(t)
                 break
         }

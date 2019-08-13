@@ -181,11 +181,8 @@ public class Startup {
                     cpIntegraEMV.dbgHidePopUp(true);
                     cpIntegraEMV.HidePopUpDCC(false);
 
-                    // cpIntegraEMV.EstableceTipoMoneda(cpIntegraEMV.ObtieneMonedaVtaPropiaBanda());
                     cpIntegraEMV.dbgSetCurrency("MXN");
                     cpIntegraEMV.dbgStartTxEMV(total);
-
-
 
                     if (cpIntegraEMV.chkPp_CdError() == "")
                     {
@@ -216,8 +213,6 @@ public class Startup {
                         resultado.Add("DescripcionMoneda", DescripcionMoneda);
                         resultado.Add("importe", total);
 
-                        /*cpIntegraEMV.dbgEndOperation();
-                        cpIntegraEMV.dbgCancelOperation();*/
                         return JsonConvert.SerializeObject(resultado);
                     }
                     else 
@@ -250,17 +245,18 @@ public class Startup {
             return Task.Run(() => {
                 IDictionary<string, object> payload = (IDictionary<string,object>)input;
                 string fecha = (string) payload["fecha"];
+                string referencia = (string) payload["referencia"];
+
                 string respuesta = cpIntegraEMV.sndConsulta(
                     usuario, 
                     password, 
                     s_CompanyId, 
                     s_BranchId, 
                     fecha,
-                    ""
+                    referencia
                 );
                 
                 return respuesta;
-
             });
         };
         
@@ -290,9 +286,6 @@ public class Startup {
                     if(!tarjetaPrecargada) {
                         cpIntegraEMV.dbgSetUrl(url);
                         cpIntegraEMV.dbgHidePopUp(true);
-                        cpIntegraEMV.HidePopUpDCC(false);
-
-                        // cpIntegraEMV.EstableceTipoMoneda(cpIntegraEMV.ObtieneMonedaVtaPropiaBanda());
                         cpIntegraEMV.dbgSetCurrency("MXN");
                         cpIntegraEMV.dbgStartTxEMV(total);
                     }
@@ -310,7 +303,6 @@ public class Startup {
 
                         /* Ocultar popup MSI, Contado, etc */
                         cpIntegraEMV.dbgSetHidePopUpMerchant(true);
-
                         /* xml con id cobro afiliacion (MSI, Contado, etc) */
                         txtMerchant = cpIntegraEMV.dbgGetMerchantBanda(txtOperType);
                         if (cpIntegraEMV.getRspCdError() != "") {
@@ -402,13 +394,24 @@ public class Startup {
                                 resultadoCobro.Add("mensaje", cpIntegraEMV.getRspDsError());
                                 break;
                                    
-                            default:
+                            default:                                
                                 resultadoCobro.Add("status", "error");
                                 resultadoCobro.Add("mensaje", "La respuesta de la pinpad fué inesperada:\n " + RspDsResponse);
+
+                                resultadoCobro.Add("chkCc_Number", chkCc_Number);
+                                resultadoCobro.Add("chkCc_Name", chkCc_Name);
+                                resultadoCobro.Add("chkCc_ExpMonth", chkCc_ExpMonth);
+                                resultadoCobro.Add("chkCc_ExpYear", chkCc_ExpYear);
+                                resultadoCobro.Add("chkCc_AID", chkCc_AID);
+                                resultadoCobro.Add("chkCc_AIDLabel", chkCc_AIDLabel);
+                                resultadoCobro.Add("chkPp_Serial", cpIntegraEMV.chkPp_Serial());
+                                
+                                // es necesario comprobar la transaccion
+                                resultadoCobro.Add("comprobarTransaccion", true);
+                                
                                 break;                             
                         }
 
-                        cpIntegraEMV.dbgClearDCC();
                         cpIntegraEMV.dbgEndOperation();
                         cpIntegraEMV.dbgCancelOperation();
                         return JsonConvert.SerializeObject(resultadoCobro);

@@ -24,7 +24,7 @@ module.exports.santander = {
         )
         let respuestaXML = transacciones.Result
         let respuesta = []
-
+        console.log(respuestaXML)
         respuestaXML.split('transacciones\>')[1].split('<transaccion>').forEach(function(nodo, i) {
 
             if (nodo.indexOf('nb_referencia') !== -1) {
@@ -204,6 +204,7 @@ module.exports.santander = {
 
         comprobacion = comprobacion[0]
         statusCobro.comprobacion = comprobacion
+        
         if (comprobacion.status == "approved") {
             delete statusCobro.mensaje
             statusCobro.status = "success"
@@ -225,6 +226,9 @@ module.exports.santander = {
                 statusCobro.getRspVoucher = ""
             }
 
+        } else if(comprobacion.status == "denied") {
+            statusCobro.status = "error"
+            statusCobro.mensaje = "La operación fue rechazada por su banco emisor."
         } else {
             statusCobro.status = "error"
             statusCobro.mensaje = "Ocurrió un problema al intentar realizar el cobro."
@@ -292,7 +296,11 @@ module.exports.santander = {
         if (cobroPinpad.getRspAppidlabel) {
             [tipo_tarjeta, banco, marca] = cobroPinpad.getRspAppidlabel.split('/')
         }
-
+        // cuando es consulta automática el tipo de tarjeta lo intentamos
+        // obtener de chkCc_AIDLabel
+        if (!tipo_tarjeta && cobroPinpad.chkCc_AIDLabel) {
+            tipo_tarjeta = (cobroPinpad.chkCc_AIDLabel.toLowerCase().indexOf("debito") > -1) ? "debito" : "credito";
+        }
         let fecha = null
         let voucher = cobroPinpad.getRspVoucher
         let f = voucher.split('\n').find(e  => {

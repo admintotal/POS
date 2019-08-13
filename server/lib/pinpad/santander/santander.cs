@@ -342,7 +342,6 @@ public class Startup {
                         );
 
                         string RspDsResponse = (string) cpIntegraEMV.getRspDsResponse();
-                        // RspDsResponse = "";
                         
                         switch(RspDsResponse) 
                         {

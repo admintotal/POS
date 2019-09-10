@@ -102,7 +102,8 @@ export default function puntoVenta(state={...defaultState()}, action: actionType
                         let precio_unitario_real = precisionDecimales(action.productos[p.producto.id].precio_unitario)
                         p.precio_neto = precio_unitario_real
                         p.importe = precisionDecimales(p.precio_neto * p.cantidad)
-                        p = getProductoInline(p)
+                        console.log(p)
+                        p = getProductoInline(p, p.producto.um, action.cliente)
                         
                         // hotfix
                         p.precio_regular = p.precio_neto
@@ -115,6 +116,7 @@ export default function puntoVenta(state={...defaultState()}, action: actionType
             if (prods.length) {
                 newState.productos = prods
             }
+
             return {...newState, cliente: action.cliente, ...getStateTotales(newState)}
             
 
@@ -152,7 +154,7 @@ export default function puntoVenta(state={...defaultState()}, action: actionType
             return {...state, ac_clientes: clientes}
 
         case actions.PV_SELECCIONAR_PRODUCTO:
-            let pi = getProductoInline(action.producto)
+            let pi = getProductoInline(action.producto, null, newState.cliente)
             newState.productos.unshift(pi)
             return {...newState, ...getStateTotales(newState), ac_productos:[]}
 
@@ -238,7 +240,7 @@ export default function puntoVenta(state={...defaultState()}, action: actionType
             }
 
             if (index > -1) {
-                let pi = getProductoInline(action.producto)
+                let pi = getProductoInline(action.producto, null, newState.cliente)
                 newState.productos[index] = pi
                 newState = {...newState, ..._reset_montos_pago(newState)}
                 return {

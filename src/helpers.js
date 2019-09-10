@@ -159,7 +159,7 @@ export const getProductoObj = (obj) => {
     }
 }
 
-export const getPrecioNeto = ({producto, cantidad}) => {
+export const getPrecioNeto = ({producto, cantidad, cliente}) => {
     let factorum = +producto.um.factor || 1
     let cantidadFactor = cantidad * factorum
     let precio_neto = precisionDecimales(producto.precio_neto) * factorum
@@ -178,19 +178,34 @@ export const getPrecioNeto = ({producto, cantidad}) => {
             return 0;
         })
         
-        promos.forEach((promo) => {
-            // validamos la fecha de vencimiento de la promoción
-            if (promo.vencimiento && promo.vencimiento !== "") {
-                let vencimiento = moment(promo.vencimiento, "DD/MM/YYYY").endOf('day')
-                if (! hoy.isSameOrBefore(vencimiento) ) {
-                    return precio_neto
-                }
+        promos.forEach((promo, index) => {
+            let aplicarPromo = true
+            
+            if (promo.cliente_id && promo.cliente_id !== cliente.id) {
+                aplicarPromo = false
             }
 
-            if (cantidadFactor >= +(promo.cantidad)) {
-                if (precisionDecimales(promo.precio_neto * factorum) < precio_neto) {
-                    precio_neto = precisionDecimales(promo.precio_neto * factorum)
+            if (promo.clasificacion_id && promo.clasificacion_id !== cliente.clasificacion_id) {
+                aplicarPromo = false
+            }
+
+
+            if (aplicarPromo) {
+                // validamos la fecha de vencimiento de la promoción
+                if (promo.vencimiento && promo.vencimiento !== "") {
+                    let vencimiento = moment(promo.vencimiento, "DD/MM/YYYY").endOf('day')
+                    if (! hoy.isSameOrBefore(vencimiento) ) {
+                        return precio_neto
+                    }
                 }
+
+                if (cantidadFactor >= +(promo.cantidad)) {
+                    if (precisionDecimales(promo.precio_neto * factorum) < precio_neto) {
+                        precio_neto = precisionDecimales(promo.precio_neto * factorum)
+                    }
+                }
+            } else {
+                // producto.promociones.splice(index, 1)
             }
         })
     }
@@ -300,7 +315,7 @@ export const getStateTotales = (state) => {
     }
 }
 
-export const getProductoInline = (data, um) => {
+export const getProductoInline = (data, um, cliente) => {
     let obj = data.producto
     let cant = data.cantidad
     let descuento = 0
@@ -316,7 +331,7 @@ export const getProductoInline = (data, um) => {
 
     let factorum = +obj.um.factor || 1
     let precio_regular = precisionDecimales(obj.precio_neto) * factorum
-    let precio_neto = getPrecioNeto({producto: obj, cantidad: cant})
+    let precio_neto = getPrecioNeto({producto: obj, cantidad: cant, cliente: cliente})
 
     if (es_recarga) {
         precio_neto = precisionDecimales(obj.recarga_saldo_importe, 2)

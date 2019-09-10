@@ -640,7 +640,7 @@ exports.actualizarCliente = async (data={})  => {
             let p = result.productos
             delete result.productos
             await dbCliente.clientes.update({id: clienteId}, {$set: result})
-            resolve({cliente: result, productos: productos})
+            resolve({cliente: result, productos: p})
         }).catch(async (err) => {
             reject(err)
         })

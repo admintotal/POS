@@ -166,9 +166,7 @@ exports.cliente = (req, res) => {
                 let ps = {}
                 let project = {precio_neto: 1, id: 1, precios_clasificaciones: 1}
 
-                productos = productos.split(',').map(p => {
-                    return +p
-                })
+                productos = productos.split(',').map(p => { return +p })
                 productos = (await dbCliente.productos.find({id: {$in: productos}})).map(pp => {
                     ps[pp.id] = {precio_unitario: pp.precio_neto}
                     if (cliente.clasificacion) {

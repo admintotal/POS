@@ -146,7 +146,7 @@ class RecepcionesPago extends React.Component {
     render() {
         let objects = this.state.objects || []
         let autorizadoListado = this.state.autorizadoListado
-
+        console.log(this.props)
         if (! autorizadoListado) {
             return (
                 <IngresoAutorizacionComponent 
@@ -168,9 +168,11 @@ class RecepcionesPago extends React.Component {
                         className="btn btn-info mr-1">
                         Sincronizar
                     </button>
+                    { Boolean(this.props.sesionCaja) &&
                     <Link to="/recepcion-pago" className="btn btn-primary">
                         Nueva Recepción de Pago
                     </Link>
+                    }
                 </div>
                 
                 <div className="row">
@@ -250,6 +252,15 @@ class RecepcionesPago extends React.Component {
                     </div>
                 </div>
 
+                { !Boolean(this.props.sesionCaja) &&
+                    <div to="/punto-venta" className="alert alert-danger p-2 m-0 text-center d-block">
+                        Es necesario abrir sesión de caja para capturar una recepción de pago.
+                        <div>
+                            <Link to="/punto-venta" class="btn btn-sm btn-success my-2">Abrir Sesión de Caja</Link>
+                        </div>
+                    </div>
+                }
+
             	{ Boolean(objects.length) ?
                     <div>
                     	<table className="table table-condensed vm table-list table-hover table-list clickeable">
@@ -309,6 +320,7 @@ class RecepcionesPago extends React.Component {
 
 const mapStateToProps = state => ({
     ...state.app,
+    sesionCaja: state.puntoVenta.sesionCaja,
     api_key: state.app.api_key
 });
 

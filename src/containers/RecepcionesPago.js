@@ -146,7 +146,6 @@ class RecepcionesPago extends React.Component {
     render() {
         let objects = this.state.objects || []
         let autorizadoListado = this.state.autorizadoListado
-        console.log(this.props)
         if (! autorizadoListado) {
             return (
                 <IngresoAutorizacionComponent 

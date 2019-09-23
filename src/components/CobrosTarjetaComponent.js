@@ -42,14 +42,12 @@ class CobrosTarjetaComponent extends React.Component {
 		}
 	}
 
-	cobrar() {
+	async cobrar() {
 		if (this.cobrarBtn) {
 			this.cobrarBtn.disabled = true
 		}
 
-		if (this.props.onCobrar) {
-			this.props.onCobrar(this.getCobro())
-		}
+		await this.props.onCobrar(this.getCobro())
 
 		if (this.cobrarBtn) {
 			this.cobrarBtn.disabled = false

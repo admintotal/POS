@@ -393,11 +393,13 @@ export function* guardarVentaAsync(action) {
 				mensaje: `La venta ha sido guardada pero hubo problemas al solicitar ${erroresServiciosLdi === 1 ? 'el servicio' : erroresServiciosLdi + ' servicio'}.`
 			})
 		} else { 
-			yield put({
-				type: actions.MOSTRAR_ALERTA, 
-				titulo: data.message,
-				mensaje: `El cambio para el cliente es de: <b className="text-info">$${formatCurrency(cambio)}</b>`
-			})
+			if (cambio) {
+				yield put({
+					type: actions.MOSTRAR_ALERTA, 
+					titulo: data.message,
+					mensaje: `El cambio para el cliente es de: <b className="text-info">$${formatCurrency(cambio)}</b>`
+				})
+			}
 		}
 
 		// siguiente folio solo si la venta guardada no es factura

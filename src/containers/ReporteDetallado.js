@@ -141,6 +141,10 @@ class ReporteDetallado extends React.Component {
         })
     }
 
+    imprimirFondoCaja(tipo) {
+    	Impresora.imprimirFondoCaja(tipo, this.props.api_key,this.state.datos[tipo]._id)
+    }
+
 	renderSesionCaja() {
 
 		return (
@@ -163,9 +167,24 @@ class ReporteDetallado extends React.Component {
 					</fieldset>
 				</div>
 				<div className="col-md-5">
+					<div className="row mb-2">
+						<div className="col">
+							<button onClick={this.imprimirFondoCaja.bind(this, "inicio")} className="btn btn-light btn-block">
+								<i className="ion-printer"></i> Apertura de caja
+							</button>
+						</div>
+						{Boolean(this.state.datos.fin) &&
+						<div className="col">
+							<button onClick={this.imprimirFondoCaja.bind(this, "fin")} className="btn btn-light btn-block">
+								<i className="ion-printer"></i> Cierre de caja
+							</button>
+						</div>
+						}
+					</div>
+
 					{ Boolean(this.state.datos.fin && this.state.datos.fin.corte_pinpad && this.state.datos.fin.corte_pinpad.transacciones) &&
 						<button ref={button => this.btnImprimirCortePinpad = button } onClick={this.imprimirCortePinpad.bind(this)} className="btn btn-light btn-block">
-							<i className="ion-printer"></i> Imprimir Corte Pinpad
+							<i className="ion-printer"></i> Corte pinpad
 						</button>
 					}
 					<button ref={button => this.btnValidarVentas = button } onClick={this.validarVentasAt.bind(this)} className="btn btn-primary btn-block">

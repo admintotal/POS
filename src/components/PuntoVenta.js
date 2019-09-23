@@ -1147,14 +1147,22 @@ class PuntoVentaComponent extends React.Component {
                     )
                 }
 
+
+                if (this.validarCobro()) {
+                    await this.guardar()
+                    cobrosTarjeta.visible = false
+                }
+
                 this.props.mostrarAlerta({
                     titulo: 'Transacción satisfactoria',
                     mensaje: 'El cargo se realizó correctamente.',
                     handleAceptar: async () => {
+                        /*
                         if (this.validarCobro()) {
                             await this.guardar()
                             cobrosTarjeta.visible = false
                         }
+                        */
                     }
                 })
             }

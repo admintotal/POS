@@ -20,12 +20,11 @@ class CargarRespaldo extends React.Component {
 	componentDidMount() {
 		if (this.props.api_key) {
 			Api.obtenerRespaldos(this.props.api_key).then((resp) => {
-				console.log(resp.respaldos)
 				this.setState({
 					respaldos: resp.respaldos
 				})
 			}).catch(e => {
-				console.error(e)
+				this.props.mostrarAlerta({mensaje: String(e)})
 			})
 		}
 	}
@@ -38,7 +37,7 @@ class CargarRespaldo extends React.Component {
 
 	cargar(archivo) {
 		Api.cargarRespaldo(this.props.api_key, {archivo:archivo, fecha: this.state.respaldo.fecha}).then((resp) => {
-			if (resp.status === 'success') {
+			if (resp.message) {
 				this.props.mostrarAlerta({mensaje: resp.message})
 			}
 		}).catch(e => {
@@ -59,7 +58,7 @@ class CargarRespaldo extends React.Component {
 						<div className="col-md-4">
 							<div style={{maxHeight: '90vh', overflow: 'auto'}}>
 								<div class="list-group">
-									{ Object.values(this.state.respaldos).map(respaldo => {
+									{ this.state.respaldos.map(respaldo => {
 										return (
 									  		<div onClick={this.mostrarRespaldo.bind(this, respaldo)} className="list-group-item clickeable">
 									  			{moment(respaldo.fecha).format('DD/MM/YYYY')}

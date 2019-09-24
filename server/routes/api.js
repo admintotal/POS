@@ -2875,11 +2875,17 @@ exports.obtenerRespaldos = async (req, res) => {
     db._getDB(req.query.api_key).then(async (dbCliente) => {
         const {join} = require('path');
         const isDirectory = source => fs.lstatSync(source).isDirectory()
-        const getDirectories = source =>
-          fs.readdirSync(source).map(name => join(source, name)).filter(isDirectory)
+        const getDirectories = source => {
+            let files = fs.readdirSync(source)
+            files.sort(function(a, b) {
+               return moment(a, "DD-MM-YY").valueOf() - 
+                      moment(b, "DD-MM-YY").valueOf();
+            })
+            return files.map(name => join(source, name)).filter(isDirectory)
+        }
 
         let backupsBasePath = `${db.storagePath('backups')}/${dbCliente.claveCliente}/`
-        let respaldos = {}
+        let respaldos = []
         let getArchivos = archivos => {
             let labels = {
                 'ventas.json': 'Ventas',
@@ -2898,9 +2904,11 @@ exports.obtenerRespaldos = async (req, res) => {
             respaldo.path = p
             respaldo.fecha = moment(fecha, 'DD-MM-YY')
             respaldo.archivos = getArchivos(fs.readdirSync(p))
-            respaldos[fecha] = respaldo
+            respaldos.push(respaldo)
         })
 
+        respaldos.reverse()
+        
         return res.json({
             status: 'success',
             respaldos: respaldos
@@ -2917,19 +2925,31 @@ exports.obtenerRespaldos = async (req, res) => {
 
 exports.cargarRespaldo = async (req, res) => {
     db._getDB(req.query.api_key).then(async (dbCliente) => {
-        let coleccion = req.body.archivo.replace('.json', '')
         let archivo = req.body.archivo
         let fecha = moment(req.body.fecha).format('DD-MM-YY')
+        let coleccion = req.body.archivo.replace('.json', '')
+
+        if (coleccion === '_tpp') {
+            coleccion = 'transacciones_pp'
+        }
 
         let jsonFile = `${db.storagePath('backups')}/${dbCliente.claveCliente}/${fecha}/${archivo}`
-        let data = JSON.parse(fs.readFileSync(jsonFile)) 
-        let ids = []
-        
+        let data = []
+        try {
+            data = JSON.parse(fs.readFileSync(jsonFile)) 
+        } catch( e ) {
+            return res.json({
+                status: 'error',
+                message: `El archivo de respaldo parece estar dañado (${String(e)})`
+            })
+        }
+
+        let ids = []        
         data.forEach(async (registro, index) => {
             ids.push(registro._id)
             data[index].__backup = true
         })
-
+        
         await dbCliente[coleccion].remove({_id: {$in: ids}, __backup: true}, {multi: true})
         await dbCliente[coleccion].insert(data)
 

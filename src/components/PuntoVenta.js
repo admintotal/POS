@@ -1225,27 +1225,90 @@ class PuntoVentaComponent extends React.Component {
         let porcentajeValido = false
         let porcentajeMax = 0
 
-        configuracion.facturacion.descuentos_autorizados_venta.map(d => {
-            if (d.linea_id === inline.producto.linea_id && 
-                d.sublinea_id === inline.producto.sublinea_id && 
-                d.subsublinea_id === inline.producto.subsublinea_id ) {
+        let descLineas = {}
+
+        configuracion.facturacion.descuentos_autorizados_venta.forEach(d => {
+            if (d.linea_id && d.linea_id === inline.producto.linea_id) {
                 if (+d.porcentaje >= porcentaje) {
                     porcentajeValido = true
                 } else {
                     porcentajeMax = +d.porcentaje
                 }
-            } else {
-                if (d.descuento_general) {
-                    if (+d.porcentaje >= porcentaje) {
-                        porcentajeValido = true
-                    } else {
-                        porcentajeMax = +d.porcentaje
+
+                descLineas["linea"] = {
+                    porcentajeMax: porcentajeMax,
+                    porcentajeValido:porcentajeValido
+                }
+            }
+
+            if (d.sublinea_id && d.sublinea_id === inline.producto.sublinea_id) {
+                if (+d.porcentaje >= porcentaje) {
+                    porcentajeValido = true
+                } else {
+                    porcentajeMax = +d.porcentaje
+                }
+
+                descLineas["sublinea"] = {
+                    porcentajeMax: porcentajeMax,
+                    porcentajeValido:porcentajeValido
+                }
+            }
+
+            if (d.subsublinea_id && d.subsublinea_id === inline.producto.subsublinea_id) {
+                if (+d.porcentaje >= porcentaje) {
+                    porcentajeValido = true
+                } else {
+                    porcentajeMax = +d.porcentaje
+                }
+
+                descLineas["subsublinea"] = {
+                    porcentajeMax: porcentajeMax,
+                    porcentajeValido:porcentajeValido
+                }
+            }
+
+            if (d.descuento_general) {
+                if (+d.porcentaje >= porcentaje) {
+                    porcentajeValido = true
+                } else {
+                    porcentajeMax = +d.porcentaje
+                }
+
+                descLineas["general"] = {
+                    porcentajeMax: porcentajeMax,
+                    porcentajeValido:porcentajeValido
+                }
+            }
+
+            if (d.clasificacion_id) {
+                if (d.clasificacion_id !== this.props.cliente.clasificacion) {
+                    descLineas = {}
+                } else {
+                    descLineas["clasificacion"] = {
+                        porcentajeMax: porcentajeMax,
+                        porcentajeValido:porcentajeValido
                     }
                 }
             }
 
-            return null
         })
+
+        if (descLineas.clasificacion) {
+            porcentajeValido = descLineas.clasificacion.porcentajeValido
+            porcentajeMax = descLineas.clasificacion.porcentajeMax
+        } else if (descLineas.subsublinea) {
+            porcentajeValido = descLineas.subsublinea.porcentajeValido
+            porcentajeMax = descLineas.subsublinea.porcentajeMax
+        } else if (descLineas.sublinea) {
+            porcentajeValido = descLineas.sublinea.porcentajeValido
+            porcentajeMax = descLineas.sublinea.porcentajeMax
+        } else if (descLineas.linea) {
+            porcentajeValido = descLineas.linea.porcentajeValido
+            porcentajeMax = descLineas.linea.porcentajeMax
+        } else if(descLineas.general) {
+            porcentajeValido = descLineas.general.porcentajeValido
+            porcentajeMax = descLineas.general.porcentajeMax
+        }
 
         if (! porcentajeValido ) {
             this.props.mostrarAlerta({

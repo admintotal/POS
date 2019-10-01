@@ -522,19 +522,19 @@ select.form-control:not([size]):not([multiple]),
 }
 
 .Actualizaciones .iconDownload{
-    width: 200px;
-    height: 200px;
+    width: 120px;
+    height: 120px;
     border: 4px solid;
     border-radius: 50%;
     padding: 0;
-    margin: 50px auto 20px;
+    margin: 10px auto;
     border-color: #e2e2e2;
     color: #e2e2e2;
 }
 
 .Actualizaciones .iconDownload i{
-    font-size: 122px;
-    line-height: 220px;
+    font-size: 85px;
+    line-height: 120px;
 }
 .form-control[disabled] {
     background-color: rgba(255,255,255,.5);
@@ -771,4 +771,7 @@ fieldset{
 .ConsultarTransacciones .trans-error{
     box-shadow: inset 10px 0 0 #dc3545;
     border-color: #dc3545;
+}
+.wysiwyg-content p{
+    margin: initial;
 }

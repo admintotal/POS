@@ -42,11 +42,7 @@ class Actualizaciones extends React.Component {
         }
 
         const needsUpdate = await updater.checkNewVersion( rManifest )
-        let urlInstaller = null
-
-        if (process.platform === 'win32') {
-            urlInstaller = rManifest.packages.win32.installer
-        }
+        let urlInstaller = rManifest.packages.win32.installer
 
         if ( !needsUpdate ) {
             this.setState({
@@ -60,6 +56,7 @@ class Actualizaciones extends React.Component {
         		upToDate: false,
                 newVersion: rManifest.version,
                 urlInstaller: urlInstaller,
+                description: rManifest.description,
         	})         
         }
 
@@ -234,6 +231,15 @@ class Actualizaciones extends React.Component {
                             <h2 className="text-primary">
                                 ¡Hay una nueva versión de Admintotal disponible!
                             </h2>
+
+                            { Boolean(this.state.description) && 
+                                <div class="text-left my-2 mx-5 card card-body">
+                                    <div className="text-info font-weight-bold py-2 border-bottom">
+                                        <i className="ion-info"></i> Información sobre la actualización:
+                                    </div>
+                                    <div className="wysiwyg-content" dangerouslySetInnerHTML={{__html:this.state.description}}></div>
+                                </div>
+                            }
 
                             { Boolean(this.state.urlInstaller) && 
                                 <div>

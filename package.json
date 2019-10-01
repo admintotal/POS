@@ -1,7 +1,7 @@
 {
   "name": "Admintotal",
   "env": "development",
-  "version": "1.1.46",
+  "version": "1.1.47",
   "description": "Admintotal Desktop",
   "main": "index.html",
   "keywords": [],
@@ -18,6 +18,7 @@
     "express": "^4.16.3",
     "file-loader": "1.1.5",
     "flow-bin": "^0.55.0",
+    "form-data": "^2.5.1",
     "format-currency": "^1.0.0",
     "fs-extra": "3.0.1",
     "history": "^4.7.2",
@@ -124,7 +125,7 @@
     }
   },
   "window": {
-    "title": "Admintotal v1.1.46",
+    "title": "Admintotal v1.1.47",
     "icon": "./logo.png",
     "width": 1133,
     "min_width": 1000,

@@ -191,25 +191,25 @@ class Actualizaciones extends React.Component {
 
                 { this.state.cargando ?
                     <div className="text-center">
-                        <div className="iconDownload" style={{borderColor: "transparent"}}>
+                        <div className="iconDownload mb-0" style={{borderColor: "transparent"}}>
                             <i className="ion-load-c"></i>
                         </div>
-                        <h2 className="text-primary">
+                        <h3 className="text-primary">
                             Verificando actualización
-                        </h2>
+                        </h3>
                     </div> :
                     <div>
                         { this.state.upToDate ? 
                         <div className="text-center">
-                            <div className="iconDownload" style={{borderColor: "transparent"}}>
+                            <div className="iconDownload mb-0" style={{borderColor: "transparent"}}>
                                 <i className="ion-ios-checkmark-outline text-success"></i>
                             </div>
-                            <h2 className="text-primary">
+                            <h3 className="text-primary">
                                 Admintotal ya se encuentra en la última versión.
-                            </h2>
+                            </h3>
                         </div> :
                         <div className="text-center">
-                            <div className="iconDownload">
+                            <div className="iconDownload mb-0">
                                 <i className="ion-ios-cloud-download-outline"></i>
                             </div>
                             { Boolean(statusActualizacion) && 
@@ -228,32 +228,37 @@ class Actualizaciones extends React.Component {
 
                             <br/>
 
-                            <h2 className="text-primary">
+                            <h3 className="text-primary">
                                 ¡Hay una nueva versión de Admintotal disponible!
-                            </h2>
+                            </h3>
+                            <div className="container-fluid">
+                                <div className="row">
+                                    { Boolean(this.state.description) && 
+                                        <div className="col">
+                                            <div class="text-left my-2 mx-5 card card-body">
+                                                <div className="text-info font-weight-bold py-2 border-bottom">
+                                                    <i className="ion-info"></i> Información sobre la actualización:
+                                                </div>
+                                                <div className="wysiwyg-content" dangerouslySetInnerHTML={{__html:this.state.description}}></div>
+                                            </div>
+                                        </div>
+                                    }
+                                    <div className="col-md-4">
+                                        { Boolean(this.state.urlInstaller) && 
+                                            <div>
+                                                <div className="fileInputWrapper btn btn-primary">
+                                                    Descargar Actualización <b>v{this.state.newVersion}</b>
+                                                    <input type="file" nwsaveas={this.state.urlInstaller.split('/').pop()} onChange={this.changePathGuardarActualizacion.bind(this)} />
+                                                </div>
+                                            </div>
+                                        }
 
-                            { Boolean(this.state.description) && 
-                                <div class="text-left my-2 mx-5 card card-body">
-                                    <div className="text-info font-weight-bold py-2 border-bottom">
-                                        <i className="ion-info"></i> Información sobre la actualización:
+                                        <p className="text-info mt-2">
+                                            <small>La versión instalada de Admintotal es <b>v{pjson.version}</b></small>
+                                        </p>
                                     </div>
-                                    <div className="wysiwyg-content" dangerouslySetInnerHTML={{__html:this.state.description}}></div>
                                 </div>
-                            }
-
-                            { Boolean(this.state.urlInstaller) && 
-                                <div>
-                                    <hr/>
-                                    <div className="fileInputWrapper btn btn-primary">
-                                        Descargar Actualización <b>v{this.state.newVersion}</b>
-                                        <input type="file" nwsaveas={this.state.urlInstaller.split('/').pop()} onChange={this.changePathGuardarActualizacion.bind(this)} />
-                                    </div>
-                                </div>
-                            }
-
-                            <p className="text-info mt-2">
-                                <small>La versión instalada de Admintotal es <b>v{pjson.version}</b></small>
-                            </p>
+                            </div>
                         </div>
                         }               
                     </div>

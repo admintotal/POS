@@ -113,11 +113,12 @@ export function* loginAsync(action) {
 
 		yield put({type: actions.SET_SESSION, data: loginData.usuario});
 		yield call(Api.limpiarDb, loginData.usuario.api_token);
-		if (loginData.descargarClientes) {
+		
+        if (loginData.descargarClientes) {
 			yield call(Api.sincronizarClientes, loginData.usuario.api_token, true);
 		}
-		yield put(push('/sincronizaciones'));
 
+		yield put(push('/sincronizaciones'));
 	} catch(err) {
 		yield put({type: actions.MENSAJE_FLASH, tipo: 'error', mensaje: err});
 	}
@@ -428,9 +429,7 @@ export function* guardarVentaAsync(action) {
 			if (err.transaccion && err.integracion && err.integracion !== 'santander') {
 				Impresora.imprimirVoucherTransaccion(err.transaccion._id, action.api_key, 'cliente')
 			}
-		} catch(e) {
-			console.error(e)
-		}
+		} catch(e) { console.error(e) }
 
 		yield put({type: actions.MOSTRAR_ALERTA, mensaje: mensaje, titulo: 'Hubo un problema al guardar venta'});
 		if (err.ventaGuardada) {
@@ -669,9 +668,7 @@ function* verificarActualizacion() {
 	        	const needsUpdate = await updater.checkNewVersion( rManifest )
 	        	ad = needsUpdate
 	        }
-	    } catch (err) {
-	        console.error(err.message)
-	    }
+	    } catch (err) { console.error(err.message) }
 
 	    return ad
     }

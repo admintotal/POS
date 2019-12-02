@@ -574,7 +574,6 @@ exports.producto = (req, res) => {
             try {
                 let resultadoConsulta = await helpers.consultarProductoAdmintotal(paramsAt)
                 let errores = []
-                
                 for(var k in resultadoConsulta) {
                     if (resultadoConsulta[k].status === "success") {
                         switch(k) {
@@ -584,6 +583,10 @@ exports.producto = (req, res) => {
                                 producto.existenciasAlmacen = validacionExistencia.almacenes
                                 producto.validarExistencia = validarExistencia
                                 existenciaAt = true
+
+                                if (validacionExistencia.existencias_composiciones) {
+                                    producto.existenciasComposiciones = validacionExistencia.existencias_composiciones
+                                }
                                 break
 
                             case "precio_unitario":

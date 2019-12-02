@@ -206,6 +206,30 @@ class PuntoVentaComponent extends React.Component {
         }
     }
 
+
+    validarExistenciaComposiciones(cantidad, existenciasComposiciones) {
+        for (var i = existenciasComposiciones.length - 1; i >= 0; i--) {
+            let c = existenciasComposiciones[i]
+            let existenciaComp = +c.existencia
+            
+            if (!existenciaComp) {
+                return {
+                    valido: false,
+                    mensaje: `La composición <b>${c.descripcion}</b> cuenta con <b>${existenciaComp}</b> existencias.`
+                }
+            }
+
+            if ((cantidad * +c.cantidad) > existenciaComp) {
+                return {
+                    valido: false,
+                    mensaje: `La composición <b>${c.descripcion}</b> cuenta con <b>${existenciaComp}</b> existencias.`
+                }
+            }
+        }
+
+        return {valido: true}
+    }
+
     onSelectProducto(value, obj={}, cant=this.state.cantidad) {
         cant = Number(cant)
         let porCodigo = Boolean(value) && !obj.id
@@ -245,7 +269,8 @@ class PuntoVentaComponent extends React.Component {
             }
             
             let existenciasAlmacen = null
-            if (producto.existenciasAlmacen) {
+            // si el producto es tipo articulo y trae existenciasAlmacen
+            if (producto.existenciasAlmacen && producto.tipo === 0) {
                 existenciasAlmacen = {
                     producto: producto,
                     existencias: producto.existenciasAlmacen
@@ -334,13 +359,25 @@ class PuntoVentaComponent extends React.Component {
                     })
                     
                     producto.producto.existenciaAt = existencia
-                    
-                    if (cantidad > existencia) {
-                        return this.props.mostrarAlerta({
-                            titulo: 'Error de validación',
-                            mensaje: `El producto <b>${producto.producto.descripcion}</b> cuenta con <b>${existencia}</b> existencias.`
-                        })
+                    let existenciasComposiciones = producto.producto.existenciasComposiciones
+
+                    if (existenciasComposiciones) {
+                        let validacionExistencias = this.validarExistenciaComposiciones(cantidad, existenciasComposiciones)
+                        if (!validacionExistencias.valido) {
+                            return this.props.mostrarAlerta({
+                                titulo: 'Error de validación ensamble',
+                                mensaje: validacionExistencias.mensaje
+                            })
+                        }
+                    } else {
+                        if (cantidad > existencia) {
+                            return this.props.mostrarAlerta({
+                                titulo: 'Error de validación',
+                                mensaje: `El producto <b>${producto.producto.descripcion}</b> cuenta con <b>${existencia}</b> existencias.`
+                            })
+                        }
                     }
+                    
                 }
                 
                 this.props.seleccionarProducto(producto)
@@ -1333,19 +1370,33 @@ class PuntoVentaComponent extends React.Component {
             let totalCantidad = 0
             totalCantidad += cantidad
 
+
             this.props.productos.forEach((p, i) => {
                 if (p.producto.id === inline.producto.id && i !== index) {
                     totalCantidad += p.cantidad
                 }
             })
 
-            if (totalCantidad > inline.producto.existenciaAt) {
-                this.props.mostrarAlerta({
-                    mensaje: `La cantidad del producto <b>${inline.producto.descripcion}</b> no puede ser mayor a ${inline.producto.existenciaAt}.`
-                })
-                
-                return false
+            if (inline.producto.existenciasComposiciones) {
+                let validacionExistenciaComp = this.validarExistenciaComposiciones(totalCantidad, inline.producto.existenciasComposiciones)
+                if (!validacionExistenciaComp.valido) {
+                    this.props.mostrarAlerta({
+                        titulo: 'Error de validación ensamble',
+                        mensaje: validacionExistenciaComp.mensaje
+                    })
+
+                    return false
+                }
+            } else {
+                if (totalCantidad > inline.producto.existenciaAt) {
+                    this.props.mostrarAlerta({
+                        mensaje: `La cantidad del producto <b>${inline.producto.descripcion}</b> no puede ser mayor a ${inline.producto.existenciaAt}.`
+                    })
+                    
+                    return false
+                }
             }
+
         }
 
         if (inline.producto.restringir_decimales && !Number.isInteger(cantidad)) {

@@ -1029,7 +1029,12 @@ exports.guardarVenta = (req, res) => {
             } catch(e) {
                 logger.log('error', e)
                 let mensajeError = 'Hubo un error al solicitar servicio de LDI (recargas ó pagos de servicio)' 
-                await dbCliente.ventas.remove({_id: d._id})
+                if (d.tarjeta && !d.tarjeta.cobros) {
+                    logger.log('error', `Eliminando venta ${d.numero_serie}-${d.folio}`)
+                    await dbCliente.ventas.remove({_id: d._id})
+                } else {
+                    await dbCliente.ventas.update({_id: d._id}, {$set: {pendiente: true}})
+                }
                 //await dbCliente.conf.update({}, {$set: {folio_inicial: venta.folio}})
                 return res.json({
                     status: 'error', 

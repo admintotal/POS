@@ -24,7 +24,6 @@ module.exports.santander = {
         )
         let respuestaXML = transacciones.Result
         let respuesta = []
-        console.log(respuestaXML)
         respuestaXML.split('transacciones\>')[1].split('<transaccion>').forEach(function(nodo, i) {
 
             if (nodo.indexOf('nb_referencia') !== -1) {
@@ -80,7 +79,6 @@ module.exports.santander = {
                 `${process.__dirname}/lib/pinpad/santander/Newtonsoft.Json.dll`,
             ]
         });
-
         process.pinpadInstance = getInstanciaEMV(null, true);
         process.pinpadInstance.props = config;
 

@@ -894,6 +894,15 @@ exports.retiros = (req, res) => {
         return res.json([])
     })
 }
+const getErroresLDI = (errores) => {
+    let resultado = []
+    for (var i = errores.length - 1; i >= 0; i--) {
+        let referencia = errores[i].numero_recarga || errores[i].servicio_ldi_referencia
+        let errorStr = `<b>${referencia}:</b> ${errores[i].error}`
+        resultado.push(errorStr)
+    }
+    return resultado.join("<br />")
+}
 
 exports.guardarVenta = (req, res) => {
     db._getDB(req.query.api_key).then(async (dbCliente) => {
@@ -960,7 +969,7 @@ exports.guardarVenta = (req, res) => {
 
         let clienteDefault = conf.configuracion.facturacion.cliente_mostrador_default;
 
-        if (solicitarRecarga) {
+        if (solicitarRecarga || pagoServicioLdi) {
             // envia la venta al momento
             try{
                 await habilitarSinc('ventas', [d], dbCliente, false)
@@ -971,82 +980,62 @@ exports.guardarVenta = (req, res) => {
                     throw sincronizacionVenta
                 } 
                 
-                let objStatusRecarga = {}
+                let objStatusLDI = {}
+
+                // si la venta no fué guardada la borramos
+                if (!sincronizacionVenta.ventas_guardadas[d._id]) {
+                    await dbCliente.ventas.remove({_id: d._id})
+                    await dbCliente.conf.update({}, {$set: {folio_inicial: venta.folio}})
+                    let erroresRecargas = getErroresLDI(sincronizacionVenta.recargas_generadas)
+                    return res.json({
+                        status: 'error', 
+                        message: `${erroresRecargas}<br />Si el problema persiste elimine el producto de tipo recarga o pago de servicio.`,
+                        ventaGuardada: false,
+                    })
+                }
 
                 sincronizacionVenta.recargas_generadas.map((statusRecarga) => {
-                    objStatusRecarga[statusRecarga.numero_recarga] = statusRecarga
+                    if (statusRecarga.numero_recarga) {
+                        objStatusLDI[statusRecarga.numero_recarga] = statusRecarga
+                    } else{
+                        objStatusLDI[statusRecarga.servicio_ldi_referencia] = statusRecarga
+                    }
                 })
-
+                
                 d.productos.map((p, index) => {
+                    let inline = d.productos[index]
+
                     if (p.numeroTelefonico) {
-                        let inline = d.productos[index]
-                        inline.statusRecarga = objStatusRecarga[p.numeroTelefonico]
+                        inline.statusRecarga = objStatusLDI[p.numeroTelefonico]
                         d.productos[index] = inline
                         
                         if (inline.statusRecarga.no_aprobacion === 'ERROR') {
-                            erroresRecargas.push(objStatusRecarga)
+                            erroresRecargas.push(objStatusLDI)
                         }
                     }
-                })
-                
-                d.sincronizada = true
-                await dbCliente.ventas.update({_id: d._id}, {$set: d})
 
-            } catch(e) {
-                logger.log('error', `Error al solicitar recarga ${d.numero_serie + '-' + d.folio}`)
-                await dbCliente.ventas.remove({_id: d._id})
-                return res.json({
-                    status: 'error', 
-                    clienteDefault: clienteDefault,
-                    message: 'Hubo un error al solicitar la recarga',
-                    ventaGuardada: false,
-                })
-            }
-        } else if(pagoServicioLdi) {
-            // envia la venta al momento
-            try{
-                await habilitarSinc('ventas', [d], dbCliente, false)
-                let sincronizacionVenta = await enviarVentas(req.query.api_key, dbCliente, {ventas: [d]})
-                await habilitarSinc('ventas', [d], dbCliente, true)
-
-                if (sincronizacionVenta.status != 'success') {
-                    throw sincronizacionVenta
-                } 
-                
-                let objStatusServicioLdi = {}
-
-                sincronizacionVenta.recargas_generadas.map((statusRecarga) => {
-                    objStatusServicioLdi[statusRecarga.numero_recarga] = statusRecarga
-                })
-
-                d.productos.map((p, index) => {
                     if (p.producto.servicio_ldi_referencia) {
-                        let inline = d.productos[index]
-                        inline.statusRecarga = objStatusServicioLdi[p.producto.servicio_ldi_referencia]
+                        inline.statusRecarga = objStatusLDI[p.producto.servicio_ldi_referencia]
                         d.productos[index] = inline
                         
                         if (inline.statusRecarga.no_aprobacion === 'ERROR') {
-                            erroresServiciosLdi.push(objStatusServicioLdi)
+                            erroresServiciosLdi.push(objStatusLDI)
                         }
                     }
                 })
                 
                 d.sincronizada = true
                 await dbCliente.ventas.update({_id: d._id}, {$set: d})
-
             } catch(e) {
-                logger.log('error', `Error al pagar el servicio ${d.numero_serie + '-' + d.folio}`)
-                await dbCliente.ventas.update({_id: d._id}, {$set: {
-                    sincronizada: true,
-                    timbrada: false,
-                    error: true,
-                    motivoError: e.message,
-                }})
+                logger.log('error', e)
+                let mensajeError = 'Hubo un error al solicitar servicio de LDI (recargas ó pagos de servicio)' 
+                await dbCliente.ventas.remove({_id: d._id})
+                //await dbCliente.conf.update({}, {$set: {folio_inicial: venta.folio}})
                 return res.json({
                     status: 'error', 
                     clienteDefault: clienteDefault,
-                    message: 'Hubo un error al solicitar el pago del servicio',
-                    ventaGuardada: true,
+                    message: mensajeError,
+                    ventaGuardada: false,
                 })
             }
         } else if (venta.requiereFactura) {
@@ -1101,7 +1090,6 @@ exports.guardarVenta = (req, res) => {
                         ventaGuardada: true
                     })
                 }
-                
             } catch(e) {
                 logger.log('error', e)
                 
@@ -1152,7 +1140,6 @@ exports.guardarVenta = (req, res) => {
                 } catch(e) {
                     logger.log('error', e)
                 }
-                
             } catch(e) {
                 logger.log('error', e)
 
@@ -1189,7 +1176,6 @@ exports.guardarVenta = (req, res) => {
         }
 
         let imprimir = conf.impresora ? true : false
-        
         return res.json({
             status: 'success', 
             message: 'La venta ha sido guardada correctamente', 

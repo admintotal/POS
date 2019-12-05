@@ -400,7 +400,6 @@ const enviarVentas = function(api_key, dbCliente, datos={}) {
 					minVenta.numero_serie = conf.numero_serie
 				}
 
-
 				if (v.tarjeta.cobros && v.tarjeta.cobros.length) {
 					minVenta.cobrosPinpad = v.tarjeta.cobros
 				}
@@ -412,8 +411,11 @@ const enviarVentas = function(api_key, dbCliente, datos={}) {
 				delete minVenta['cambio']
 				delete minVenta['sesionCaja']
 
-				minVenta.productos.forEach((p, index) => {
+				// con este parámetro indicamos a la api que primero intente
+				// hacer la recarga y si todo sale bien que guarde la venta
+				minVenta.validarServiciosLDI = true
 
+				minVenta.productos.forEach((p, index) => {
 					minVenta.productos[index] = {
 						cantidad: p.cantidad,
 						descuento: p.descuento, // promociones

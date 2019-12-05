@@ -1,7 +1,7 @@
 {
   "name": "Admintotal",
   "env": "development",
-  "version": "1.1.47",
+  "version": "1.1.49",
   "description": "Admintotal Desktop",
   "main": "index.html",
   "keywords": [],
@@ -125,7 +125,7 @@
     }
   },
   "window": {
-    "title": "Admintotal v1.1.47",
+    "title": "Admintotal v1.1.49",
     "icon": "./logo.png",
     "width": 1133,
     "min_width": 1000,

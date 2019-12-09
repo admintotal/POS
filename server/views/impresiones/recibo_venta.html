@@ -80,7 +80,7 @@
               <div>{{ inline.producto.descripcion }}</div>
               {% if inline.statusRecarga %}
               {% if inline.es_servicio_ldi %}
-              <div>Ref: {{ inline.statusRecarga.numero_recarga }}</div>
+              <div>Ref: {{ inline.statusRecarga.servicio_ldi_referencia }}</div>
               {% else %}
               <div>Tel: {{ inline.statusRecarga.numero_recarga }}</div>
               {% endif %}

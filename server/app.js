@@ -92,6 +92,10 @@ swig.setFilter('numeroTarjeta', (input) => {
     return helpers.getNumeroTarjeta(input);
 })
 
+swig.setFilter('linebreaks', (input) => {
+    return input.split("\r\n").join("<br />");
+})
+
 swig = new swig.Swig();
 
 app.use(json_body_parser);

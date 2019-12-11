@@ -208,13 +208,19 @@
       </table>
     </div>
 
-  <div style="clear:both;"></div>          
+    <div style="clear:both;"></div>          
 		 <br>
 		 <div>Son: {{ venta.total|cur|cantidadLetra }}</div>
-		{% if conf.facturacion.usar_facturacion_online %}
+    {% if conf.facturacion.usar_facturacion_online %}
     <div>
         Acceso a facturación: <br> <b>https://{{ conf.general.clave }}.admintotal.com/factura</b><br>
         No. referencia: <b>{{ venta.no_referencia}}</b>
+    </div>
+    {% endif %} 
+
+    {% if conf.facturacion.condiciones_notas_venta %}
+    <div style="padding-top:5px;margin-top:5px;border-top:1px solid #ccc;font-size:.85em;line-height:1.1">
+      {{ conf.facturacion.condiciones_notas_venta|linebreaks|safe }}
     </div>
     {% endif %} 
 </div>

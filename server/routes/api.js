@@ -537,7 +537,6 @@ exports.producto = (req, res) => {
 
         let consultarAdmintotal = false
         let paramsAt = {api_key: req.query.api_key, claveCliente: dbCliente.claveCliente}
-        
         let existenciaAt = false
         let validarExistencia = !conf.configuracion.inventario.facturar_sin_existencia
         let validarPrecioUnitario = conf.configuracion.facturacion.validar_precio_unitario
@@ -664,10 +663,6 @@ exports.producto = (req, res) => {
             } 
         } 
         
-        if (producto.imagen) {
-            producto.imagen = api.getApiHost(dbCliente.claveCliente) + producto.imagen
-        }
-
         return res.json({
             status: 'success',
             producto: producto,

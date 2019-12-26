@@ -92,6 +92,10 @@ swig.setFilter('numeroTarjeta', (input) => {
     return helpers.getNumeroTarjeta(input);
 })
 
+swig.setFilter('linebreaks', (input) => {
+    return input.split("\r\n").join("<br />");
+})
+
 swig = new swig.Swig();
 
 app.use(json_body_parser);
@@ -229,7 +233,9 @@ app.use('/static', express.static(path.join(process.__dirname, 'static')));
 const PORT = 3131
 const HOST = '127.0.0.1'
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
+    let mins = 25
+    server.timeout = 60 * mins * 1000;
     logger.log('info', `Listening on: http://${HOST}:${PORT}`)
 })
 

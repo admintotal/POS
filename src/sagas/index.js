@@ -247,9 +247,9 @@ export function* cancelarSincronizacionAsync(action) {
 
 export function* sincronizarAlmacenesAsync(action) {
 	try {
+		let confData  = yield call(Api.sincronizarConfiguracion, action.api_key);
 		yield call(Api.sincronizarAlmacenes, action.api_key);
 		yield call(Api.sincronizarAutorizaciones, action.api_key);
-		let confData  = yield call(Api.sincronizarConfiguracion, action.api_key);
 		yield put({type: actions.SET_CONFIGURACION, data: confData.configuracion});
 		yield put({type: actions.OBTENER_SINCRONIZACIONES, api_key: action.api_key})
 	} catch(err) {

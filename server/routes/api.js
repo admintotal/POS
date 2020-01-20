@@ -969,7 +969,7 @@ exports.guardarVenta = (req, res) => {
         if (solicitarRecarga || pagoServicioLdi) {
             // envia la venta al momento
             try{
-                await habilitarSinc('ventas', [d], dbCliente, false)
+                // await habilitarSinc('ventas', [d], dbCliente, false)
                 let sincronizacionVenta = await enviarVentas(req.query.api_key, dbCliente, {ventas: [d]})
                 // await habilitarSinc('ventas', [d], dbCliente, true)
 
@@ -1042,7 +1042,7 @@ exports.guardarVenta = (req, res) => {
             }
         } else if (venta.requiereFactura) {
             try{
-                await habilitarSinc('ventas', [d], dbCliente, false)
+                // await habilitarSinc('ventas', [d], dbCliente, false)
                 let sincronizacionVenta = await enviarVentas(req.query.api_key, dbCliente, {ventas: [d]})
                 // await habilitarSinc('ventas', [d], dbCliente, true)
                 
@@ -1111,7 +1111,7 @@ exports.guardarVenta = (req, res) => {
             }
         } else if (venta.fondo.monto || venta.monedero.monto) {
             try{
-                await habilitarSinc('ventas', [d], dbCliente, false)
+                // await habilitarSinc('ventas', [d], dbCliente, false)
                 let sincronizacionVenta = await enviarVentas(req.query.api_key, dbCliente, {ventas: [d]})
                 // await habilitarSinc('ventas', [d], dbCliente, true)
                 
@@ -1161,7 +1161,7 @@ exports.guardarVenta = (req, res) => {
             }
         } else {
             // sincronizar la venta
-            await habilitarSinc('ventas', [d], dbCliente, false)
+            // await habilitarSinc('ventas', [d], dbCliente, false)
             enviarVentas(req.query.api_key, dbCliente, {ventas: [d]})
             .then(async (sincronizacionVenta) => {
                 if (sincronizacionVenta.ventas.length) {

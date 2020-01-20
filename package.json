@@ -1,7 +1,7 @@
 {
   "name": "Admintotal",
   "env": "development",
-  "version": "1.1.52",
+  "version": "1.2.1",
   "description": "Admintotal Desktop",
   "main": "index.html",
   "keywords": [],
@@ -24,6 +24,7 @@
     "history": "^4.7.2",
     "isomorphic-fetch": "^2.2.1",
     "java": "^0.9.1",
+    "json": "^9.0.6",
     "leveldown": "^3.0.0",
     "levelup": "^2.0.2",
     "moment": "^2.21.0",
@@ -125,7 +126,7 @@
     }
   },
   "window": {
-    "title": "Admintotal v1.1.52",
+    "title": "Admintotal v1.2.1",
     "icon": "./logo.png",
     "width": 1133,
     "min_width": 1000,

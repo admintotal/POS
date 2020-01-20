@@ -12,8 +12,6 @@ Thumbs.db
 .env.test.local
 .env.production.local
 .hg
-scripts/build.js
-scripts/package.js
 
 npm-debug.log*
 yarn-debug.log*

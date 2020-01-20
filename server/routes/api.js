@@ -957,6 +957,8 @@ exports.guardarVenta = (req, res) => {
             d = await dbCliente.ventas.findOne({_id: venta_id})
         } else {
             d = await dbCliente.ventas.insert(venta)
+            await habilitarSinc('ventas', [d], dbCliente, false)
+
             if (!venta.requiereFactura) {
                 await dbCliente.conf.update({}, {$set: {folio_inicial: venta.folio + 1}})
             }
@@ -969,7 +971,7 @@ exports.guardarVenta = (req, res) => {
             try{
                 await habilitarSinc('ventas', [d], dbCliente, false)
                 let sincronizacionVenta = await enviarVentas(req.query.api_key, dbCliente, {ventas: [d]})
-                await habilitarSinc('ventas', [d], dbCliente, true)
+                // await habilitarSinc('ventas', [d], dbCliente, true)
 
                 if (sincronizacionVenta.status != 'success') {
                     throw sincronizacionVenta
@@ -1042,7 +1044,7 @@ exports.guardarVenta = (req, res) => {
             try{
                 await habilitarSinc('ventas', [d], dbCliente, false)
                 let sincronizacionVenta = await enviarVentas(req.query.api_key, dbCliente, {ventas: [d]})
-                await habilitarSinc('ventas', [d], dbCliente, true)
+                // await habilitarSinc('ventas', [d], dbCliente, true)
                 
                 d.folio = null
                 d.timbrada = true
@@ -1111,7 +1113,7 @@ exports.guardarVenta = (req, res) => {
             try{
                 await habilitarSinc('ventas', [d], dbCliente, false)
                 let sincronizacionVenta = await enviarVentas(req.query.api_key, dbCliente, {ventas: [d]})
-                await habilitarSinc('ventas', [d], dbCliente, true)
+                // await habilitarSinc('ventas', [d], dbCliente, true)
                 
                 if (sincronizacionVenta.status != 'success') {
                     throw new Error(sincronizacionVenta)
@@ -1174,6 +1176,9 @@ exports.guardarVenta = (req, res) => {
                 await habilitarSinc('ventas', [d], dbCliente, true)
             })
         }
+
+
+        await habilitarSinc('ventas', [d], dbCliente, true)
 
         let imprimir = conf.impresora ? true : false
         return res.json({

@@ -51,7 +51,7 @@ module.exports.banorte = {
             llaveEntrada.putSync("RESPONSE_LANGUAGE", "ES")
             llaveEntrada.putSync("CMD_TRANS", "GET_KEY")
             llaveEntrada.putSync("CONTROL_NUMBER", `SOLICITARLLAVE${props.usuario}`)
-            llaveEntrada.putSync("BANORTE_URL", "https://via.pagosbanorte.com/InterredesSeguro")
+            llaveEntrada.putSync("BANORTE_URL", "https://medios.pagosbanorte.com/InterredesSeguro")
             llaveEntrada.putSync("SELECTOR", selector)
 
             module.exports.banorte.logger.log('info', `[${module.exports.banorte.banco}] Enviando solicitud para obtener llave maestra.`)
@@ -180,7 +180,7 @@ module.exports.banorte = {
         }
         parametrosEntrada.putSync("ID_TERMINAL", module.exports.banorte._numeroSerie);
         parametrosEntrada.putSync("IDIOMA_RESPUESTA", "ES");
-        parametrosEntrada.putSync("URL_BANORTE", "https://via.pagosbanorte.com/InterredesSeguro");
+        parametrosEntrada.putSync("URL_BANORTE", "https://medios.pagosbanorte.com/InterredesSeguro");
 
         let pinpadEnv = "AUT"
 
@@ -344,7 +344,7 @@ module.exports.banorte = {
         parametrosEntrada.putSync("NUMERO_CONTROL", `CAN-${datos.referencia}-${+new Date()}`);
         parametrosEntrada.putSync("ID_TERMINAL", module.exports.banorte._numeroSerie);
         parametrosEntrada.putSync("IDIOMA_RESPUESTA", "ES");
-        parametrosEntrada.putSync("URL_BANORTE", "https://via.pagosbanorte.com/InterredesSeguro");
+        parametrosEntrada.putSync("URL_BANORTE", "https://medios.pagosbanorte.com/InterredesSeguro");
 
         let pinpadEnv = "AUT"
 
@@ -460,7 +460,7 @@ module.exports.banorte = {
 
         parametrosEntrada.putSync("ID_TERMINAL", module.exports.banorte._numeroSerie);
         parametrosEntrada.putSync("IDIOMA_RESPUESTA", "ES");
-        parametrosEntrada.putSync("URL_BANORTE", "https://via.pagosbanorte.com/InterredesSeguro");
+        parametrosEntrada.putSync("URL_BANORTE", "https://medios.pagosbanorte.com/InterredesSeguro");
 
         let pinpadEnv = "AUT"
 
@@ -603,7 +603,7 @@ module.exports.banorte = {
 
         parametrosEntrada.putSync("MODO", pinpadEnv);
         parametrosEntrada.putSync("IDIOMA_RESPUESTA", "ES");
-        parametrosEntrada.putSync("URL_BANORTE", "https://via.pagosbanorte.com/InterredesSeguro");
+        parametrosEntrada.putSync("URL_BANORTE", "https://medios.pagosbanorte.com/InterredesSeguro");
 
         try {
             let resultado = {}

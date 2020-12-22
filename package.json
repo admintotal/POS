@@ -1,7 +1,7 @@
 {
   "name": "Admintotal",
-  "env": "development",
-  "version": "1.2.1",
+  "env": "production",
+  "version": "1.2.2",
   "description": "Admintotal Desktop",
   "main": "index.html",
   "keywords": [],
@@ -56,7 +56,7 @@
     "redux": "^3.7.2",
     "redux-saga": "^0.15.6",
     "sanitize-html": "^1.18.2",
-    "serialport": "^6.1.1",
+    "serialport": "^6.2.2",
     "source-map-support": "^0.5.9",
     "style-loader": "0.19.0",
     "swig": "^1.4.2",
@@ -113,7 +113,7 @@
       "win32",
       "linux64"
     ],
-    "version": "0.31.5",
+    "version": "0.44.3",
     "buildDir": "./build",
     "icon": "./public/logo.png",
     "winIco": "./public/admintotal.ico",
@@ -122,11 +122,11 @@
       "CompanyName": "Admintotal Develop S.A de C.V",
       "FileDescription": "Admintotal",
       "ProductName": "Admintotal Desktop",
-      "LegalCopyright": "Copyright 2019"
+      "LegalCopyright": "Copyright 2020"
     }
   },
   "window": {
-    "title": "Admintotal v1.2.1",
+    "title": "Admintotal v1.2.2",
     "icon": "./logo.png",
     "width": 1133,
     "min_width": 1000,
